@@ -1,4 +1,5 @@
-﻿using Application.Abstractions.Messaging;
+﻿using Application.Abstractions.Behaviours;
+using Application.Abstractions.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application;
@@ -13,7 +14,13 @@ public static class DependancyInjection
                 .WithScopedLifetime()
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), false)
                 .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
+                .AsImplementedInterfaces()
                 .WithScopedLifetime());
+
+        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
+
 
         return services;
             

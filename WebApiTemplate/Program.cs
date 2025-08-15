@@ -1,6 +1,8 @@
 using Application;
 using Application.Abstractions.Messaging;
+using Application.Cars;
 using Application.Cars.Create;
+using Application.Cars.Get;
 using Infrastructure;
 using Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication;
@@ -10,6 +12,8 @@ using Microsoft.Identity.Abstractions;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using SharedKernel;
+using System.Reflection;
+using Web.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +27,14 @@ builder.Services.AddOpenApi()
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
+builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
+
 var app = builder.Build();
+
+app.MapEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
-
    var contexts = scope.ServiceProvider.GetServices<CatalogContext>();
    foreach (var context in contexts)
     {
@@ -42,6 +49,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 var summaries = new[]
@@ -67,19 +75,8 @@ app.MapGet("/weatherforecast", (HttpContext httpContext) =>
 .WithOpenApi();
 //.RequireAuthorization();
 
-
-
-app.MapPost("/cars", async (CreateCarCommand request,
-    ICommandHandler<CreateCarCommand, Guid> handler,
-    CancellationToken cancellationToken) =>
-{
-    Result<Guid> result = await handler.Handle(request, cancellationToken);
-    
-    return result;
-})
-.WithName("CreateCar")
-.WithOpenApi();
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();
 
