@@ -11,16 +11,6 @@ public class GetCarsHandler(IRepository<Car> repository) : IQueryHandler<GetCars
     {
         var cars = await repository.ListAsync(cancellationToken);
 
-        //var carDtos = cars.Select(car => new CarDto
-        //{
-        //    Id = car.Id,
-        //    Make = car.Make,
-        //    Model = car.Model,
-        //    Year = car.Year,
-        //    Mileage = car.Mileage,
-        //    Price = car.Price
-        //}).ToList();
-
         var carDtos = cars.Select(car => new CarDto(
             Id: car.Id,
             Make: car.Make,

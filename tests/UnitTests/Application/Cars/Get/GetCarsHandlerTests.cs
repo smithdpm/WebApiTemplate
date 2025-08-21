@@ -19,7 +19,7 @@ public class GetCarsHandlerTests
     }
 
     [Fact()]
-    public async Task HandleTest()
+    public async Task Handle_ShouldReturnSucessAndCars_WhenQueryIsValid()
     {
         // Arrange
         var query = new GetCarsQuery(null, null);

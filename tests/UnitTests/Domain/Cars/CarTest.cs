@@ -1,6 +1,6 @@
 ﻿using Domain.Cars;
 
-namespace UnitTests.Domain;
+namespace UnitTests.Domain.Cars;
 
 public class CarTest
 {

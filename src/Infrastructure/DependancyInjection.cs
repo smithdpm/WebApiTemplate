@@ -59,6 +59,7 @@ public static class DependancyInjection
         }
 
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+        services.AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>));
 
         return services;
     }

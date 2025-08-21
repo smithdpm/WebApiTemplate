@@ -17,7 +17,7 @@ public class CreateCarHandlerTests
     }
 
     [Fact()]
-    public async Task Create_ShouldReturnSucess_WhenCommandIsValid()
+    public async Task Handle_ShouldReturnSucess_WhenCommandIsValid()
     {
         // Arrange
         var command = new CreateCarCommand("Toyota", "Corolla", 2020, 15000, 20000m);
