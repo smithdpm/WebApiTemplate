@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Behaviours;
 using Application.Abstractions.Messaging;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application;
@@ -20,8 +21,9 @@ public static class DependancyInjection
                 .WithScopedLifetime());
 
         services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
 
-
+        services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
         return services;
             
     }

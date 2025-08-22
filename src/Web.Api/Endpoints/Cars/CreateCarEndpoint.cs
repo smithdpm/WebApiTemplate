@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Messaging;
 using Application.Cars.Create;
 using SharedKernel;
+using System.Text.RegularExpressions;
 using Web.Api.Extensions;
 
 namespace Web.Api.Endpoints.Cars;
@@ -15,7 +16,7 @@ public class CreateCarEndpoint : IEndpoint
                 {
                     Result<Guid> result = await handler.Handle(request, cancellationToken);
 
-                    return result;
+                    return result.IsSuccess ? Results.Ok(result) : Results.Problem();
                 })
         .WithName("CreateCar")
         .WithOpenApi()
