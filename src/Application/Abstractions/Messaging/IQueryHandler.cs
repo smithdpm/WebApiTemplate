@@ -1,5 +1,5 @@
 ﻿
-using SharedKernel;
+using Ardalis.Result;
 
 namespace Application.Abstractions.Messaging;
 public interface IQueryHandler<in TQuery, TResponse>

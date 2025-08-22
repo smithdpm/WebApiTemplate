@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions.Messaging;
 using Application.Cars;
 using Application.Cars.Get;
-using SharedKernel;
+using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 
 namespace Web.Api.Endpoints.Cars;
 
@@ -15,7 +16,7 @@ public class GetCarsEndpoint : IEndpoint
                     var query = new GetCarsQuery(null, null);
                     Result<List<CarDto>> result = await handler.Handle(query, cancellationToken);
 
-                    return result;
+                    return result.ToMinimalApiResult();
                 })
         .WithName("GetCars")
         .WithOpenApi();

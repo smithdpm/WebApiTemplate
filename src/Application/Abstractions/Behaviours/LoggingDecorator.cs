@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions.Messaging;
+using Ardalis.Result;
 using Microsoft.Extensions.Logging;
 using Serilog.Context;
-using SharedKernel;
+//using SharedKernel;
 
 namespace Application.Abstractions.Behaviours;
 
@@ -26,7 +27,7 @@ internal static class LoggingDecorator
             }
             else
             {
-                using (LogContext.PushProperty("CommandName", result.Error, true))
+                using (LogContext.PushProperty("CommandName", result.Errors, true))
                 {
                     logger.LogError("Command {CommandName} completed with error", commandName);
                 }
@@ -53,7 +54,7 @@ internal static class LoggingDecorator
             }
             else
             {
-                using (LogContext.PushProperty("CommandName", result.Error, true))
+                using (LogContext.PushProperty("CommandName", result.Errors, true))
                 {
                     logger.LogError("Command {CommandName} completed with error", commandName);
                 }

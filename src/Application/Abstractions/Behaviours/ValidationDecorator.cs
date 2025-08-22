@@ -1,8 +1,10 @@
-﻿using Application.Abstractions.Messaging;
+﻿using System.Threading;
+using Application.Abstractions.Messaging;
+//using SharedKernel;
+using Ardalis.Result;
+using Ardalis.Result.FluentValidation;
 using FluentValidation;
 using FluentValidation.Results;
-using SharedKernel;
-using System.Threading;
 
 namespace Application.Abstractions.Behaviours;
 
@@ -18,7 +20,7 @@ internal static class ValidationDecorator
             var validationResult = await ValidateAsync(command, validators, cancellationToken);
             if (validationResult.Any())
             {
-                return Result.Failure<TResponse>(CreateValidationError(validationResult));
+                return Result.Invalid(validationResult);
             }
             return await innerHandler.Handle(command, cancellationToken);
         }
@@ -32,13 +34,13 @@ internal static class ValidationDecorator
             var validationResult = await ValidateAsync(command, validators, cancellationToken);
             if (validationResult.Any())
             {
-                return Result.Failure(CreateValidationError(validationResult));
+                return Result.Invalid(validationResult);
             }
             return await innerHandler.Handle(command, cancellationToken);
         }
     }
 
-    private static async Task<ValidationFailure[]> ValidateAsync<TCommand>(TCommand command, IEnumerable<IValidator<TCommand>> validators, CancellationToken cancellationToken)
+    private static async Task<List<ValidationError>> ValidateAsync<TCommand>(TCommand command, IEnumerable<IValidator<TCommand>> validators, CancellationToken cancellationToken)
     {
         if (!validators.Any())
         {
@@ -52,12 +54,10 @@ internal static class ValidationDecorator
         );
 
         var validationFailures = results.Where(r => !r.IsValid)
-            .SelectMany(r => r.Errors)
-            .ToArray();
+            .SelectMany(r => r.AsErrors())
+            .ToList();
 
         return validationFailures;
     }
 
-    private static ValidationError CreateValidationError(ValidationFailure[] validationFailures) =>
-        new(validationFailures.Select(f => Error.Problem(f.ErrorCode, f.ErrorMessage)).ToArray());
 }

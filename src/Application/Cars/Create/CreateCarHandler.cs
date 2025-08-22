@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions.Database;
 using Application.Abstractions.Messaging;
+using Ardalis.Result;
 using Domain.Cars;
-using SharedKernel;
+//using SharedKernel;
 
 namespace Application.Cars.Create
 {

@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Messaging;
 using Application.Cars.Create;
-using SharedKernel;
+using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 using System.Text.RegularExpressions;
 using Web.Api.Extensions;
 
@@ -16,7 +17,7 @@ public class CreateCarEndpoint : IEndpoint
                 {
                     Result<Guid> result = await handler.Handle(request, cancellationToken);
 
-                    return result.IsSuccess ? Results.Ok(result) : Results.Problem();
+                    return result.ToMinimalApiResult();
                 })
         .WithName("CreateCar")
         .WithOpenApi()

@@ -1,4 +1,4 @@
-﻿using SharedKernel;
+﻿using Ardalis.Result;
 
 namespace Application.Abstractions.Messaging;
 

@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Database;
 using Application.Abstractions.Messaging;
 using Domain.Cars;
-using SharedKernel;
+using Ardalis.Result;
 
 namespace Application.Cars.Get;
 
