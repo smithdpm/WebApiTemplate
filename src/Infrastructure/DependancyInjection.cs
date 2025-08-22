@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Database;
+﻿using SharedKernel.Database;
 using Domain.Cars;
 using Infrastructure.Authorization;
 using Infrastructure.Database;

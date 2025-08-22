@@ -1,16 +1,13 @@
-﻿using System.Threading;
-using Application.Abstractions.Messaging;
-//using SharedKernel;
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.Result.FluentValidation;
 using FluentValidation;
-using FluentValidation.Results;
+using SharedKernel.Messaging;
 
-namespace Application.Abstractions.Behaviours;
+namespace SharedKernel.Behaviours;
 
-internal static class ValidationDecorator
+public static class ValidationDecorator
 {
-    internal sealed class CommandHandler<TCommand, TResponse>(
+    public sealed class CommandHandler<TCommand, TResponse>(
         ICommandHandler<TCommand, TResponse> innerHandler,
         IEnumerable<IValidator<TCommand>> validators) : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
@@ -25,7 +22,7 @@ internal static class ValidationDecorator
             return await innerHandler.Handle(command, cancellationToken);
         }
     }
-    internal sealed class CommandHandler<TCommand>(ICommandHandler<TCommand> innerHandler,
+    public sealed class CommandHandler<TCommand>(ICommandHandler<TCommand> innerHandler,
             IEnumerable<IValidator<TCommand>> validators) : ICommandHandler<TCommand>
             where TCommand : ICommand
     {

@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Database;
+﻿using SharedKernel.Database;
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using Mapster;

@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 using System.Globalization;
 using System.Xml.Schema;
 

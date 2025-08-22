@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 using Application.Cars.Create;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;

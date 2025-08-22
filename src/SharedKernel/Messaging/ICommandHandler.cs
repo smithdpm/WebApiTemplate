@@ -1,6 +1,6 @@
 ﻿using Ardalis.Result;
 
-namespace Application.Abstractions.Messaging;
+namespace SharedKernel.Messaging;
 
 public interface ICommandHandler<in TCommand>
     where TCommand: ICommand

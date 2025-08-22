@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Database;
-using Application.Abstractions.Messaging;
+﻿using SharedKernel.Database;
+using SharedKernel.Messaging;
 using Domain.Cars;
 using Domain.Cars.Specifications;
 using Ardalis.Result;
@@ -16,7 +16,6 @@ public class GetCarByIdHandler(IReadRepository<Car> repository) : IQueryHandler<
         if (car is null)
         {
             return Result<CarDto>.NotFound($"Car with id: {query.CarId} not found.");
-            //return Result.Failure<CarDto>(Error.NotFound("Car.NotFound","Car not found"));
         }
 
         return car;

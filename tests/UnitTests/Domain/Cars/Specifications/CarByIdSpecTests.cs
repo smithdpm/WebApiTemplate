@@ -1,8 +1,4 @@
-﻿using Application.Abstractions.Database;
-using Application.Cars;
-using Application.Cars.GetById;
-using Ardalis.Specification;
-using Domain.Cars;
+﻿using Domain.Cars;
 using Domain.Cars.Specifications;
 using NSubstitute;
 using Shouldly;

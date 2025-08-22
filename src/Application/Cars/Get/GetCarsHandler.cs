@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Database;
-using Application.Abstractions.Messaging;
+﻿using SharedKernel.Database;
+using SharedKernel.Messaging;
 using Domain.Cars;
 using Ardalis.Result;
 

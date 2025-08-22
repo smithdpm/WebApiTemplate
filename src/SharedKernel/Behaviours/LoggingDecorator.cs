@@ -1,14 +1,14 @@
-﻿using Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 using Ardalis.Result;
-using Microsoft.Extensions.Logging;
 using Serilog.Context;
-//using SharedKernel;
+using Microsoft.Extensions.Logging;
 
-namespace Application.Abstractions.Behaviours;
 
-internal static class LoggingDecorator
+namespace SharedKernel.Behaviours;
+
+public static class LoggingDecorator
 {
-    internal sealed class CommandHandler<TCommand, TResponse>(
+    public sealed class CommandHandler<TCommand, TResponse>(
         ICommandHandler<TCommand, TResponse> innerHandler,
         ILogger<CommandHandler<TCommand, TResponse>> logger) : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
@@ -37,7 +37,7 @@ internal static class LoggingDecorator
         }
     }
 
-    internal sealed class CommandHandler<TCommand>(ICommandHandler<TCommand> innerHandler,
+    public sealed class CommandHandler<TCommand>(ICommandHandler<TCommand> innerHandler,
             ILogger<TCommand> logger) : ICommandHandler<TCommand>
             where TCommand : ICommand
     {

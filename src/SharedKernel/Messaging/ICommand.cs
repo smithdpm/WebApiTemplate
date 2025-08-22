@@ -1,5 +1,5 @@
 ﻿
-namespace Application.Abstractions.Messaging;
+namespace SharedKernel.Messaging;
 
 public interface ICommand;
 

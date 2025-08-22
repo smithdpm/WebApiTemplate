@@ -1,7 +1,7 @@
 ﻿
 using Ardalis.Result;
 
-namespace Application.Abstractions.Messaging;
+namespace SharedKernel.Messaging;
 public interface IQueryHandler<in TQuery, TResponse>
     where TQuery : IQuery<TResponse>
 {

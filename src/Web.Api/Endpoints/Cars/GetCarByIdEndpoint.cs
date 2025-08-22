@@ -1,5 +1,5 @@
 ﻿
-using Application.Abstractions.Messaging;
+using SharedKernel.Messaging;
 using Application.Cars;
 using Application.Cars.GetById;
 using Ardalis.Result;

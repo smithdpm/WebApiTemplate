@@ -1,4 +1,4 @@
-﻿using Application.Abstractions.Messaging;
+﻿using SharedKernel.Messaging;
 
 namespace Application.Cars.Get;
 

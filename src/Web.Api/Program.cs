@@ -1,5 +1,5 @@
 using Application;
-using Application.Abstractions.Messaging;
+using SharedKernel.Messaging;
 using Application.Cars;
 using Application.Cars.Create;
 using Application.Cars.Get;
