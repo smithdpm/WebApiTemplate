@@ -5,7 +5,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Database;
-internal sealed class EfRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T> where T : class, IAggregateRoot
+public sealed class EfRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T> where T : class, IAggregateRoot
 {
     public EfRepository(CatalogContext dbContext) : base(dbContext)
     {

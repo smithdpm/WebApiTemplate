@@ -1,5 +1,4 @@
-﻿using SharedKernel.Database;
-using Domain.Cars;
+﻿using Application.Behaviours;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
+using SharedKernel.Database;
 
 namespace Infrastructure;
 
@@ -18,6 +18,7 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
             services.AddDatabase(configuration)
+                .AddCaching(configuration)
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
 
@@ -41,12 +42,14 @@ public static class DependancyInjection
                 return connection;
             });
 
-            var provider = services.BuildServiceProvider();
-            var connection = provider.GetService<SqliteConnection>();
+            //var provider = services.BuildServiceProvider();
+            //var connection = provider.GetService<SqliteConnection>();
 
-            services.AddDbContext<CatalogContext>(options => options
-            .UseSqlite(connection)
-            .UseSnakeCaseNamingConvention());
+            services.AddDbContext<CatalogContext>((provider, options) =>
+            {
+                var connection = provider.GetService<SqliteConnection>();
+                options.UseSqlite(connection).UseSnakeCaseNamingConvention();
+            });
         }
         else
         {
@@ -58,8 +61,31 @@ public static class DependancyInjection
                 .UseSnakeCaseNamingConvention());
         }
 
+        var repositoryType = typeof(IRepository<>);
+        System.Diagnostics.Debug.WriteLine($"INFRASTRUCTURE is registering type: {repositoryType.AssemblyQualifiedName}");
+
         services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
         services.AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>));
+
+        services.Decorate(typeof(IRepository<>), typeof(CachingDecorator.CachedRepository<>));
+
+        return services;
+    }
+
+    private static IServiceCollection AddCaching(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        bool useInMemoryCache = false;
+        if (configuration["UseInMemoryCache"] != null)
+        {
+            useInMemoryCache = bool.Parse(configuration["UseInMemoryCache"]!);
+        }
+
+        //if (useInMemoryCache)
+        //{
+        services.AddMemoryCache();
+        services.AddScoped<Application.Services.ICacheService, MemoryCache>();
+        //}
 
         return services;
     }

@@ -2,6 +2,9 @@
 using SharedKernel.Messaging;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Database;
+using Application.Behaviours;
+using Application.Services;
 
 namespace Application;
 
@@ -9,6 +12,7 @@ public static class DependancyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
+        
         services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
                 .AsImplementedInterfaces()
@@ -20,11 +24,33 @@ public static class DependancyInjection
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
+        services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
+
         services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
         services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
 
-        services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
+
+        //services.Decorate(typeof(IRepository<>), typeof(CachingDecorator.CachedRepository<>));
+        ////(inner, provider) =>
+        ////{
+        ////    var cachingService = provider.GetRequiredService<ICacheService>();
+        ////    return new CachingDecorator.CachedRepository(inner, cachingService);
+        ////});
+
+
+        //var repositoryType = typeof(IRepository<>);
+        //System.Diagnostics.Debug.WriteLine($"APPLICATION is decorating type:   {repositoryType.AssemblyQualifiedName}");
+        services.Decorate(typeof(IRepository<>), typeof(CachingDecorator.CachedRepository<>));
+
         return services;
             
+    }
+
+    public static IServiceCollection AddInfrastructureDependantBehaviours(this IServiceCollection services)
+    {
+        var repositoryType = typeof(IRepository<>);
+        System.Diagnostics.Debug.WriteLine($"APPLICATION is decorating type:   {repositoryType.AssemblyQualifiedName}");
+        services.Decorate(typeof(IRepository<>), typeof(CachingDecorator.CachedRepository<>));
+        return services;
     }
 }
