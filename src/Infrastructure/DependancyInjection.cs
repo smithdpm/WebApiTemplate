@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Application.Behaviours;
+using Application.Behaviours.RepositoryCaching;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +9,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Scrutor;
 using SharedKernel.Database;
@@ -21,7 +22,7 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
             services.AddDatabase(configuration)
-                .AddCaching(configuration)
+                .AddRepositoryCaching(configuration)
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
 
@@ -88,20 +89,20 @@ public static class DependancyInjection
         return services;
     }
     
-    private static IServiceCollection AddCaching(this IServiceCollection services,
+    private static IServiceCollection AddRepositoryCaching(this IServiceCollection services,
         IConfiguration configuration)
     {
-        bool useInMemoryCache = false;
-        if (configuration["UseInMemoryCache"] != null)
-        {
-            useInMemoryCache = bool.Parse(configuration["UseInMemoryCache"]!);
-        }
 
-        //if (useInMemoryCache)
-        //{
-        services.AddMemoryCache();
-        services.AddScoped<Application.Services.ICacheService, MemoryCache>();
-        //}
+        var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
+            .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
+        services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
+
+
+        if (repositoryCachingSettings.Enabled)
+        {
+            services.AddMemoryCache();
+            services.AddScoped<Application.Services.ICacheService, MemoryCache>();
+        }
 
         return services;
     }

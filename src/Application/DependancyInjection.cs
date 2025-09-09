@@ -1,10 +1,11 @@
 ﻿using SharedKernel.Behaviours;
 using SharedKernel.Messaging;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Database;
-using Application.Behaviours;
-using Application.Services;
+using Application.Behaviours.RepositoryCaching;
+
 
 namespace Application;
 
@@ -32,11 +33,18 @@ public static class DependancyInjection
         return services;          
     }
 
-    public static IServiceCollection AddInfrastructureDependantBehaviours(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureDependantBehaviours(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Decorate(typeof(IRepository<>), typeof(CachingDecorator.CachedRepository<>));
-        services.Decorate(typeof(IReadRepository<>), typeof(CachingDecorator.CachedRepository<>));
-        
+        var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
+            .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
+
+        if (repositoryCachingSettings.Enabled)
+        {
+            services.Decorate(typeof(IRepository<>), typeof(RepositoryCachingDecorator.CachedRepository<>));
+            services.Decorate(typeof(IReadRepository<>), typeof(RepositoryCachingDecorator.CachedRepository<>));
+        }
+                  
         return services;
     }
+
 }
