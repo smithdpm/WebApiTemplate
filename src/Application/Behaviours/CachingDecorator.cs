@@ -9,7 +9,7 @@ public static class CachingDecorator
 {
     public sealed class CachedRepository<T>(
         IRepository<T> inner,
-        ICacheService cacheService) : IRepository<T>
+        ICacheService cacheService) : IRepository<T>, IReadRepository<T>
         where T : class, IAggregateRoot
     {
         public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
@@ -238,7 +238,6 @@ public static class CachingDecorator
         {
             return await inner.UpdateRangeAsync(entities, cancellationToken);
         }
-
         private string GenerateCacheKey<TId>(TId id) where TId : notnull
         {
             return $"{typeof(T).Name}-{id}";

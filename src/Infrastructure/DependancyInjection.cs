@@ -1,4 +1,5 @@
-﻿using Application.Behaviours;
+﻿using System.Reflection;
+using Application.Behaviours;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,7 +8,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Identity.Web;
+using Scrutor;
 using SharedKernel.Database;
 
 namespace Infrastructure;
@@ -42,9 +45,6 @@ public static class DependancyInjection
                 return connection;
             });
 
-            //var provider = services.BuildServiceProvider();
-            //var connection = provider.GetService<SqliteConnection>();
-
             services.AddDbContext<CatalogContext>((provider, options) =>
             {
                 var connection = provider.GetService<SqliteConnection>();
@@ -61,17 +61,33 @@ public static class DependancyInjection
                 .UseSnakeCaseNamingConvention());
         }
 
-        var repositoryType = typeof(IRepository<>);
-        System.Diagnostics.Debug.WriteLine($"INFRASTRUCTURE is registering type: {repositoryType.AssemblyQualifiedName}");
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.Cars.Car).Assembly,
+             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
-        services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-        services.AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>));
-
-        services.Decorate(typeof(IRepository<>), typeof(CachingDecorator.CachedRepository<>));
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.Cars.Car).Assembly,
+             typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
         return services;
     }
 
+    private static IServiceCollection ScanAssemblyAndRegisterClosedGenerics(this IServiceCollection services, Assembly assembly
+        , Type interfaceType, Type implementationType, Type openGenericType)
+    {
+        var closedTypesOfOpenGeneric = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface && openGenericType.IsAssignableFrom(t));
+
+        foreach (var closedType in closedTypesOfOpenGeneric)
+        {
+            var closedInterfaceType = interfaceType.MakeGenericType(closedType);
+            var closedImplmentationType = implementationType.MakeGenericType(closedType);
+
+            if (!services.Any(s => s.ServiceType == closedInterfaceType))
+                services.AddScoped(closedInterfaceType, closedImplmentationType);
+        }
+
+        return services;
+    }
+    
     private static IServiceCollection AddCaching(this IServiceCollection services,
         IConfiguration configuration)
     {
