@@ -176,7 +176,7 @@ public static class RepositoryCachingDecorator
 
             var cachedResults = await _cacheService.GetAsync<List<T>>(specification.CacheKey, cancellationToken);
 
-            if (cachedResults != null && cachedResults.Any())
+            if (cachedResults != null)
                 return cachedResults;
 
             var results = await _inner.ListAsync(specification, cancellationToken);
@@ -194,7 +194,7 @@ public static class RepositoryCachingDecorator
 
             var cachedResults = await _cacheService.GetAsync<List<TResult>>(specification.CacheKey, cancellationToken);
 
-            if (cachedResults != null && cachedResults.Any())
+            if (cachedResults != null)
                 return cachedResults;
 
             var results = await _inner.ListAsync(specification, cancellationToken);
