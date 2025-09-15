@@ -1,4 +1,4 @@
-﻿using Application.Services;
+﻿using Application.Abstractions.Services;
 using Ardalis.Specification;
 using Microsoft.Extensions.Options;
 using SharedKernel.Database;
@@ -151,7 +151,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled())
                 return await _inner.GetByIdAsync(id, cancellationToken);
 
-            string cacheKey = GenerateCacheKey(id);
+            string cacheKey = RepositoryCachingHelper.GenerateCacheKey(typeof(T).Name, id);
             var cachedEntity = await _cacheService.GetAsync<T>(cacheKey, cancellationToken);
             if (cachedEntity != null)
                 return cachedEntity;
@@ -254,11 +254,7 @@ public static class RepositoryCachingDecorator
         public async Task<int> UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
         {
             return await _inner.UpdateRangeAsync(entities, cancellationToken);
-        }
-        private string GenerateCacheKey<TId>(TId id) where TId : notnull
-        {
-            return $"{typeof(T).Name}-{id}";
-        }
+        }      
 
         private bool IsCachingEnabled()
         {

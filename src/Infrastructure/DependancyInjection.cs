@@ -1,18 +1,18 @@
-﻿using System.Reflection;
-using Application.Behaviours;
+﻿using Application.Abstractions.Events;
+using Application.Abstractions.Services;
 using Application.Behaviours.RepositoryCaching;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
+using Infrastructure.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
-using Scrutor;
 using SharedKernel.Database;
+using System.Reflection;
 
 namespace Infrastructure;
 
@@ -22,7 +22,6 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
             services.AddDatabase(configuration)
-                .AddRepositoryCaching(configuration)
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
 
@@ -62,11 +61,9 @@ public static class DependancyInjection
                 .UseSnakeCaseNamingConvention());
         }
 
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.Cars.Car).Assembly,
-             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.Cars.Car).Assembly,
-             typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
+        services.AddRepository(configuration);
 
         return services;
     }
@@ -88,21 +85,76 @@ public static class DependancyInjection
 
         return services;
     }
-    
-    private static IServiceCollection AddRepositoryCaching(this IServiceCollection services,
+
+    private static IServiceCollection RegisterEfRepositoryWithCacheInvalidationImplementations(this IServiceCollection services)
+    {
+        var assembly = typeof(Domain.IEntity<>).Assembly;
+        var repositoryType = typeof(IRepository<>);
+        var aggregateRootType = typeof(IAggregateRoot);
+        var repositoryWithCacheInvalidationImplementationType = typeof(EfRepositoryWithCacheInvalidation<,>);
+
+        var closedTypesOfIAggregateRoot = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface && aggregateRootType.IsAssignableFrom(t));
+        
+
+        foreach (var aggregate in closedTypesOfIAggregateRoot)
+        {
+            var closedInterfaceType = repositoryType.MakeGenericType(aggregate);
+
+            if (services.Any(s => s.ServiceType == closedInterfaceType))
+                continue;
+
+            if (aggregate.BaseType != null)
+            {
+                var idType = aggregate.BaseType.GenericTypeArguments[0];
+                Type[] closedTypes = [aggregate, idType];
+
+                var closedImplmentationType = repositoryWithCacheInvalidationImplementationType
+                    .MakeGenericType(closedTypes);
+
+                services.AddScoped(closedInterfaceType, closedImplmentationType);
+            }            
+        }
+
+        return services;
+    }
+
+    private static IServiceCollection AddRepository(this IServiceCollection services,
         IConfiguration configuration)
     {
-
         var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
             .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
         services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
 
+        if (repositoryCachingSettings.Enabled)   
+            return services.AddRepositoryWithCacheInvalidation(configuration);
 
-        if (repositoryCachingSettings.Enabled)
-        {
-            services.AddMemoryCache();
-            services.AddScoped<Application.Services.ICacheService, MemoryCache>();
-        }
+
+        return services.AddRepositoryDefault(configuration);
+    }
+
+    private static IServiceCollection AddRepositoryDefault(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
+
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+             typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
+
+        return services;
+    }
+
+    private static IServiceCollection AddRepositoryWithCacheInvalidation(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.RegisterEfRepositoryWithCacheInvalidationImplementations();
+
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+             typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
+
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, MemoryCache>();
 
         return services;
     }
