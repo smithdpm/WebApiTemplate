@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.Services;
+﻿using Application.Abstractions.Services;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Infrastructure.Database

@@ -1,5 +1,3 @@
 ﻿namespace SharedKernel.Database;
 
-public interface IAggregateRoot
-{
-}
+public interface IAggregateRoot;
