@@ -20,6 +20,7 @@ public class CreateCarEndpoint : IEndpoint
                     return result.ToMinimalApiResult();
                 })
         .WithName("CreateCar")
+        .WithTags("Cars")
         .WithOpenApi()
         .RequirePermission("Cars.Create");
     }

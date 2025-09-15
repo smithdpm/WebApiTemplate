@@ -20,6 +20,7 @@ public class GetCarByIdEndpoint : IEndpoint
                 return result.ToMinimalApiResult();
             })
             .WithName("GetCarById")
+            .WithTags("Cars")
             .WithOpenApi();
     }
 }
