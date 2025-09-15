@@ -16,6 +16,7 @@ internal class PermissionProvider
         "Cars.Update",
         "Cars.Delete",
         "Cars.View",
-        "Cars.List"
+        "Cars.List",
+        "Cars.Sell"
     };
 }
