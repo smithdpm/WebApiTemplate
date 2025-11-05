@@ -1,5 +1,4 @@
-﻿
-namespace SharedKernel.Events;
+﻿namespace SharedKernel.Events.DomainEvents;
 
 public interface IDomainEventHandler<TEvent> where TEvent : IDomainEvent
 {

@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.Events;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Events;
+using SharedKernel.Events.DomainEvents;
 
 namespace Infrastructure.Events;
 

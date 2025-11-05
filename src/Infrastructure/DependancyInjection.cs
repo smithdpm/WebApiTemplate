@@ -1,6 +1,9 @@
 ﻿using Application.Abstractions.Events;
 using Application.Abstractions.Services;
 using Application.Behaviours.RepositoryCaching;
+using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Events;
@@ -9,11 +12,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using Domain.Abstractions;
 using SharedKernel.Database;
+using System.Net.NetworkInformation;
 using System.Reflection;
 
 namespace Infrastructure;
@@ -24,6 +29,7 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
             services.AddDatabase(configuration)
+                .AddAzureServiceBus(configuration)
                 .AddIdentityGenerators()
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
@@ -158,6 +164,80 @@ public static class DependancyInjection
 
         services.AddMemoryCache();
         services.AddScoped<ICacheService, MemoryCache>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
+    {
+        var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
+
+        services.AddAzureClients(builder =>
+        {
+            builder.AddServiceBusClientWithNamespace(serviceBusNamespace!);
+        });
+
+        return services;
+    }
+
+    private static IServiceCollection AddAzureServiceBusQueueSenders(this IServiceCollection services, IConfiguration configuration)
+    {
+        var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
+        var queueNames = configuration.GetSection("AzureServiceBus:Sender:Queues").Get<List<string>>();
+        var topicNames = configuration.GetSection("AzureServiceBus:Sender:Topics").Get<List<string>>();
+
+        var adminClient = new ServiceBusAdministrationClient(serviceBusNamespace, new DefaultAzureCredential());
+        var queueAndTopicNames = new List<string>();
+        if (queueNames!=null)
+            queueAndTopicNames.AddRange(queueNames);
+        if (topicNames != null)
+            queueAndTopicNames.AddRange(topicNames);
+
+        services.AddAzureClients(builder =>
+        {
+            builder.AddServiceBusAdministrationClientWithNamespace(serviceBusNamespace);
+
+            foreach (var name in queueAndTopicNames)
+            {
+                builder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, _, provider) =>
+                    provider
+                        .GetService<ServiceBusClient>()
+                        .CreateSender(name)
+                )
+                .WithName(name);
+            }
+        });
+
+        return services;
+    }
+
+    private static IServiceCollection AddAzureServiceBusQueueRe(this IServiceCollection services, IConfiguration configuration)
+    {
+        var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
+        var queueNames = configuration.GetSection("AzureServiceBus:Sender:Queues").Get<List<string>>();
+        var topicNames = configuration.GetSection("AzureServiceBus:Sender:Topics").Get<List<string>>();
+
+        var adminClient = new ServiceBusAdministrationClient(serviceBusNamespace, new DefaultAzureCredential());
+        var queueAndTopicNames = new List<string>();
+        if (queueNames != null)
+            queueAndTopicNames.AddRange(queueNames);
+        if (topicNames != null)
+            queueAndTopicNames.AddRange(topicNames);
+
+        services.AddAzureClients(builder =>
+        {
+            builder.AddServiceBusAdministrationClientWithNamespace(serviceBusNamespace);
+
+            foreach (var name in queueAndTopicNames)
+            {
+                builder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, _, provider) =>
+                    provider
+                        .GetService<ServiceBusClient>()
+                        .CreateSender(name)
+                )
+                .WithName(name);
+            }
+        });
 
         return services;
     }

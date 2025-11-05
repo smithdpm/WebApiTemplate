@@ -4,7 +4,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Database;
-using SharedKernel.Events;
+using SharedKernel.Events.DomainEvents;
 
 namespace Infrastructure.Database;
 public class EfRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T> where T : class, IAggregateRoot

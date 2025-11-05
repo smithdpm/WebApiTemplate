@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Behaviours;
 using SharedKernel.Database;
-using SharedKernel.Events;
+using SharedKernel.Events.DomainEvents;
 using SharedKernel.Messaging;
 using System.Reflection;
 

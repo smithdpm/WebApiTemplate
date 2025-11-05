@@ -1,5 +1,4 @@
-﻿
-using SharedKernel.Events;
+﻿using SharedKernel.Events.DomainEvents;
 
 namespace Application.Abstractions.Events;
 
