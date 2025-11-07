@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Behaviours;
 using SharedKernel.Database;
 using SharedKernel.Events.DomainEvents;
+using SharedKernel.Events.IntegrationEvents;
 using SharedKernel.Messaging;
 using System.Reflection;
 
@@ -29,7 +30,7 @@ public static class DependancyInjection
             .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
+            .AddClasses(classes => classes.AssignableTo(typeof(IIntegrationEventHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
@@ -64,6 +65,11 @@ public static class DependancyInjection
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy<,>)), false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+            services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
+            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
         }

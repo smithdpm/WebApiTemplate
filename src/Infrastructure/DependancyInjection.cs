@@ -7,6 +7,7 @@ using Azure.Messaging.ServiceBus.Administration;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Events;
+using Infrastructure.Events.ServiceBus;
 using Infrastructure.IdentityGeneration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Domain.Abstractions;
 using SharedKernel.Database;
@@ -170,6 +172,12 @@ public static class DependancyInjection
 
     private static IServiceCollection AddAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
     {
+        var serviceBusEnabled = false;
+        bool.TryParse(configuration.GetSection("AzureServiceBus")["Enabled"], out serviceBusEnabled);
+
+        if (!serviceBusEnabled)
+            return services;
+
         var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
 
         services.AddAzureClients(builder =>
@@ -177,26 +185,27 @@ public static class DependancyInjection
             builder.AddServiceBusClientWithNamespace(serviceBusNamespace!);
         });
 
+        services.AddAzureServiceBusQueueSenders(configuration);
+        services.AddAzureServiceBusTopicSubscribers(configuration);
+
         return services;
     }
 
     private static IServiceCollection AddAzureServiceBusQueueSenders(this IServiceCollection services, IConfiguration configuration)
     {
-        var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
         var queueNames = configuration.GetSection("AzureServiceBus:Sender:Queues").Get<List<string>>();
         var topicNames = configuration.GetSection("AzureServiceBus:Sender:Topics").Get<List<string>>();
 
-        var adminClient = new ServiceBusAdministrationClient(serviceBusNamespace, new DefaultAzureCredential());
         var queueAndTopicNames = new List<string>();
         if (queueNames!=null)
             queueAndTopicNames.AddRange(queueNames);
         if (topicNames != null)
             queueAndTopicNames.AddRange(topicNames);
 
+
+
         services.AddAzureClients(builder =>
         {
-            builder.AddServiceBusAdministrationClientWithNamespace(serviceBusNamespace);
-
             foreach (var name in queueAndTopicNames)
             {
                 builder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, _, provider) =>
@@ -208,34 +217,29 @@ public static class DependancyInjection
             }
         });
 
+        services.AddScoped<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
+
         return services;
     }
 
-    private static IServiceCollection AddAzureServiceBusQueueRe(this IServiceCollection services, IConfiguration configuration)
+    
+
+    private static IServiceCollection AddAzureServiceBusTopicSubscribers(this IServiceCollection services, IConfiguration configuration)
     {
-        var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
-        var queueNames = configuration.GetSection("AzureServiceBus:Sender:Queues").Get<List<string>>();
-        var topicNames = configuration.GetSection("AzureServiceBus:Sender:Topics").Get<List<string>>();
+        var topicSubscribers = configuration.GetSection("AzureServiceBus:TopicSubscribers").Get<List<ServiceBusTopicSubscriberSettings>>();
 
-        var adminClient = new ServiceBusAdministrationClient(serviceBusNamespace, new DefaultAzureCredential());
-        var queueAndTopicNames = new List<string>();
-        if (queueNames != null)
-            queueAndTopicNames.AddRange(queueNames);
-        if (topicNames != null)
-            queueAndTopicNames.AddRange(topicNames);
+        if (topicSubscribers == null)
+            return services;
 
-        services.AddAzureClients(builder =>
+        services.AddAzureClients(builder => 
         {
-            builder.AddServiceBusAdministrationClientWithNamespace(serviceBusNamespace);
-
-            foreach (var name in queueAndTopicNames)
+            foreach (var topicSubscriber in topicSubscribers)
             {
-                builder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, _, provider) =>
-                    provider
-                        .GetService<ServiceBusClient>()
-                        .CreateSender(name)
-                )
-                .WithName(name);
+                services.AddScoped<ServiceBusTopicSubscriber>(provider =>
+                ActivatorUtilities.CreateInstance<ServiceBusTopicSubscriber>(
+                        provider,
+                        topicSubscriber)
+                );            
             }
         });
 
@@ -270,3 +274,7 @@ public static class DependancyInjection
         return services;
     }
 }
+
+
+
+

@@ -2,8 +2,9 @@
 
 using Application.Cars.IntegrationEvents;
 using Azure.Messaging.ServiceBus;
-using CloudNative.CloudEvents;
-using CloudNative.CloudEvents.SystemTextJson;
+using Azure.Core;
+//using CloudNative.CloudEvents;
+//using CloudNative.CloudEvents.SystemTextJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,9 @@ using SharedKernel.Events.DomainEvents;
 using SharedKernel.Events.IntegrationEvents;
 using System.Text.Json;
 using System.Threading;
+using Azure.Messaging;
+using Microsoft.Azure.Amqp.Framing;
+using Application.Cars.CarBought;
 
 namespace Infrastructure.Events.ServiceBus;
 public class ServiceBusTopicSubscriber : BackgroundService
@@ -24,22 +28,21 @@ public class ServiceBusTopicSubscriber : BackgroundService
     public ServiceBusTopicSubscriber(ILogger<ServiceBusTopicSubscriber> logger
         , ServiceBusClient serviceBusClient
         , IServiceScopeFactory scopeFactory
-        , string topicName
-        , string subscriptionName)
+        , ServiceBusTopicSubscriberSettings serviceBusTopicSubscriberSettings)
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
-        _processor = serviceBusClient.CreateProcessor(topicName, subscriptionName, new ServiceBusProcessorOptions
+        _topicName = serviceBusTopicSubscriberSettings.TopicName;
+        _subscriptionName = serviceBusTopicSubscriberSettings.SubscriptionName;
+        _processor = serviceBusClient.CreateProcessor(_topicName, _subscriptionName, new ServiceBusProcessorOptions
         {
-            AutoCompleteMessages = false,
-            MaxConcurrentCalls = 1
+            AutoCompleteMessages = serviceBusTopicSubscriberSettings.AutoCompleteMessages,
+            MaxConcurrentCalls = serviceBusTopicSubscriberSettings.MaxConcurrentCalls
         });
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation(string.Format(
-            "Starting Service Bus Topic Subscriber: TopicName ({0}), SubscriptionName ({1})"
-            , _topicName, _subscriptionName));
+        _logger.LogInformation($"Starting Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
 
         _processor.ProcessMessageAsync += HandleMessageAsync;
         _processor.ProcessErrorAsync += HandleErrorAsync;
@@ -51,9 +54,7 @@ public class ServiceBusTopicSubscriber : BackgroundService
             await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
         }
 
-        _logger.LogInformation(string.Format(
-            "Stopping Service Bus Topic Subscriber: TopicName ({0}), SubscriptionName ({1})"
-            , _topicName, _subscriptionName));
+        _logger.LogInformation($"Stopping Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
         
         await _processor.StopProcessingAsync(stoppingToken);
     }
@@ -62,18 +63,25 @@ public class ServiceBusTopicSubscriber : BackgroundService
         string body = args.Message.Body.ToString();
         _logger.LogInformation($"Received message: {body}");
 
+        CloudEvent? cloudEvent = CloudEvent.Parse(args.Message.Body);
+
+        if (cloudEvent == null)
+            throw new Exception("Null message body recieved. Message must have a valid message body.");
+
         using var scope = _scopeFactory.CreateAsyncScope();
         try
         {
-            var jsonFormatter = new JsonEventFormatter();
-            CloudEvent cloudEvent = await jsonFormatter.DecodeStructuredModeMessageAsync(args.Message.Body.ToStream(), null, null);
-
+            //var jsonFormatter = new JsonEventFormatter();
+            //CloudEvent cloudEvent = await jsonFormatter.DecodeStructuredModeMessageAsync(args.Message.Body.ToStream(), null, null);
+            if (cloudEvent.Data == null)
+                throw new Exception("CloudEvent Data is null. Ensure that this has the Integration Event correctly stored.");
 
             switch (cloudEvent.Type)
             {
-                case "Application.Cars.IntegrationEvents.CarSoldIntegrationEvent":
-                    var integrationEvent = JsonSerializer.Deserialize<CarSoldIntegrationEvent>(body);
-                    var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(integrationEvent.GetType());
+                case "CarBoughtIntegrationEvent":
+                    var integrationEvent = cloudEvent.Data.ToObjectFromJson<CarBoughtIntegrationEvent>();
+                    //var integrationEvent = JsonSerializer.Deserialize<CarSoldIntegrationEvent>(body);
+                    var handlerType = typeof(IIntegrationEventHandler<CarBoughtIntegrationEvent>);
                     var handlers = scope.ServiceProvider.GetServices(handlerType);
                     foreach (var handler in handlers)
                     {
@@ -112,7 +120,7 @@ public class ServiceBusTopicSubscriber : BackgroundService
     }
     private async Task HandleErrorAsync(ProcessErrorEventArgs args)
     {
-        throw new NotImplementedException();
+        _logger.LogError(args.Exception, $"An error occured while running the Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
     }
 
 
