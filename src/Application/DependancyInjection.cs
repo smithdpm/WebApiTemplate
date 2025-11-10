@@ -67,7 +67,9 @@ public static class DependancyInjection
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
         }
-                  
+
+        services.RegisterEntityFactories();
+
         return services;
     }
 
@@ -93,6 +95,23 @@ public static class DependancyInjection
         }
 
         return app;
+    }
+
+    private static IServiceCollection RegisterEntityFactories(this IServiceCollection services)
+    {
+        var factoryTypes = typeof(IEntityFactory<,>).Assembly
+            .GetTypes()
+            .Where(t => t.IsInterface && t.GetInterfaces().Any(i =>
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEntityFactory<,>)));
+
+        foreach (var factoryType in factoryTypes)
+        {
+            services.Scan(scan => scan.FromAssembliesOf(typeof(Entity<>))
+            .AddClasses(classes => classes.AssignableTo(factoryType), false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+        }
+        return services;
     }
 
     private static void RegisterCachingInvalidationPoliciesForEntities(IServiceProvider provider, IInvalidationMap invalidationMap, IEnumerable<Type> entityTypes)

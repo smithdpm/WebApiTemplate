@@ -2,15 +2,14 @@
 using SharedKernel.Messaging;
 using Ardalis.Result;
 using Domain.Cars;
-//using SharedKernel;
 
 namespace Application.Cars.Create
 {
-    public class CreateCarHandler(IRepository<Car> repository) : ICommandHandler<CreateCarCommand, Guid>
+    public class CreateCarHandler(IRepository<Car> repository, ICarFactory factory) : ICommandHandler<CreateCarCommand, Guid>
     {
         public async Task<Result<Guid>> Handle(CreateCarCommand command, CancellationToken cancellationToken)
         {
-            var newCar = new Car(command.Make, command.Model, command.Year, command.Mileage, command.Price);
+            var newCar = factory.Create(command.Make, command.Model, command.Year, command.Mileage, command.Price);
 
             await repository.AddAsync(newCar, cancellationToken);
 

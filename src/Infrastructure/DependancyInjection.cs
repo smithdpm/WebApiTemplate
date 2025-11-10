@@ -4,6 +4,7 @@ using Application.Behaviours.RepositoryCaching;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Events;
+using Infrastructure.IdentityGeneration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.Sqlite;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
+using Domain.Abstractions;
 using SharedKernel.Database;
 using System.Reflection;
 
@@ -22,6 +24,7 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
             services.AddDatabase(configuration)
+                .AddIdentityGenerators()
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
 
@@ -176,6 +179,13 @@ public static class DependancyInjection
         services.AddTransient<IAuthorizationHandler, PermissionAutherizationHandler>();
 
         services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddIdentityGenerators(this IServiceCollection services)
+    {
+        services.AddScoped<IIdGenerator<Guid>, UuidSqlServerFriendlyGenerator>();
 
         return services;
     }

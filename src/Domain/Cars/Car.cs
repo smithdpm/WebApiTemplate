@@ -4,7 +4,7 @@ using SharedKernel.Database;
 
 namespace Domain.Cars
 {
-    public sealed class Car: Entity<Guid>, IAggregateRoot
+    public sealed class Car : Entity<Guid>, IAggregateRoot
     {
         public string Make { get; private set; }
         public string Model { get; private set; }
@@ -16,8 +16,8 @@ namespace Domain.Cars
         public DateTime? SoldAt { get; private set; }
         public decimal? SoldPrice { get; private set; }
 
-        public Car(string make, string model, int year, int mileage, decimal price)
-            : base(Guid.NewGuid())
+        internal Car(Guid id, string make, string model, int year, int mileage, decimal price)
+            : base(id)
         {
             Make = make;
             Model = model;
