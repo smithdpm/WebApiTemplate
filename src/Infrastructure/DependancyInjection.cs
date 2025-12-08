@@ -178,11 +178,11 @@ public static class DependancyInjection
         if (!serviceBusEnabled)
             return services;
 
-        var serviceBusNamespace = configuration.GetSection("AzureServiceBus")["Namespace"];
 
+        var connectionString = configuration.GetSection("AzureServiceBus")["ConnectionString"];
         services.AddAzureClients(builder =>
         {
-            builder.AddServiceBusClientWithNamespace(serviceBusNamespace!);
+            builder.AddServiceBusClient(connectionString);
         });
 
         services.AddAzureServiceBusQueueSenders(configuration);
@@ -202,8 +202,6 @@ public static class DependancyInjection
         if (topicNames != null)
             queueAndTopicNames.AddRange(topicNames);
 
-
-
         services.AddAzureClients(builder =>
         {
             foreach (var name in queueAndTopicNames)
@@ -222,7 +220,6 @@ public static class DependancyInjection
         return services;
     }
 
-    
 
     private static IServiceCollection AddAzureServiceBusTopicSubscribers(this IServiceCollection services, IConfiguration configuration)
     {
@@ -231,18 +228,14 @@ public static class DependancyInjection
         if (topicSubscribers == null)
             return services;
 
-        services.AddAzureClients(builder => 
+        foreach (var topicSubscriber in topicSubscribers)
         {
-            foreach (var topicSubscriber in topicSubscribers)
-            {
-                services.AddScoped<ServiceBusTopicSubscriber>(provider =>
-                ActivatorUtilities.CreateInstance<ServiceBusTopicSubscriber>(
-                        provider,
-                        topicSubscriber)
-                );            
-            }
-        });
-
+            services.AddHostedService<ServiceBusTopicSubscriber>(provider =>
+            ActivatorUtilities.CreateInstance<ServiceBusTopicSubscriber>(
+                    provider,
+                    topicSubscriber)
+            );
+        }
         return services;
     }
 

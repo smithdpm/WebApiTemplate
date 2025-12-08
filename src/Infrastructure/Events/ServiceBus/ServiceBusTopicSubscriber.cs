@@ -71,16 +71,13 @@ public class ServiceBusTopicSubscriber : BackgroundService
         using var scope = _scopeFactory.CreateAsyncScope();
         try
         {
-            //var jsonFormatter = new JsonEventFormatter();
-            //CloudEvent cloudEvent = await jsonFormatter.DecodeStructuredModeMessageAsync(args.Message.Body.ToStream(), null, null);
             if (cloudEvent.Data == null)
                 throw new Exception("CloudEvent Data is null. Ensure that this has the Integration Event correctly stored.");
 
             switch (cloudEvent.Type)
             {
-                case "CarBoughtIntegrationEvent":
+                case nameof(CarBoughtIntegrationEvent):
                     var integrationEvent = cloudEvent.Data.ToObjectFromJson<CarBoughtIntegrationEvent>();
-                    //var integrationEvent = JsonSerializer.Deserialize<CarSoldIntegrationEvent>(body);
                     var handlerType = typeof(IIntegrationEventHandler<CarBoughtIntegrationEvent>);
                     var handlers = scope.ServiceProvider.GetServices(handlerType);
                     foreach (var handler in handlers)
@@ -93,6 +90,7 @@ public class ServiceBusTopicSubscriber : BackgroundService
                     }
                     break;
             }
+            await args.CompleteMessageAsync(args.Message);
         }
         catch (Exception ex)
         {
