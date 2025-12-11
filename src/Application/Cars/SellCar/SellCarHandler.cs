@@ -6,20 +6,21 @@ using SharedKernel.Messaging;
 
 namespace Application.Cars.SellCar;
 
-internal class SellCarHandler(IRepository<Car> repository) : ICommandHandler<SellCarCommand, bool>
+internal class SellCarHandler(IRepository<Car> repository) : ICommandHandler<SellCarCommand>
 {
-    public async Task<Result<bool>> Handle(SellCarCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(SellCarCommand command, CancellationToken cancellationToken)
     {
         var car = await repository.GetByIdAsync(command.CarId, cancellationToken);
 
         if (car is null)
-            return Result<bool>.NotFound($"Car with id: {command.CarId} not found.");
+            return Result.NotFound($"Car with id: {command.CarId} not found.");
         
-        car.SellCar(command.SalePrice);
+        var result = car.SellCar(command.SalePrice);
 
-        await repository.UpdateAsync(car, cancellationToken);
+        if(result.IsSuccess)
+            await repository.UpdateAsync(car, cancellationToken);
 
-        return true;
+        return result;
     }
 }
 
