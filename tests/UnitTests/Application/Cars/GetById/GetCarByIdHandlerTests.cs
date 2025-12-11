@@ -3,7 +3,6 @@ using Application.Cars;
 using Application.Cars.GetById;
 using Ardalis.Specification;
 using Domain.Cars;
-using Domain.Cars.Specifications;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using Shouldly;
@@ -20,27 +19,26 @@ public class GetCarByIdHandlerTests
         _handler = new GetCarByIdHandler(_repository);
     }
 
-    // TODO: This test needs to be updated to match the new handler implementation
-    // [Fact()]
-    // public async Task Handle_ShouldUseCarByIdSpec_WhenQueryIsValid()
-    // {
-    //     // Arrange
-    //     var testCar = new Car("Toyota", "Corolla", 2020, 15000, 20000m);
+    [Fact()]
+     public async Task Handle_ShouldUseCarByIdSpec_WhenQueryIsValid()
+    {
+        // Arrange
+        var testCar = new Car("Toyota", "Corolla", 2020, 15000, 20000m);
 
-    //     var query = new GetCarByIdQuery(testCar.Id);
+        var query = new GetCarByIdQuery(testCar.Id);
 
-    //     ISpecification<Car> capturedSpec = null;
+        ISingleResultSpecification<Car, CarDto> capturedSpec = null;
 
-    //     await _repository.ProjectToFirstOrDefaultAsync<CarDto>(Arg.Do<ISpecification<Car>>(arg => capturedSpec = arg), Arg.Any<CancellationToken>());
+        await _repository.SingleOrDefaultAsync(Arg.Do<ISingleResultSpecification<Car, CarDto>>(arg => capturedSpec = arg), Arg.Any<CancellationToken>());
 
-    //     // Act
-    //     var result = await _handler.Handle(query, CancellationToken.None);
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
 
-    //     // Assert
-    //     capturedSpec.ShouldNotBeNull();
-    //     capturedSpec.ShouldBeOfType<CarByIdSpec>();
-    //     capturedSpec.IsSatisfiedBy(testCar).ShouldBeTrue();
-    // }
+        // Assert
+        capturedSpec.ShouldNotBeNull();
+        capturedSpec.ShouldBeOfType<GetCarDtoByIdSpec>();
+        capturedSpec.IsSatisfiedBy(testCar).ShouldBeTrue();
+    }
 
     [Fact()]
     public async Task Handle_ShouldReturnSucess_WhenCarExists()
@@ -51,10 +49,9 @@ public class GetCarByIdHandlerTests
 
         var query = new GetCarByIdQuery(testCar.Id);
 
-        // TODO: Update to use SingleOrDefaultAsync with the new GetCarDtoByIdSpec
-        // _repository.ProjectToFirstOrDefaultAsync<CarDto>(Arg.Any<ISpecification<Car>>(),
-        //     Arg.Any<CancellationToken>())
-        //     .Returns(testCar);
+        _repository.SingleOrDefaultAsync(Arg.Any<GetCarDtoByIdSpec>(),
+            Arg.Any<CancellationToken>())
+            .Returns(testCar);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -73,10 +70,9 @@ public class GetCarByIdHandlerTests
 
         var query = new GetCarByIdQuery(carId);
 
-        // TODO: Update to use SingleOrDefaultAsync with the new GetCarDtoByIdSpec  
-        // _repository.ProjectToFirstOrDefaultAsync<CarDto>(Arg.Any<ISpecification<Car>>(),
-        //     Arg.Any<CancellationToken>())
-        //     .ReturnsNull();
+        _repository.SingleOrDefaultAsync(Arg.Any<ISingleResultSpecification<Car, CarDto>>(),
+            Arg.Any<CancellationToken>())
+            .ReturnsNull();
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
