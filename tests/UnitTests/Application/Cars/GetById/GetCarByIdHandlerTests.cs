@@ -1,10 +1,11 @@
-﻿using SharedKernel.Database;
-using Application.Cars;
+﻿using Application.Cars;
 using Application.Cars.GetById;
 using Ardalis.Specification;
 using Domain.Cars;
+using Infrastructure.IdentityGeneration;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using SharedKernel.Database;
 using Shouldly;
 using Xunit;
 
@@ -14,8 +15,10 @@ public class GetCarByIdHandlerTests
 {
     private readonly GetCarByIdHandler _handler;
     private readonly IReadRepository<Car> _repository = Substitute.For<IReadRepository<Car>>();
+    private readonly CarFactory _carFactory;
     public GetCarByIdHandlerTests()
     {
+        _carFactory = new CarFactory(new UuidSqlServerFriendlyGenerator());
         _handler = new GetCarByIdHandler(_repository);
     }
 
@@ -23,7 +26,7 @@ public class GetCarByIdHandlerTests
      public async Task Handle_ShouldUseCarByIdSpec_WhenQueryIsValid()
     {
         // Arrange
-        var testCar = new Car("Toyota", "Corolla", 2020, 15000, 20000m);
+        var testCar = _carFactory.Create("Toyota", "Corolla", 2020, 15000, 20000m);
 
         var query = new GetCarByIdQuery(testCar.Id);
 

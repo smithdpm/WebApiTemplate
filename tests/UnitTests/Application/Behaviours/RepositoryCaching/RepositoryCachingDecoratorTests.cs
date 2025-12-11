@@ -2,6 +2,7 @@ using Application.Abstractions.Services;
 using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
 using Domain.Cars;
+using Infrastructure.IdentityGeneration;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -16,12 +17,14 @@ public class RepositoryCachingDecoratorTests
     private readonly IRepository<Car> _innerRepository;
     private readonly ICacheService _cacheService;
     private readonly IOptions<RepositoryCacheSettings> _options;
+    private readonly CarFactory _carFactory;
     private readonly RepositoryCachingDecorator.CachedRepository<Car> _cachedRepository;
     private readonly RepositoryCacheSettings _cacheSettings;
 
     public RepositoryCachingDecoratorTests()
     {
         _innerRepository = Substitute.For<IRepository<Car>>();
+        _carFactory = new CarFactory(new UuidSqlServerFriendlyGenerator());
         _cacheService = Substitute.For<ICacheService>();
         _cacheSettings = new RepositoryCacheSettings
         {
@@ -42,7 +45,7 @@ public class RepositoryCachingDecoratorTests
     public async Task AddAsync_ShouldCallInnerRepository()
     {
         // Arrange
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         // Act
         await _cachedRepository.AddAsync(car);
@@ -61,8 +64,8 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         var cars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         // Act
@@ -81,7 +84,7 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var carId = Guid.NewGuid();
-        var cachedCar = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var cachedCar = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
@@ -101,7 +104,7 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var carId = Guid.NewGuid();
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
@@ -124,7 +127,7 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         _cacheSettings.Enabled = false;
         var carId = Guid.NewGuid();
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _innerRepository.GetByIdAsync(carId, Arg.Any<CancellationToken>())
             .Returns(car);
@@ -150,7 +153,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(true);
         spec.CacheKey.Returns("test-cache-key");
 
-        var cachedCars = new List<Car> { new Car("Toyota", "Camry", 2020, 10000, 25000m) };
+        var cachedCars = new List<Car> { _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m) };
 
         _cacheService.GetAsync<List<Car>>("test-cache-key", Arg.Any<CancellationToken>())
             .Returns(cachedCars);
@@ -171,7 +174,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(true);
         spec.CacheKey.Returns("test-cache-key");
 
-        var cars = new List<Car> { new Car("Toyota", "Camry", 2020, 10000, 25000m) };
+        var cars = new List<Car> { _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m) };
 
         _cacheService.GetAsync<List<Car>>("test-cache-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -194,7 +197,7 @@ public class RepositoryCachingDecoratorTests
         var spec = Substitute.For<ISpecification<Car>>();
         spec.CacheEnabled.Returns(false);
 
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         _innerRepository.FirstOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(car);
 
@@ -219,7 +222,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(true);
         spec.CacheKey.Returns("single-result-key");
 
-        var cachedCar = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var cachedCar = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _cacheService.GetAsync<Car>("single-result-key", Arg.Any<CancellationToken>())
             .Returns(cachedCar);
@@ -240,7 +243,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(true);
         spec.CacheKey.Returns("single-result-key");
 
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _cacheService.GetAsync<Car>("single-result-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -263,7 +266,7 @@ public class RepositoryCachingDecoratorTests
         var spec = Substitute.For<ISingleResultSpecification<Car>>();
         spec.CacheEnabled.Returns(false);
 
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         _innerRepository.FirstOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(car);
 
@@ -286,8 +289,8 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         var cars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         _innerRepository.ListAsync(Arg.Any<CancellationToken>())
@@ -311,8 +314,8 @@ public class RepositoryCachingDecoratorTests
 
         var cachedCars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         _cacheService.GetAsync<List<Car>>("list-cache-key", Arg.Any<CancellationToken>())
@@ -336,8 +339,8 @@ public class RepositoryCachingDecoratorTests
 
         var cars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         _cacheService.GetAsync<List<Car>>("list-cache-key", Arg.Any<CancellationToken>())
@@ -363,8 +366,8 @@ public class RepositoryCachingDecoratorTests
 
         var cars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         _innerRepository.ListAsync(spec, Arg.Any<CancellationToken>())
@@ -391,7 +394,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(true);
         spec.CacheKey.Returns("single-cache-key");
 
-        var cachedCar = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var cachedCar = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _cacheService.GetAsync<Car>("single-cache-key", Arg.Any<CancellationToken>())
             .Returns(cachedCar);
@@ -412,7 +415,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(true);
         spec.CacheKey.Returns("single-cache-key");
 
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _cacheService.GetAsync<Car>("single-cache-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -435,7 +438,7 @@ public class RepositoryCachingDecoratorTests
         var spec = Substitute.For<ISingleResultSpecification<Car>>();
         spec.CacheEnabled.Returns(false);
 
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         _innerRepository.SingleOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(car);
 
@@ -456,7 +459,7 @@ public class RepositoryCachingDecoratorTests
     public async Task UpdateAsync_ShouldCallInnerRepository()
     {
         // Arrange
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _innerRepository.UpdateAsync(car, Arg.Any<CancellationToken>())
             .Returns(1);
@@ -475,8 +478,8 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         var cars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create  ("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         _innerRepository.UpdateRangeAsync(cars, Arg.Any<CancellationToken>())
@@ -494,7 +497,7 @@ public class RepositoryCachingDecoratorTests
     public async Task DeleteAsync_ShouldCallInnerRepository()
     {
         // Arrange
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _innerRepository.DeleteAsync(car, Arg.Any<CancellationToken>())
             .Returns(1);
@@ -513,8 +516,8 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         var cars = new List<Car>
         {
-            new Car("Toyota", "Camry", 2020, 10000, 25000m),
-            new Car("Honda", "Civic", 2021, 5000, 22000m)
+            _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
+            _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
 
         _innerRepository.DeleteRangeAsync(cars, Arg.Any<CancellationToken>())
@@ -642,7 +645,7 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         _cacheSettings.PerEntitySettings["Car"].Enabled = false;
         var carId = Guid.NewGuid();
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
 
         _innerRepository.GetByIdAsync(carId, Arg.Any<CancellationToken>())
             .Returns(car);
@@ -664,7 +667,7 @@ public class RepositoryCachingDecoratorTests
         _cacheSettings.DefaultExpirationInMinutes = 15;
         
         var carId = Guid.NewGuid();
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
@@ -694,7 +697,7 @@ public class RepositoryCachingDecoratorTests
         var cachedRepoWithoutEntitySettings = new RepositoryCachingDecorator.CachedRepository<Car>(_innerRepository, _cacheService, emptyOptions);
         
         var carId = Guid.NewGuid();
-        var car = new Car("Toyota", "Camry", 2020, 10000, 25000m);
+        var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())

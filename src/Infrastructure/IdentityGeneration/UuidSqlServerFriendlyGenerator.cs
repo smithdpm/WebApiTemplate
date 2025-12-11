@@ -3,7 +3,7 @@
 using UUIDNext;
 
 namespace Infrastructure.IdentityGeneration;
-internal class UuidSqlServerFriendlyGenerator : IIdGenerator<Guid>
+public class UuidSqlServerFriendlyGenerator : IIdGenerator<Guid>
 {
     public Guid NewId()
     {

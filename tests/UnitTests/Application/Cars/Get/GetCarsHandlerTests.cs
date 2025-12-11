@@ -1,8 +1,9 @@
-﻿using SharedKernel.Database;
-using Application.Cars;
+﻿using Application.Cars;
 using Application.Cars.Get;
 using Domain.Cars;
+using Infrastructure.IdentityGeneration;
 using NSubstitute;
+using SharedKernel.Database;
 using Shouldly;
 using Xunit;
 
@@ -12,9 +13,10 @@ public class GetCarsHandlerTests
 {
     private readonly GetCarsHandler _handler;
     private readonly IRepository<Car> _repository = Substitute.For<IRepository<Car>>();
-
+    private readonly CarFactory _carFactory;
     public GetCarsHandlerTests()
     {
+        _carFactory = new CarFactory(new UuidSqlServerFriendlyGenerator());
         _handler = new GetCarsHandler(_repository);
     }
 
@@ -39,9 +41,9 @@ public class GetCarsHandlerTests
     {
         return new List<Car>
         {
-            new Car("Toyota", "Corolla", 2020, 15000, 20000m),
-            new Car("Honda", "Civic", 2019, 20000, 18000m),
-            new Car("Ford", "Focus", 2021, 10000, 22000m)
+            _carFactory.Create("Toyota", "Corolla", 2020, 15000, 20000m),
+            _carFactory.Create("Honda", "Civic", 2019, 20000, 18000m),
+            _carFactory.Create("Ford", "Focus", 2021, 10000, 22000m)
         };
     }
 

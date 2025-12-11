@@ -1,9 +1,11 @@
-﻿using SharedKernel.Database;
-using Application.Cars.Create;
+﻿using Application.Cars.Create;
+using Domain.Abstractions;
 using Domain.Cars;
 using NSubstitute;
+using SharedKernel.Database;
 using Shouldly;
 using Xunit;
+using Infrastructure.IdentityGeneration;
 
 namespace UnitTests.Application.Cars.Create;
 
@@ -11,9 +13,12 @@ public class CreateCarHandlerTests
 {
     private readonly CreateCarHandler _handler;
     private readonly IRepository<Car> _repository = Substitute.For<IRepository<Car>>();
+    
     public CreateCarHandlerTests()
     {
-        _handler = new CreateCarHandler(_repository);
+        var idGenerator = new UuidSqlServerFriendlyGenerator(); 
+        var carFactory = new CarFactory(idGenerator);
+        _handler = new CreateCarHandler(_repository, carFactory);
     }
 
     [Fact()]
