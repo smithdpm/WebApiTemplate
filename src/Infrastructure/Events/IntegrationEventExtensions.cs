@@ -1,16 +1,16 @@
-﻿using Ardalis.Result;
+﻿
 using Azure.Messaging;
 using SharedKernel.Events.IntegrationEvents;
 
 
-namespace Infrastructure.Events.ServiceBus;
+namespace Infrastructure.Events;
 public static class IntegrationEventExtensions
 {
     public static CloudEvent ToCloudEvent(this IntegrationEventBase integrationEvent)
     {
         var cloudEvent = new CloudEvent(
             source: AppDomain.CurrentDomain.FriendlyName,
-            type: nameof(integrationEvent),
+            type: integrationEvent.GetType().Name,
             jsonSerializableData: integrationEvent,
             dataSerializationType: integrationEvent.GetType()
             );

@@ -1,3 +1,3 @@
 ﻿namespace SharedKernel.Events.DomainEvents;
 
-public record DomainEventBase: IDomainEvent;
+public abstract record DomainEventBase: IDomainEvent;

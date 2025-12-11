@@ -1,12 +1,11 @@
 ﻿
 using Application.Abstractions.Events;
 using Azure.Messaging.ServiceBus;
-using Infrastructure.Events.ServiceBus;
 using Microsoft.Extensions.Azure;
 using SharedKernel.Events.IntegrationEvents;
 
 
-namespace Infrastructure.Events;
+namespace Infrastructure.Events.ServiceBus;
 internal class ServiceBusEventDispatcher(IAzureClientFactory<ServiceBusSender> senderFactory) : IIntegrationEventDispatcher
 {
     public async Task DispatchEventsAsync(IEnumerable<IntegrationEventBase> integrationEvents, CancellationToken cancellationToken = default)
