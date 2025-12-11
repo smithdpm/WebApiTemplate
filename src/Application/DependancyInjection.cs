@@ -1,4 +1,5 @@
-﻿using Application.Behaviours.RepositoryCaching;
+﻿using Application.Behaviours.Registries;
+using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
 using Domain;
 using FluentValidation;
@@ -7,7 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Behaviours;
 using SharedKernel.Database;
-using SharedKernel.Events;
+using SharedKernel.Events.DomainEvents;
+using SharedKernel.Events.IntegrationEvents;
 using SharedKernel.Messaging;
 using System.Reflection;
 
@@ -18,7 +20,7 @@ public static class DependancyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        
+       
         services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
                 .AsImplementedInterfaces()
@@ -29,13 +31,16 @@ public static class DependancyInjection
             .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
+            .AddClasses(classes => classes.AssignableTo(typeof(IIntegrationEventHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
         services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
 
-       
+        services.AddSingleton<IIntegrationEventTypeRegistry>(r =>
+        {
+            return new IntegrationEventTypeRegistry(typeof(DependancyInjection).Assembly);
+        });
 
         services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
         services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
@@ -64,6 +69,11 @@ public static class DependancyInjection
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy<,>)), false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+            services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
+            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
         }

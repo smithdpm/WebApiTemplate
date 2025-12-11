@@ -1,16 +1,6 @@
 using Application;
-using SharedKernel.Messaging;
-using Application.Cars;
-using Application.Cars.Create;
-using Application.Cars.Get;
 using Infrastructure;
 using Infrastructure.Database;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Identity.Abstractions;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Resource;
 using System.Reflection;
 using Web.Api.Extensions;
 

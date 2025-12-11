@@ -1,6 +1,4 @@
 ﻿using SharedKernel.Messaging;
-using System.Globalization;
-using System.Xml.Schema;
 
 namespace Application.Cars.Create;
 

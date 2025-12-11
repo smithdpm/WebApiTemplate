@@ -4,5 +4,5 @@ namespace Application.Cars.SellCar;
 
 public sealed record SellCarCommand(
     Guid CarId,
-    decimal SalePrice) : ICommand<bool>;
+    decimal SalePrice) : ICommand;
 

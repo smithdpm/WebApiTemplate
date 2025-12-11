@@ -11,7 +11,7 @@ public class SellCarEndpoint: IEndpoint
     {
         app.MapPost("/cars/{carId:guid}/sell", async (Guid carId, 
             SellCarRequest request, 
-            ICommandHandler<SellCarCommand, bool> handler, CancellationToken cancellationToken) =>
+            ICommandHandler<SellCarCommand> handler, CancellationToken cancellationToken) =>
         {
             var command = new SellCarCommand(carId, request.SalePrice);
             

@@ -2,7 +2,7 @@
 using Application.Behaviours.RepositoryCaching;
 using Domain.Cars;
 using Domain.Cars.Events;
-using SharedKernel.Events;
+using SharedKernel.Events.DomainEvents;
 
 namespace Application.Cars.SellCar;
 

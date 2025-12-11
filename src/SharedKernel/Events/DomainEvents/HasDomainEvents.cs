@@ -1,7 +1,6 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SharedKernel.Events;
+namespace SharedKernel.Events.DomainEvents;
 
 public abstract class HasDomainEvents : IHasDomainEvents
 {
