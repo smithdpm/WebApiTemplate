@@ -68,7 +68,7 @@ public static class DependancyInjection
 
             services.AddDbContext<CatalogContext>(
                 options => options
-                .UseNpgsql(connectionString)
+                .UseAzureSql(connectionString)
                 .UseSnakeCaseNamingConvention());
         }
 

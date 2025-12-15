@@ -13,7 +13,7 @@ namespace Application.Cars.Create
 
             await repository.AddAsync(newCar, cancellationToken);
 
-            return newCar.Id;
+            return Result<Guid>.Created(newCar.Id);
         }
     }
 }
