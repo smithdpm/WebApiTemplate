@@ -7,12 +7,9 @@ namespace IntegrationTests;
 public class ServiceBusMessageSender
 {
     private readonly ServiceBusClient _client;
-    // readonly ServiceBusSender _sender;
     public ServiceBusMessageSender(string connectionString)
     {
         _client = new ServiceBusClient(connectionString);
-
-        //_sender = _client.CreateSender();
     }
     public async Task SendMessageAsync(List<IntegrationEventBase> integrationEvents, string queueOrTopicName, CancellationToken cancellationToken = default)
     {
