@@ -33,10 +33,4 @@ public static class EndpointExtensions
         }
         return app;
     }
-
-    public static RouteHandlerBuilder RequirePermission(
-        this RouteHandlerBuilder builder, string permission)
-    {
-        return builder.RequireAuthorization(permission);
-    }
 }
