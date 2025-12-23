@@ -31,7 +31,7 @@ public class CreateCarTests
         var createCarRequest = new CreateCarCommand("Toyota", "Corolla", 2020, 15000, 20000m);
 
         // Act
-        using var response = await client.PostAsJsonAsync("/cars", createCarRequest, cancellationToken);
+        using var response = await client.PostAsJsonAsync("api/cars", createCarRequest, cancellationToken);
         using var createdJson = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken);
 
         // Assert

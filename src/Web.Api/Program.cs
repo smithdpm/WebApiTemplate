@@ -1,6 +1,7 @@
 using Application;
 using Infrastructure;
 using Infrastructure.Database;
+using Scalar.AspNetCore;
 using System.Reflection;
 using Web.Api.Extensions;
 
@@ -20,10 +21,10 @@ builder.Services.AddOpenApi()
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 builder.Services.AddInfrastructureDependantBehaviours(builder.Configuration);
 
-
 var app = builder.Build();
 app.UseCacheInvalidationPolicies();
 app.MapEndpoints();
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -38,10 +39,17 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
-
+app.AddRequestIdHeader();
 app.UseAuthentication();
 app.UseAuthorization();
 

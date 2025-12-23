@@ -1,10 +1,11 @@
-﻿using Application.Cars;
+﻿
 using Application.Cars.CarBought;
 using IntegrationTests.TestCollections.Environments;
 using Polly;
 using SharedKernel.Events.IntegrationEvents;
 using Shouldly;
 using System.Net.Http.Json;
+using Web.Api.Endpoints.Cars.GetCars;
 
 
 namespace IntegrationTests.IntegrationEventTests;
@@ -53,22 +54,22 @@ public class CarBoughtTest
 
         // Assert
         boughtCar.ShouldNotBeNull();
-        boughtCar.First().Make.ShouldBe(carBoughtEvent.Make);
-        boughtCar.First().Model.ShouldBe(carBoughtEvent.Model);
-        boughtCar.First().Year.ShouldBe(carBoughtEvent.Year);
-        boughtCar.First().Mileage.ShouldBe(carBoughtEvent.Mileage);
-        boughtCar.First().Price.ShouldBe(carBoughtEvent.BuyPrice*1.2m, 0.01m);
+        boughtCar.Cars.First().Make.ShouldBe(carBoughtEvent.Make);
+        boughtCar.Cars.First().Model.ShouldBe(carBoughtEvent.Model);
+        boughtCar.Cars.First().Year.ShouldBe(carBoughtEvent.Year);
+        boughtCar.Cars.First().Mileage.ShouldBe(carBoughtEvent.Mileage);
+        boughtCar.Cars.First().Price.ShouldBe(carBoughtEvent.BuyPrice*1.2m, 0.01m);
     }
 
-    private static Task<List<CarDto>> WaitForCarsAsync(HttpClient client, string make, CancellationToken cancellationToken)
+    private static Task<GetCarsResponse> WaitForCarsAsync(HttpClient client, string make, CancellationToken cancellationToken)
     {
-        var retryPolicy = Policy<List<CarDto>?>
+        var retryPolicy = Policy<GetCarsResponse?>
             .Handle<HttpRequestException>()
-            .OrResult(cars => cars is null || !cars.Any())
+            .OrResult(response => response is null || !response.Cars.Any())
             .WaitAndRetryAsync(50, _ => TimeSpan.FromMilliseconds(200));
 
         var result = retryPolicy.ExecuteAsync(
-            () => client.GetFromJsonAsync<List<CarDto>>($"/cars?make={make}", cancellationToken));
+            () => client.GetFromJsonAsync<GetCarsResponse>($"api/cars?make={make}", cancellationToken));
 
         return result!;
     }

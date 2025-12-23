@@ -208,7 +208,7 @@ public static class DependancyInjection
             {
                 builder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, _, provider) =>
                     provider
-                        .GetService<ServiceBusClient>()
+                        .GetRequiredService<ServiceBusClient>()
                         .CreateSender(name)
                 )
                 .WithName(name);

@@ -1,9 +1,7 @@
 ﻿using Application.Abstractions.Events;
 using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
-using Ardalis.Specification.EntityFrameworkCore;
 using Domain;
-using Domain.Cars;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SharedKernel.Database;
