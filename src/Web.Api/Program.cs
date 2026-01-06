@@ -28,7 +28,7 @@ app.MapEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
-   var contexts = scope.ServiceProvider.GetServices<CatalogContext>();
+   var contexts = scope.ServiceProvider.GetServices<ApplicationContext>();
    foreach (var context in contexts)
     {
         context.Database.EnsureCreated();

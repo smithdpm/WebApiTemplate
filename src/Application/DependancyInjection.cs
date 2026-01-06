@@ -20,7 +20,7 @@ public static class DependancyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-       
+
         services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
                 .AsImplementedInterfaces()
@@ -37,15 +37,17 @@ public static class DependancyInjection
 
         services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
 
-        services.AddSingleton<IIntegrationEventTypeRegistry>(r =>
+        services.AddSingleton<IEventTypeRegistry>(r =>
         {
-            return new IntegrationEventTypeRegistry(typeof(DependancyInjection).Assembly);
+            var registry = new EventTypeRegistry();
+            registry.RegisterEventsFromAssembly(typeof(Domain.Entity<>).Assembly, typeof(IDomainEvent));
+            registry.RegisterEventsFromAssembly(typeof(DependancyInjection).Assembly, typeof(IIntegrationEvent));
+            return registry;
         });
 
-        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+        AddCommandHandlerDecorators(services);
 
-        return services;          
+        return services;
     }
 
     public static IServiceCollection AddInfrastructureDependantBehaviours(this IServiceCollection services, IConfiguration configuration)
@@ -105,6 +107,16 @@ public static class DependancyInjection
         }
 
         return app;
+    }
+    private static void AddCommandHandlerDecorators(IServiceCollection services)
+    {
+        services.Decorate(typeof(ICommandHandler<>), typeof(IntegrationEventDecorator.CommandHandler<>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandHandler<>));
+        services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandHandler<>));
+
+        services.Decorate(typeof(ICommandHandler<,>), typeof(IntegrationEventDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
     }
 
     private static IServiceCollection RegisterEntityFactories(this IServiceCollection services)

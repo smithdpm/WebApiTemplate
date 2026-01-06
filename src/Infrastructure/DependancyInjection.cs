@@ -1,9 +1,7 @@
 ﻿using Application.Abstractions.Events;
 using Application.Abstractions.Services;
 using Application.Behaviours.RepositoryCaching;
-using Azure.Identity;
 using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Events;
@@ -16,12 +14,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
 using Domain.Abstractions;
 using SharedKernel.Database;
-using System.Net.NetworkInformation;
 using System.Reflection;
+using SharedKernel.Events;
 
 namespace Infrastructure;
 
@@ -30,8 +27,9 @@ public static class DependancyInjection
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
-            services.AddDatabase(configuration)
+            services.AddDatabase(configuration)           
                 .AddAzureServiceBus(configuration)
+                .AddOutboxServices()
                 .AddIdentityGenerators()
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
@@ -56,24 +54,21 @@ public static class DependancyInjection
                 return connection;
             });
 
-            services.AddDbContext<CatalogContext>((provider, options) =>
+            services.AddDbContext<ApplicationContext>((provider, options) =>
             {
                 var connection = provider.GetService<SqliteConnection>();
-                options.UseSqlite(connection).UseSnakeCaseNamingConvention();
+                options.UseSqlite(connection);
             });
         }
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
 
-            services.AddDbContext<CatalogContext>(
+            services.AddDbContextFactory<ApplicationContext>(
                 options => options
                 .UseAzureSql(connectionString)
-                .UseSnakeCaseNamingConvention());
+                .AddInterceptors(new OutboxSaveChangesInterceptor()));
         }
-
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-
         services.AddRepository(configuration);
 
         return services;
@@ -136,6 +131,8 @@ public static class DependancyInjection
         var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
             .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
         services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
+
+        services.AddScoped<IRepository<OutboxMessage>,EfRepository<OutboxMessage>>();
 
         if (repositoryCachingSettings.Enabled)   
             return services.AddRepositoryWithCacheInvalidation(configuration);
@@ -215,8 +212,6 @@ public static class DependancyInjection
             }
         });
 
-        services.AddScoped<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
-
         return services;
     }
 
@@ -230,7 +225,7 @@ public static class DependancyInjection
 
         foreach (var topicSubscriber in topicSubscribers)
         {
-            services.AddHostedService<ServiceBusTopicSubscriber>(provider =>
+            services.AddHostedService(provider =>
             ActivatorUtilities.CreateInstance<ServiceBusTopicSubscriber>(
                     provider,
                     topicSubscriber)
@@ -264,6 +259,16 @@ public static class DependancyInjection
     {
         services.AddScoped<IIdGenerator<Guid>, UuidSqlServerFriendlyGenerator>();
 
+        return services;
+    }
+
+    private static IServiceCollection AddOutboxServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IOutboxRepository, OutboxRepository>();
+        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
+        services.AddHostedService(provider=>
+            ActivatorUtilities.CreateInstance<OutboxDispatcher>(provider));
         return services;
     }
 }

@@ -15,14 +15,14 @@ public class ServiceBusTopicSubscriber : BackgroundService
     private readonly ILogger<ServiceBusTopicSubscriber> _logger;
     private readonly ServiceBusProcessor _processor;
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IIntegrationEventTypeRegistry _integrationEventTypeRegistry;
+    private readonly IEventTypeRegistry _integrationEventTypeRegistry;
     private readonly string _topicName;
     private readonly string _subscriptionName;
 
     public ServiceBusTopicSubscriber(ILogger<ServiceBusTopicSubscriber> logger
         , ServiceBusClient serviceBusClient
         , IServiceScopeFactory scopeFactory
-        , IIntegrationEventTypeRegistry integrationEventTypeRegistry
+        , IEventTypeRegistry integrationEventTypeRegistry
         , ServiceBusTopicSubscriberSettings serviceBusTopicSubscriberSettings)
     {
         _logger = logger;
@@ -211,7 +211,13 @@ public class ServiceBusTopicSubscriber : BackgroundService
         public static HandlerWrapper Create(object handler, Type integrationEventType)
         {
             Type wrapperType = typeof(HandlerWrapper<>).MakeGenericType(integrationEventType);
-            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler);
+            
+            var wrapper = Activator.CreateInstance(wrapperType, handler);
+
+            if (wrapper == null)
+                throw new Exception($"Creating instance of {wrapperType} returned null value.");
+
+            return (HandlerWrapper)wrapper;
         }
     }
 

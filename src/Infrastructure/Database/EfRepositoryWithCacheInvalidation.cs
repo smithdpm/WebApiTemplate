@@ -13,10 +13,10 @@ public sealed class EfRepositoryWithCacheInvalidation<T, TId>: EfRepository<T>
     where T : Entity<TId>, IAggregateRoot
 {
     private readonly IRepositoryCacheInvalidationHandler<T, TId> _repositoryCacheInvalidationHandler;
-    public EfRepositoryWithCacheInvalidation(CatalogContext dbContext
+    public EfRepositoryWithCacheInvalidation(ApplicationContext dbContext
         , IDomainEventDispatcher domainEventDispatcher
         , IRepositoryCacheInvalidationHandler<T, TId> repositoryCacheInvalidationHandler)
-        : base(dbContext, domainEventDispatcher)
+        : base(dbContext)
     {
         _repositoryCacheInvalidationHandler = repositoryCacheInvalidationHandler;
     }
