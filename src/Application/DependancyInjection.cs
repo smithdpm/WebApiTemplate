@@ -40,8 +40,8 @@ public static class DependancyInjection
         services.AddSingleton<IEventTypeRegistry>(r =>
         {
             var registry = new EventTypeRegistry();
-            registry.RegisterEventsFromAssembly(typeof(Domain.Entity<>).Assembly, typeof(IDomainEvent));
-            registry.RegisterEventsFromAssembly(typeof(DependancyInjection).Assembly, typeof(IIntegrationEvent));
+            registry.RegisterDomainEventsFromAssemblyTypes(typeof(Domain.Entity<>).Assembly.GetTypes());
+            registry.RegisterIntegrationEventsFromAssemblyTypes(typeof(DependancyInjection).Assembly.GetTypes());
             return registry;
         });
 
