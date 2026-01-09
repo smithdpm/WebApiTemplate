@@ -4,11 +4,11 @@ using SharedKernel.Database;
 using SharedKernel.Events;
 
 namespace Infrastructure.Database;
-internal class OutboxRepository : IOutboxRepository
+internal class OutboxRepository<TDbContext> : IOutboxRepository where TDbContext : DbContext
 {
-    protected readonly IDbContextFactory<ApplicationContext> _contextFactory;
+    protected readonly IDbContextFactory<TDbContext> _contextFactory;
 
-    public OutboxRepository(IDbContextFactory<ApplicationContext> contextFactory)
+    public OutboxRepository(IDbContextFactory<TDbContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
@@ -25,7 +25,7 @@ internal class OutboxRepository : IOutboxRepository
             var messages = await context.Set<OutboxMessage>()
                 .FromSql($@"
                 SELECT TOP ({batchSize}) * 
-                FROM OutboxMessages WITH (UPDLOCK, READPAST)
+                FROM outbox.OutboxMessages WITH (UPDLOCK, READPAST)
                 WHERE ProcessedAtUtc IS NULL 
                     AND (LockedUntilUtc IS NULL OR LockedUntilUtc < GETUTCDATE())
                 ORDER BY Id ASC")
@@ -50,7 +50,7 @@ internal class OutboxRepository : IOutboxRepository
 
     public async Task MarkMessageAsErrored(int id, string errorMessage, CancellationToken cancellationToken)
     {
-        await _contextFactory.CreateDbContext().OutboxMessages.Where(m => m.Id == id)
+        await _contextFactory.CreateDbContext().Set<OutboxMessage>().Where(m => m.Id == id)
             .ExecuteUpdateAsync(setter => setter
                 .SetProperty(x=>x.Error, errorMessage)
                 .SetProperty(x => x.ProcessingAttempts, x => x.ProcessingAttempts + 1)
@@ -60,7 +60,7 @@ internal class OutboxRepository : IOutboxRepository
 
     public async Task MarkMessageAsCompleted(int id, CancellationToken cancellationToken)
     {
-        await _contextFactory.CreateDbContext().OutboxMessages.Where(m => m.Id == id)
+        await _contextFactory.CreateDbContext().Set<OutboxMessage>().Where(m => m.Id == id)
             .ExecuteUpdateAsync(setter => setter
                 .SetProperty(x => x.ProcessedAtUtc, DateTimeOffset.UtcNow)
                 .SetProperty(x => x.ProcessingAttempts, x => x.ProcessingAttempts + 1),
@@ -68,7 +68,7 @@ internal class OutboxRepository : IOutboxRepository
     }
     public async Task MarkMessageForRetry(int id, CancellationToken cancellationToken)
     {
-        await _contextFactory.CreateDbContext().OutboxMessages.Where(m => m.Id == id)
+        await _contextFactory.CreateDbContext().Set<OutboxMessage>().Where(m => m.Id == id)
             .ExecuteUpdateAsync(setter => setter
                 .SetProperty(x => x.ProcessingAttempts, x=> x.ProcessingAttempts + 1),
                 cancellationToken);

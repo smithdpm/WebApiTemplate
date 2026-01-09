@@ -29,7 +29,7 @@ public static class DependancyInjection
         IConfiguration configuration) => 
             services.AddDatabase(configuration)           
                 .AddAzureServiceBus(configuration)
-                .AddOutboxServices()
+                .AddOutboxServices<ApplicationContext>()
                 .AddIdentityGenerators()
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
@@ -69,6 +69,8 @@ public static class DependancyInjection
                 .UseAzureSql(connectionString)
                 .AddInterceptors(new OutboxSaveChangesInterceptor()));
         }
+
+
         services.AddRepository(configuration);
 
         return services;
@@ -131,8 +133,6 @@ public static class DependancyInjection
         var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
             .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
         services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
-
-        services.AddScoped<IRepository<OutboxMessage>,EfRepository<OutboxMessage>>();
 
         if (repositoryCachingSettings.Enabled)   
             return services.AddRepositoryWithCacheInvalidation(configuration);
@@ -262,9 +262,11 @@ public static class DependancyInjection
         return services;
     }
 
-    private static IServiceCollection AddOutboxServices(this IServiceCollection services)
+    private static IServiceCollection AddOutboxServices<TContext>(this IServiceCollection services) 
+        where TContext : DbContext
     {
-        services.AddSingleton<IOutboxRepository, OutboxRepository>();
+        services.AddScoped<IRepository<OutboxMessage>, EfRepository<OutboxMessage>>();
+        services.AddSingleton<IOutboxRepository, OutboxRepository<TContext>>();
         services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
         services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
         services.AddHostedService(provider=>
