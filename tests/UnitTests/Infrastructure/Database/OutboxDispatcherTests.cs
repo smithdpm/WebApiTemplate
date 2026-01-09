@@ -43,7 +43,7 @@ public class OutboxDispatcherTests
     public async Task ExecuteAsync_ShouldProcessMessages_WhenMessagesAvailable()
     {
         // Arrange
-        var testEvent = new TestDomainEvent { Id = Guid.NewGuid(), Name = "Test" };
+        var testEvent = new TestDomainEvent { EntityId = Guid.NewGuid(), Name = "Test" };
         var message = CreateOutboxMessage(testEvent, null);
         
         _outboxRepository.FetchOutboxMessagesForProcessing(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
@@ -69,7 +69,7 @@ public class OutboxDispatcherTests
     public async Task ExecuteAsync_ShouldRouteToCorrectDispatcher_WhenDestinationNull()
     {
         // Arrange
-        var domainEvent = new TestDomainEvent { Id = Guid.NewGuid(), Name = "Domain Event" };
+        var domainEvent = new TestDomainEvent { EntityId = Guid.NewGuid(), Name = "Domain Event" };
         var message = CreateOutboxMessage(domainEvent, null);
         
         _outboxRepository.FetchOutboxMessagesForProcessing(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
@@ -94,7 +94,7 @@ public class OutboxDispatcherTests
     public async Task ExecuteAsync_ShouldRouteToCorrectDispatcher_WhenDestinationNotNull()
     {
         // Arrange
-        var integrationEvent = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "Integration Event" };
+        var integrationEvent = new TestIntegrationEvent { AggregateRootId = Guid.NewGuid(), Data = "Integration Event" };
         var destination = "test-topic";
         var message = CreateOutboxMessage(integrationEvent, destination);
         
@@ -176,22 +176,26 @@ public class OutboxDispatcherTests
     public async Task ExecuteAsync_ShouldContinueProcessing_WhenSingleMessageFails()
     {
         // Arrange
-        var failingMessage = new OutboxMessage("FailingEvent", "{}", DateTimeOffset.UtcNow) { Id = 1 };
-        var successMessage = new OutboxMessage("SuccessEvent", "{}", DateTimeOffset.UtcNow) { Id = 2 };
-        
+        var failingEvent = new TestDomainEvent { EntityId = Guid.NewGuid(), Name = "Failing Event" };
+        var successEvent = new TestDomainEvent { EntityId = Guid.NewGuid(), Name = "Success Event" };
+        var failingMessage = CreateOutboxMessage(failingEvent, null);
+        var successMessage = CreateOutboxMessage(successEvent, null);
+
+
         _outboxRepository.FetchOutboxMessagesForProcessing(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(new List<OutboxMessage> { failingMessage, successMessage }, new List<OutboxMessage>());
         
-        _eventTypeRegistry.GetTypeByName("FailingEvent").Returns(typeof(TestDomainEvent));
-        _eventTypeRegistry.GetTypeByName("SuccessEvent").Returns(typeof(TestDomainEvent));
+        _eventTypeRegistry.GetTypeByName("TestDomainEvent").Returns(typeof(TestDomainEvent));
         
         _domainEventDispatcher.DispatchEventsAsync(
                 Arg.Is<List<IDomainEvent>>(events => events.Any()), 
                 Arg.Any<CancellationToken>())
             .Returns(callInfo => 
             {
+                var domainEvents = callInfo.ArgAt<List<IDomainEvent>>(0);
+                var testEvent = domainEvents.OfType<TestDomainEvent>().FirstOrDefault();
                 // Fail for first message, succeed for second
-                if (callInfo.ArgAt<List<IDomainEvent>>(0).Count == 1 && failingMessage.Id == 1)
+                if (domainEvents.Count == 1 && testEvent!.EntityId == failingEvent.EntityId)
                     throw new Exception("First message failed");
                 return Task.CompletedTask;
             });
@@ -330,13 +334,13 @@ public class OutboxDispatcherTests
 
     private record TestDomainEvent : DomainEventBase, IDomainEvent
     {
-        public new Guid Id { get; init; }
+        public Guid EntityId { get; init; }
         public string Name { get; init; } = string.Empty;
     }
 
     private record TestIntegrationEvent : IntegrationEventBase
     {
-        public Guid EventId { get; init; }
+        public Guid AggregateRootId { get; init; }
         public string Data { get; init; } = string.Empty;
     }
 }
