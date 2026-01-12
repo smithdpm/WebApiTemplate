@@ -1,12 +1,14 @@
 ﻿
+using Application.Cars.IntegrationEvents;
 using Ardalis.Result;
 using Domain.Cars;
 using SharedKernel.Database;
+using SharedKernel.Events.IntegrationEvents;
 using SharedKernel.Messaging;
 
 namespace Application.Cars.SellCar;
 
-internal class SellCarHandler(IRepository<Car> repository) : ICommandHandler<SellCarCommand>
+internal class SellCarHandler(IRepository<Car> repository) : HasIntegrationEvents, ICommandHandler<SellCarCommand>
 {
     public async Task<Result> Handle(SellCarCommand command, CancellationToken cancellationToken)
     {
@@ -18,7 +20,10 @@ internal class SellCarHandler(IRepository<Car> repository) : ICommandHandler<Sel
         var result = car.SellCar(command.SalePrice);
 
         if(result.IsSuccess)
+        {
+            AddIntegrationEvent("cars-events", new CarSoldIntegrationEvent(car.Id, (DateTime)car.SoldAt!, (decimal)car.SoldPrice!));
             await repository.UpdateAsync(car, cancellationToken);
+        }           
 
         return result;
     }

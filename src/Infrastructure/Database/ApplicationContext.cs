@@ -1,12 +1,13 @@
 ﻿using Domain.Cars;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Database;
 using System.Reflection;
 
 namespace Infrastructure.Database;
 
-public class CatalogContext: DbContext
+public class ApplicationContext: DbContext
 {
-    public CatalogContext(DbContextOptions<CatalogContext> options) : base(options) { }
+    public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
     public DbSet<Car> Cars { get; set; }
 
@@ -14,5 +15,7 @@ public class CatalogContext: DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        modelBuilder.ApplyOutboxConfiguration();
     }
 }

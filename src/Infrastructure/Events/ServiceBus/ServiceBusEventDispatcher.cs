@@ -8,9 +8,9 @@ using SharedKernel.Events.IntegrationEvents;
 namespace Infrastructure.Events.ServiceBus;
 internal class ServiceBusEventDispatcher(IAzureClientFactory<ServiceBusSender> senderFactory) : IIntegrationEventDispatcher
 {
-    public async Task DispatchEventsAsync(IEnumerable<IntegrationEventBase> integrationEvents, CancellationToken cancellationToken = default)
+    public async Task DispatchEventsAsync(IEnumerable<IntegrationEventBase> integrationEvents, string queueOrTopic, CancellationToken cancellationToken = default)
     {
-        var sender = senderFactory.CreateClient("cars-events");
+        var sender = senderFactory.CreateClient(queueOrTopic);
 
         Queue<ServiceBusMessage> messages = new();
 

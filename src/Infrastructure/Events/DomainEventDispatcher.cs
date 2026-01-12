@@ -4,7 +4,7 @@ using SharedKernel.Events.DomainEvents;
 
 namespace Infrastructure.Events;
 
-internal class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher
+internal class DomainEventDispatcher(IServiceScopeFactory scopeFactory) : IDomainEventDispatcher
 {
     public async Task DispatchEventsAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken = default)
     {
@@ -12,16 +12,20 @@ internal class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomain
         {
 
             var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(domainEvent.GetType());
-            var handlers = serviceProvider.GetServices(handlerType);
 
-            foreach (var handler in handlers)
+            using (var scope = scopeFactory.CreateScope())
             {
-                if (handler == null) continue;
+                var handlers = scope.ServiceProvider.GetServices(handlerType);
 
-                var handlerWrapper = HandlerWrapper.Create(handler, domainEvent.GetType());
+                foreach (var handler in handlers)
+                {
+                    if (handler == null) continue;
 
-                await handlerWrapper.Handle(domainEvent, cancellationToken);
-            }
+                    var handlerWrapper = HandlerWrapper.Create(handler, domainEvent.GetType());
+
+                    await handlerWrapper.Handle(domainEvent, cancellationToken);
+                }
+            }           
         }    
     }
 
@@ -32,7 +36,13 @@ internal class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomain
         public static HandlerWrapper Create(object handler, Type domainEventType)
         {
             Type wrapperType = typeof(HandlerWrapper<>).MakeGenericType(domainEventType);
-            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler);
+
+            var wrapper = Activator.CreateInstance(wrapperType, handler);
+
+            if (wrapper == null)
+                throw new Exception($"Creating instance of {wrapperType} returned null value.");
+
+            return (HandlerWrapper)wrapper;
         }
     }
 
