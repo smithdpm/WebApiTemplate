@@ -11,6 +11,7 @@ public static class OutboxModelBuilderExtensions
         {
             builder.ToTable("OutboxMessages", schema);
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
             builder.HasIndex(x => new {
                 x.ProcessedAtUtc,
