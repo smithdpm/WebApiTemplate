@@ -54,7 +54,7 @@ public static class DependancyInjection
                 return connection;
             });
 
-            services.AddDbContext<ApplicationContext>((provider, options) =>
+            services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {
                 var connection = provider.GetService<SqliteConnection>();
                 options.UseSqlite(connection);

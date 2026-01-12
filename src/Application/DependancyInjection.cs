@@ -1,4 +1,5 @@
-﻿using Application.Behaviours.Registries;
+﻿using Application.Behaviours;
+using Application.Behaviours.Registries;
 using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
 using Domain;
@@ -20,32 +21,12 @@ public static class DependancyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-
-        services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IIntegrationEventHandler<>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-        services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
-
-        services.AddSingleton<IEventTypeRegistry>(r =>
+        services.AddCqrsBehaviours(typeof(DependancyInjection).Assembly, typeof(Domain.Entity<>).Assembly, pipelineBuilder =>
         {
-            var registry = new EventTypeRegistry();
-            registry.RegisterDomainEventsFromAssemblyTypes(typeof(Domain.Entity<>).Assembly.GetTypes());
-            registry.RegisterIntegrationEventsFromAssemblyTypes(typeof(DependancyInjection).Assembly.GetTypes());
-            return registry;
+            pipelineBuilder.AddIntegrationEventHandling();          
+            pipelineBuilder.AddValidation();
+            pipelineBuilder.AddLogging();
         });
-
-        AddCommandHandlerDecorators(services);
 
         return services;
     }
@@ -71,11 +52,6 @@ public static class DependancyInjection
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
             .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy<,>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-            services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
         }
@@ -107,16 +83,6 @@ public static class DependancyInjection
         }
 
         return app;
-    }
-    private static void AddCommandHandlerDecorators(IServiceCollection services)
-    {
-        services.Decorate(typeof(ICommandHandler<>), typeof(IntegrationEventDecorator.CommandHandler<>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandHandler<>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandHandler<>));
-
-        services.Decorate(typeof(ICommandHandler<,>), typeof(IntegrationEventDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
     }
 
     private static IServiceCollection RegisterEntityFactories(this IServiceCollection services)
