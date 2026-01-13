@@ -12,5 +12,6 @@ public interface ICommandPipelineBuilder
     ICommandPipelineBuilder AddIntegrationEventHandling();
     ICommandPipelineBuilder AddCustomDecoratorForCommandWithResult(Type decoratorType);
     ICommandPipelineBuilder AddCustomDecoratorCommandWithoutResult(Type decoratorType);
+    ICommandPipelineBuilder AddAtomicTransactionHandling();
 }
 

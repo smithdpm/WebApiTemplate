@@ -27,6 +27,13 @@ internal class CommandPipelineBuilder(IServiceCollection services) : ICommandPip
         return this;
     }
 
+    public ICommandPipelineBuilder AddAtomicTransactionHandling()
+    {
+        Services.Decorate(typeof(ICommandHandler<,>), typeof(AtomicTransactionDecorator<,>));
+        Services.Decorate(typeof(ICommandHandler<>), typeof(AtomicTransactionDecorator<>));
+        return this;
+    }
+
     public ICommandPipelineBuilder AddLogging()
     {
         Services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator<,>));

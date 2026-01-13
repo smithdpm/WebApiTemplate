@@ -19,17 +19,17 @@ namespace Application;
 
 public static class DependancyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
-    {
-        services.AddCqrsBehaviours(typeof(DependancyInjection).Assembly, typeof(Domain.Entity<>).Assembly, pipelineBuilder =>
-        {
-            pipelineBuilder.AddIntegrationEventHandling();          
-            pipelineBuilder.AddValidation();
-            pipelineBuilder.AddLogging();
-        });
+    //public static IServiceCollection AddApplication(this IServiceCollection services)
+    //{
+    //    services.AddCqrsBehaviours(typeof(DependancyInjection).Assembly, typeof(Domain.Entity<>).Assembly, pipelineBuilder =>
+    //    {
+    //        pipelineBuilder.AddIntegrationEventHandling();          
+    //        pipelineBuilder.AddValidation();
+    //        pipelineBuilder.AddLogging();
+    //    });
 
-        return services;
-    }
+    //    return services;
+    //}
 
     public static IServiceCollection AddInfrastructureDependantBehaviours(this IServiceCollection services, IConfiguration configuration)
     {

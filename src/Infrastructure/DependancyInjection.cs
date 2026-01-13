@@ -2,6 +2,7 @@
 using Application.Abstractions.Services;
 using Application.Behaviours.RepositoryCaching;
 using Azure.Messaging.ServiceBus;
+using Domain.Abstractions;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
 using Infrastructure.Events;
@@ -15,10 +16,11 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using Domain.Abstractions;
+using SharedKernel.Behaviours;
 using SharedKernel.Database;
-using System.Reflection;
 using SharedKernel.Events;
+using SharedKernel.Messaging;
+using System.Reflection;
 
 namespace Infrastructure;
 
@@ -130,6 +132,8 @@ public static class DependancyInjection
     private static IServiceCollection AddRepository(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddScoped<IUnitOfWork, EfUnitOfWork<ApplicationContext>>();
+
         var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
             .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
         services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
@@ -271,6 +275,7 @@ public static class DependancyInjection
         services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
         services.AddHostedService(provider=>
             ActivatorUtilities.CreateInstance<OutboxDispatcher>(provider));
+
         return services;
     }
 }
