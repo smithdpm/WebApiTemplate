@@ -16,6 +16,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
+using SharedKernel.Abstractions;
 using SharedKernel.Behaviours;
 using SharedKernel.Database;
 using SharedKernel.Events;
@@ -65,11 +66,15 @@ public static class DependancyInjection
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
-
-            services.AddDbContextFactory<ApplicationContext>(
-                options => options
+            services.AddSingleton<CacheInvalidatorGenericHandler>();
+            services.AddSingleton<CacheInvalidationInterceptor>();
+            services.AddSingleton<OutboxSaveChangesInterceptor>();
+            services.AddDbContextFactory<ApplicationContext>((provider, options) =>
+            {
+                options
                 .UseAzureSql(connectionString)
-                .AddInterceptors(new OutboxSaveChangesInterceptor()));
+                .AddInterceptors(provider.GetRequiredService<OutboxSaveChangesInterceptor>(), provider.GetRequiredService<CacheInvalidationInterceptor>());
+            });
         }
 
 
@@ -96,39 +101,6 @@ public static class DependancyInjection
         return services;
     }
 
-    private static IServiceCollection RegisterEfRepositoryWithCacheInvalidationImplementations(this IServiceCollection services)
-    {
-        var assembly = typeof(Domain.IEntity<>).Assembly;
-        var repositoryType = typeof(IRepository<>);
-        var aggregateRootType = typeof(IAggregateRoot);
-        var repositoryWithCacheInvalidationImplementationType = typeof(EfRepositoryWithCacheInvalidation<,>);
-
-        var closedTypesOfIAggregateRoot = assembly.GetTypes()
-            .Where(t => !t.IsAbstract && !t.IsInterface && aggregateRootType.IsAssignableFrom(t));
-        
-
-        foreach (var aggregate in closedTypesOfIAggregateRoot)
-        {
-            var closedInterfaceType = repositoryType.MakeGenericType(aggregate);
-
-            if (services.Any(s => s.ServiceType == closedInterfaceType))
-                continue;
-
-            if (aggregate.BaseType != null)
-            {
-                var idType = aggregate.BaseType.GenericTypeArguments[0];
-                Type[] closedTypes = [aggregate, idType];
-
-                var closedImplmentationType = repositoryWithCacheInvalidationImplementationType
-                    .MakeGenericType(closedTypes);
-
-                services.AddScoped(closedInterfaceType, closedImplmentationType);
-            }            
-        }
-
-        return services;
-    }
-
     private static IServiceCollection AddRepository(this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -138,38 +110,21 @@ public static class DependancyInjection
             .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
         services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
 
-        if (repositoryCachingSettings.Enabled)   
-            return services.AddRepositoryWithCacheInvalidation(configuration);
-
-
-        return services.AddRepositoryDefault(configuration);
-    }
-
-    private static IServiceCollection AddRepositoryDefault(this IServiceCollection services,
-        IConfiguration configuration)
-    {
         services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
-             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
+            typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
         services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
              typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
-        return services;
-    }
-
-    private static IServiceCollection AddRepositoryWithCacheInvalidation(this IServiceCollection services,
-        IConfiguration configuration)
-    {
-        services.RegisterEfRepositoryWithCacheInvalidationImplementations();
-
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
-             typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
-
-        services.AddMemoryCache();
-        services.AddScoped<ICacheService, MemoryCache>();
+        if (repositoryCachingSettings.Enabled)
+        {
+            services.AddMemoryCache();
+            services.AddScoped<ICacheService, MemoryCache>();
+        }
 
         return services;
     }
+
 
     private static IServiceCollection AddAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
     {

@@ -1,12 +1,9 @@
 ﻿
-
-using Domain;
-using SharedKernel.Database;
+using SharedKernel.Abstractions;
 
 namespace Application.Behaviours.RepositoryCaching;
-public record ChangedEntity<T, TId>
-(TId Id, Type EntityType, T? Before, T? After)
-    where TId : struct, IEquatable<TId>
-    where T : Entity<TId>, IAggregateRoot;
-
-
+public record ChangedEntity<T>
+    (string Id,
+    T? Before,
+    T? After)
+    where T : IHasId;

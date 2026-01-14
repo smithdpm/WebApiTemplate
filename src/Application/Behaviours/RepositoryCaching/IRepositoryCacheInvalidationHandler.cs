@@ -1,11 +1,8 @@
-﻿using Domain;
-using SharedKernel.Database;
-using System.Threading;
+﻿using SharedKernel.Abstractions;
 
 namespace Application.Behaviours.RepositoryCaching;
-public interface IRepositoryCacheInvalidationHandler<T, TId>
-    where T : Entity<TId>, IAggregateRoot
-    where TId : struct, IEquatable<TId>
+public interface IRepositoryCacheInvalidationHandler<T>
+    where T : IHasId
 {
-    Task HandleAsync(List<ChangedEntity<T, TId>> changedEntities, CancellationToken cancellationToken);
+    Task HandleAsync(List<ChangedEntity<T>> changedEntities, CancellationToken cancellationToken);
 }

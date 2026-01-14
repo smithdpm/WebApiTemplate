@@ -46,7 +46,9 @@ public class CarBoughtTest
 
         var events = new List<IntegrationEventBase>();
         events.Add(carBoughtEvent);
-        
+
+
+        var primer = await client.GetFromJsonAsync<GetCarsResponse>($"api/cars?make={carBoughtEvent.Make}", cancellationToken);
         // Act
         await serviceBusSender.SendMessageAsync(events, "warehouse-events", cancellationToken);
 
