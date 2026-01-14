@@ -1,4 +1,5 @@
-﻿using Application.Behaviours.Registries;
+﻿using Application.Behaviours;
+using Application.Behaviours.Registries;
 using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
 using Domain;
@@ -6,6 +7,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Abstractions;
 using SharedKernel.Behaviours;
 using SharedKernel.Database;
 using SharedKernel.Events.DomainEvents;
@@ -18,38 +20,6 @@ namespace Application;
 
 public static class DependancyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
-    {
-
-        services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime()
-            .AddClasses(classes => classes.AssignableTo(typeof(IIntegrationEventHandler<>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-        services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
-
-        services.AddSingleton<IEventTypeRegistry>(r =>
-        {
-            var registry = new EventTypeRegistry();
-            registry.RegisterDomainEventsFromAssemblyTypes(typeof(Domain.Entity<>).Assembly.GetTypes());
-            registry.RegisterIntegrationEventsFromAssemblyTypes(typeof(DependancyInjection).Assembly.GetTypes());
-            return registry;
-        });
-
-        AddCommandHandlerDecorators(services);
-
-        return services;
-    }
-
     public static IServiceCollection AddInfrastructureDependantBehaviours(this IServiceCollection services, IConfiguration configuration)
     {
         var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
@@ -65,17 +35,12 @@ public static class DependancyInjection
             services.AddSingleton<IInvalidationMap>(invalidationMap);
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(IRepositoryCacheInvalidationHandler<,>)), false)
+            .AddClasses(classes => classes.AssignableTo(typeof(IRepositoryCacheInvalidationHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy<,>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
-
-            services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
+            .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
         }
@@ -100,23 +65,13 @@ public static class DependancyInjection
 
             var entityTypes = typeof(IEntity<>).Assembly
                     .GetTypes()
-                    .Where(t => typeof(IAggregateRoot).IsAssignableFrom(t)
+                    .Where(t => typeof(IHasId).IsAssignableFrom(t)
                     && !t.IsInterface && !t.IsAbstract);
 
             RegisterCachingInvalidationPoliciesForEntities(scopedProvider, invalidationMap, entityTypes);
         }
 
         return app;
-    }
-    private static void AddCommandHandlerDecorators(IServiceCollection services)
-    {
-        services.Decorate(typeof(ICommandHandler<>), typeof(IntegrationEventDecorator.CommandHandler<>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandHandler<>));
-        services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandHandler<>));
-
-        services.Decorate(typeof(ICommandHandler<,>), typeof(IntegrationEventDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
-        services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
     }
 
     private static IServiceCollection RegisterEntityFactories(this IServiceCollection services)
@@ -148,9 +103,7 @@ public static class DependancyInjection
             if (entityInterface is null)
                 continue;
 
-            var idType = entityInterface.GenericTypeArguments[0];
-
-            helper.MakeGenericMethod(entityType, idType).Invoke(null, new object[] { invalidationMap, provider });
+            helper.MakeGenericMethod(entityType).Invoke(null, new object[] { invalidationMap, provider });
         }
     }
 
@@ -161,15 +114,14 @@ public static class DependancyInjection
                 ?? throw new InvalidOperationException("Helper method not found.");
     }
 
-    private static void RegisterPoliciesForType<TEntity, TId>(IInvalidationMap map, IServiceProvider provider)
-        where TEntity : Entity<TId>, IAggregateRoot
-        where TId : struct, IEquatable<TId>
+    private static void RegisterPoliciesForType<TEntity>(IInvalidationMap map, IServiceProvider provider)
+        where TEntity : IHasId
     {
-        var policies = provider.GetServices<ICacheInvalidationPolicy<TEntity, TId>>();
+        var policies = provider.GetServices<ICacheInvalidationPolicy<TEntity>>();
 
         if (!policies.Any()) return;
 
-        Func<ChangedEntity<TEntity, TId>, IEnumerable<string>> combinedFunc = changedEntity =>
+        Func<ChangedEntity<TEntity>, IEnumerable<string>> combinedFunc = changedEntity =>
             policies.SelectMany(p => p.GetKeysToInvalidate(changedEntity));
 
         map.RegisterMap(combinedFunc);

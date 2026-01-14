@@ -4,7 +4,7 @@ using Application.Cars.GetByMake;
 using Domain.Cars;
 
 namespace Application.Cars;
-internal class CarCacheInvalidationPolicy : StandardCacheInvalidationPolicy<Car, Guid>
+internal class CarCacheInvalidationPolicy : StandardCacheInvalidationPolicy<Car>
 {
     protected override IEnumerable<Func<Car, string?>> CacheInvalidationFunctionsByEntity()
     {

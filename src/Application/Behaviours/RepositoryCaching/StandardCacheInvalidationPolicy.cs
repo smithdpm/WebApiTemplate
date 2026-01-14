@@ -1,29 +1,27 @@
-﻿using Domain;
-using SharedKernel.Database;
+﻿using SharedKernel.Abstractions;
 using SharedKernel.Extensions;
 
 namespace Application.Behaviours.RepositoryCaching;
-internal abstract class StandardCacheInvalidationPolicy<T, TId> : ICacheInvalidationPolicy<T, TId>
-    where T : Entity<TId>, IAggregateRoot
-    where TId : struct, IEquatable<TId>
+internal abstract class StandardCacheInvalidationPolicy<T> : ICacheInvalidationPolicy<T>
+    where T : IHasId
 {
     protected abstract IEnumerable<Func<T, string?>> CacheInvalidationFunctionsByEntity();
     
-    public virtual string CacheInvalidationFunction(ChangedEntity<T, TId> changedEntity)
+    public virtual string CacheInvalidationFunction(ChangedEntity<T> changedEntity)
     { 
         return RepositoryCachingHelper.GenerateCacheKey(typeof(T).Name, changedEntity.Id);
     }
 
-    public virtual IEnumerable<string> GetKeysToInvalidate(ChangedEntity<T, TId> changedEntity)
+    public virtual IEnumerable<string> GetKeysToInvalidate(ChangedEntity<T> changedEntity)
     {
         return GetKeysToInvalidateNonUnique(changedEntity).Distinct();
     }
-    protected virtual IEnumerable<string> GetAdditionalKeysToInvalidate(ChangedEntity<T, TId> changedEntity)
+    protected virtual IEnumerable<string> GetAdditionalKeysToInvalidate(ChangedEntity<T> changedEntity)
     {
         yield break;
     }
 
-    protected IEnumerable<string> GetKeysToInvalidateNonUnique(ChangedEntity<T, TId> changedEntity)
+    protected IEnumerable<string> GetKeysToInvalidateNonUnique(ChangedEntity<T> changedEntity)
     {
         yield return CacheInvalidationFunction(changedEntity);
 

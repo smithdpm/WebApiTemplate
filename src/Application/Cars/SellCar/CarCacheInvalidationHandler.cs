@@ -10,7 +10,7 @@ public class CarCacheInvalidationHandler(ICacheService cacheService) : IDomainEv
 {
     public async Task HandleAsync(CarSoldEvent domainEvent, CancellationToken cancellationToken = default)
     {
-        var cacheKey = RepositoryCachingHelper.GenerateCacheKey(typeof(Car).Name, domainEvent.CarId);
+        var cacheKey = RepositoryCachingHelper.GenerateCacheKey(typeof(Car).Name, domainEvent.CarId.ToString());
         await cacheService.RemoveAsync(cacheKey, cancellationToken);
     }
 }

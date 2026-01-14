@@ -3,7 +3,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using SharedKernel.Database;
 
 namespace Infrastructure.Database;
-public class EfRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T> 
+public class EfRepository<T> : AtomicRepositoryBase<T>, IReadRepository<T>, IRepository<T> 
     where T : class, IAggregateRoot
 {
     protected readonly ApplicationContext _dbContext;

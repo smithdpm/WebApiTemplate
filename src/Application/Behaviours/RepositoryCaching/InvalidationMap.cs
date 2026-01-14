@@ -1,5 +1,4 @@
-﻿using Domain;
-using SharedKernel.Database;
+﻿using SharedKernel.Abstractions;
 
 namespace Application.Behaviours.RepositoryCaching;
 
@@ -7,15 +6,13 @@ public class InvalidationMap : IInvalidationMap
 {
     private Dictionary<Type, Func<object, IEnumerable<string>>> _maps = new();
 
-    public void RegisterMap<T, TId>(Func<ChangedEntity<T, TId>, IEnumerable<string>> map) 
-        where T : Entity<TId>, IAggregateRoot
-        where TId : struct, IEquatable<TId>
+    public void RegisterMap<T>(Func<ChangedEntity<T>, IEnumerable<string>> map) 
+        where T : IHasId
     {
-        _maps[typeof(T)] = (entity) => map((ChangedEntity < T, TId > )entity);
+        _maps[typeof(T)] = (entity) => map((ChangedEntity<T>)entity);
     }
-    public IEnumerable<string> GetCacheKeysToInvalidate<T, TId>(ChangedEntity<T, TId> changedEntity)
-        where T : Entity<TId>, IAggregateRoot
-        where TId : struct, IEquatable<TId>
+    public IEnumerable<string> GetCacheKeysToInvalidate<T>(ChangedEntity<T> changedEntity)
+       where T : IHasId
     {
         if (_maps.TryGetValue(typeof(T), out var map))
         {

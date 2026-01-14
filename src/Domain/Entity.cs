@@ -1,13 +1,18 @@
-﻿using SharedKernel.Events.DomainEvents;
+﻿using SharedKernel.Abstractions;
+using SharedKernel.Events.DomainEvents;
 
 namespace Domain;
 
-public abstract class Entity<TId> : HasDomainEvents, IEntity<TId> where TId : struct, IEquatable<TId>
+public abstract class Entity<TId> : HasDomainEvents, IEntity<TId>, IHasId where TId : struct, IEquatable<TId>
 {
-    public TId Id { get; protected set; }
+    public TId Id { get; protected init; }
 
     protected Entity(TId id)
     {
         Id = id;
     }
+
+    public string GetId()
+        => Id.ToString()!; 
+
 }

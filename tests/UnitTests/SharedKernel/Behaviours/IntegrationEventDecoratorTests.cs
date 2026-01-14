@@ -27,7 +27,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
             var command = new TestCommand { Id = Guid.NewGuid() };
             
             innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
@@ -50,7 +50,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
             var command = new TestCommand { Id = Guid.NewGuid() };
             
             innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
@@ -70,7 +70,7 @@ public class IntegrationEventDecoratorTests
             // Arrange
             var expectedResult = "Expected Result";
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
             var command = new TestCommand { Id = Guid.NewGuid() };
             
             innerHandler.SetResult(Result<string>.Success(expectedResult));
@@ -88,7 +88,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithoutEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
             var command = new TestCommand { Id = Guid.NewGuid() };
             
             innerHandler.SetResult(Result<string>.Success("Success"));
@@ -106,7 +106,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
             var command = new TestCommand { Id = Guid.NewGuid() };
             
             var destination = "order-events-topic";
@@ -136,7 +136,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
             var command = new TestCommand { Id = Guid.NewGuid() };
             
             innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event1" });
@@ -170,7 +170,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestVoidCommandHandlerWithEvents<TestVoidCommand>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestVoidCommand>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestVoidCommand>(innerHandler, _repository);
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             
             innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
@@ -193,7 +193,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestVoidCommandHandlerWithEvents<TestVoidCommand>();
-            var decorator = new IntegrationEventDecorator.CommandHandler<TestVoidCommand>(innerHandler, _repository);
+            var decorator = new IntegrationEventDecorator<TestVoidCommand>(innerHandler, _repository);
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             
             innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });

@@ -1,12 +1,10 @@
 ﻿
 
-using Domain;
-using SharedKernel.Database;
+using SharedKernel.Abstractions;
 
 namespace Application.Behaviours.RepositoryCaching;
-public interface ICacheInvalidationPolicy<T,TId> 
-    where T : Entity<TId>, IAggregateRoot
-    where TId : struct, IEquatable<TId>
+public interface ICacheInvalidationPolicy<T> 
+    where T : IHasId
 {
-    IEnumerable<string> GetKeysToInvalidate(ChangedEntity<T, TId> changedEntity);
+    IEnumerable<string> GetKeysToInvalidate(ChangedEntity<T> changedEntity);
 }

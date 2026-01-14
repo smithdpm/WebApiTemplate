@@ -1,4 +1,5 @@
 using Application;
+using Application.Behaviours;
 using Infrastructure;
 using Infrastructure.Database;
 using Scalar.AspNetCore;
@@ -14,9 +15,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi()
-   .AddApplication()
-   .AddInfrastructure(builder.Configuration);
-   
+   .AddInfrastructure(builder.Configuration)
+   .AddCqrsBehaviours(
+        typeof(Application.DependancyInjection).Assembly,
+        typeof(Domain.Entity<>).Assembly,
+        pipelineBuilder =>
+        {
+            pipelineBuilder.AddIntegrationEventHandling();
+            pipelineBuilder.AddAtomicTransactionHandling();
+            pipelineBuilder.AddValidation();
+            pipelineBuilder.AddLogging();
+        });
+
 
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 builder.Services.AddInfrastructureDependantBehaviours(builder.Configuration);

@@ -46,7 +46,7 @@ public class CarBoughtTest
 
         var events = new List<IntegrationEventBase>();
         events.Add(carBoughtEvent);
-        
+
         // Act
         await serviceBusSender.SendMessageAsync(events, "warehouse-events", cancellationToken);
 

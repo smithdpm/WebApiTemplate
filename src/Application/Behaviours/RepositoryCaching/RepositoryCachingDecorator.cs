@@ -81,16 +81,16 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.FirstOrDefaultAsync(specification, cancellationToken);
 
-            var cachedResults = await _cacheService.GetAsync<List<T>>(specification.CacheKey, cancellationToken);
+            var cachedResults = await _cacheService.GetAsync<List<T>>(specification.CacheKey!, cancellationToken);
             if (cachedResults != null && cachedResults.Any())
                 return cachedResults.First();
 
             var results = await _inner.ListAsync(specification, cancellationToken);
 
             if (results != null)
-                await _cacheService.SetAsync(specification.CacheKey, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
-            return results.FirstOrDefault();
+            return results!.FirstOrDefault();
         }
 
         public async Task<T?> FirstOrDefaultAsync(ISingleResultSpecification<T> specification, CancellationToken cancellationToken = default)
@@ -98,14 +98,14 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.FirstOrDefaultAsync(specification, cancellationToken);
 
-            var cachedResult = await _cacheService.GetAsync<T>(specification.CacheKey, cancellationToken);
+            var cachedResult = await _cacheService.GetAsync<T>(specification.CacheKey!, cancellationToken);
             if (cachedResult != null)
                 return cachedResult;
 
             var result = await _inner.FirstOrDefaultAsync(specification, cancellationToken);
 
             if (result != null)
-                await _cacheService.SetAsync(specification.CacheKey, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return result;
         }
@@ -115,7 +115,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.FirstOrDefaultAsync(specification, cancellationToken);  
 
-            var cachedResults = await _cacheService.GetAsync<List<TResult>>(specification.CacheKey, cancellationToken);
+            var cachedResults = await _cacheService.GetAsync<List<TResult>>(specification.CacheKey!, cancellationToken);
             
             if (cachedResults != null && cachedResults.Any())
                 return cachedResults.First();
@@ -123,7 +123,7 @@ public static class RepositoryCachingDecorator
             var results = await _inner.FirstOrDefaultAsync(specification, cancellationToken);
 
             if (results != null)
-                await _cacheService.SetAsync(specification.CacheKey, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return results;
         }
@@ -133,7 +133,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.FirstOrDefaultAsync(specification, cancellationToken);
 
-            var cachedResult = await _cacheService.GetAsync<TResult>(specification.CacheKey, cancellationToken);
+            var cachedResult = await _cacheService.GetAsync<TResult>(specification.CacheKey!, cancellationToken);
 
             if (cachedResult != null)
                 return cachedResult;
@@ -141,7 +141,7 @@ public static class RepositoryCachingDecorator
             var result = await _inner.FirstOrDefaultAsync(specification, cancellationToken);
 
             if (result != null)
-                await _cacheService.SetAsync(specification.CacheKey, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return result;
         }
@@ -151,7 +151,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled())
                 return await _inner.GetByIdAsync(id, cancellationToken);
 
-            string cacheKey = RepositoryCachingHelper.GenerateCacheKey(typeof(T).Name, id);
+            string cacheKey = RepositoryCachingHelper.GenerateCacheKey(typeof(T).Name, id.ToString()!);
             var cachedEntity = await _cacheService.GetAsync<T>(cacheKey, cancellationToken);
             if (cachedEntity != null)
                 return cachedEntity;
@@ -174,7 +174,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.ListAsync(specification, cancellationToken);
 
-            var cachedResults = await _cacheService.GetAsync<List<T>>(specification.CacheKey, cancellationToken);
+            var cachedResults = await _cacheService.GetAsync<List<T>>(specification.CacheKey!, cancellationToken);
 
             if (cachedResults != null)
                 return cachedResults;
@@ -182,7 +182,7 @@ public static class RepositoryCachingDecorator
             var results = await _inner.ListAsync(specification, cancellationToken);
 
             if (results != null)
-                await _cacheService.SetAsync(specification.CacheKey, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return results;
         }
@@ -192,7 +192,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.ListAsync(specification, cancellationToken);
 
-            var cachedResults = await _cacheService.GetAsync<List<TResult>>(specification.CacheKey, cancellationToken);
+            var cachedResults = await _cacheService.GetAsync<List<TResult>>(specification.CacheKey!, cancellationToken);
 
             if (cachedResults != null)
                 return cachedResults;
@@ -200,7 +200,7 @@ public static class RepositoryCachingDecorator
             var results = await _inner.ListAsync(specification, cancellationToken);
 
             if (results != null)
-                await _cacheService.SetAsync(specification.CacheKey, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, results, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return results;
         }
@@ -215,7 +215,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.SingleOrDefaultAsync(specification, cancellationToken);
 
-            var cachedResult = await _cacheService.GetAsync<T>(specification.CacheKey, cancellationToken);
+            var cachedResult = await _cacheService.GetAsync<T>(specification.CacheKey!, cancellationToken);
 
             if (cachedResult != null)
                 return cachedResult;
@@ -223,7 +223,7 @@ public static class RepositoryCachingDecorator
             var result = await _inner.SingleOrDefaultAsync(specification, cancellationToken);
 
             if (result != null)
-                await _cacheService.SetAsync(specification.CacheKey, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return result;
         }
@@ -233,7 +233,7 @@ public static class RepositoryCachingDecorator
             if (!IsCachingEnabled(specification))
                 return await _inner.SingleOrDefaultAsync(specification, cancellationToken);
 
-            var cachedResult = await _cacheService.GetAsync<TResult>(specification.CacheKey, cancellationToken);
+            var cachedResult = await _cacheService.GetAsync<TResult>(specification.CacheKey!, cancellationToken);
 
             if (cachedResult != null)
                 return cachedResult;
@@ -241,7 +241,7 @@ public static class RepositoryCachingDecorator
             var result = await _inner.SingleOrDefaultAsync(specification, cancellationToken);
 
             if (result != null)
-                await _cacheService.SetAsync(specification.CacheKey, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
+                await _cacheService.SetAsync(specification.CacheKey!, result, TimeSpan.FromMinutes(GetExpiration()), cancellationToken);
 
             return result;
         }
