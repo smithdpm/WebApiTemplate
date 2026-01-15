@@ -1,7 +1,7 @@
 ﻿using Cqrs.Events.IntegrationEvents;
 using SharedKernel.Events;
 
-namespace Cqrs.Behaviours.Registries;
+namespace Cqrs.Decorators.Registries;
 internal class EventTypeRegistry : IEventTypeRegistry
 {
     private Dictionary<string, Type> _registeredEvents;

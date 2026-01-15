@@ -1,4 +1,3 @@
-using Cqrs.Events;
 using Microsoft.EntityFrameworkCore;
 using Cqrs.Database;
 

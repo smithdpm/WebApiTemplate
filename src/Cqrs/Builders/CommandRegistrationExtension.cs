@@ -1,9 +1,8 @@
 ﻿
 
-using Cqrs.Behaviours.Registries;
+using Cqrs.Decorators.Registries;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using Cqrs.Behaviours;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;

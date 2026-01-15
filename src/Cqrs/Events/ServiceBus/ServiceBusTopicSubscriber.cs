@@ -1,7 +1,7 @@
 ﻿
 using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using Cqrs.Behaviours.Registries;
+using Cqrs.Decorators.Registries;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

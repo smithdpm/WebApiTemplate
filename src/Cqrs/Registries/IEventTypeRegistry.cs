@@ -1,6 +1,6 @@
 ﻿
 
-namespace Cqrs.Behaviours.Registries;
+namespace Cqrs.Decorators.Registries;
 public interface IEventTypeRegistry
 {
     Type? GetTypeByName(string eventName);

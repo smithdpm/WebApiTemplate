@@ -1,8 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Cqrs.Events;
-using Cqrs.Events.DomainEvents;
 using SharedKernel.Events;
 
 namespace Cqrs.Database;

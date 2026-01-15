@@ -4,7 +4,7 @@ using Ardalis.Result;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
 
-namespace Cqrs.Behaviours;
+namespace Cqrs.Decorators;
 public abstract class CommandHandlerDecorator<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>
     where TCommand : ICommand<TResponse>
 {

@@ -1,6 +1,5 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Cqrs.Events;
 
 namespace Cqrs.Database;
 public static class OutboxModelBuilderExtensions

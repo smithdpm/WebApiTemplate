@@ -1,7 +1,6 @@
-﻿
-using SharedKernel.Database;
+﻿using SharedKernel.Database;
 
-namespace Cqrs.Events;
+namespace Cqrs.Database;
 public class OutboxMessage: IAggregateRoot
 {
     public int Id { get; set; }

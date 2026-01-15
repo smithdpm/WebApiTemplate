@@ -1,14 +1,12 @@
 ﻿
 
 using Cqrs.Abstractions.Events;
-using Cqrs.Behaviours.Registries;
+using Cqrs.Decorators.Registries;
 using Ardalis.Result;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Cqrs.Events;
 using Cqrs.Events.IntegrationEvents;
 using System.Text.Json;
-using SharedKernel.Events;
 
 namespace Cqrs.Database;
 internal class OutboxDispatcher : BackgroundService

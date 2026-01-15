@@ -1,8 +1,6 @@
-﻿
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Cqrs.Behaviours;
+namespace Cqrs.Builders;
 
 public interface ICommandPipelineBuilder
 {

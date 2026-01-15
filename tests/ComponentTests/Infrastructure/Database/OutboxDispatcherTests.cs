@@ -1,9 +1,8 @@
 using ComponentTests.TestCollections;
 using ComponentTests.TestCollections.Environments;
 using Cqrs.Abstractions.Events;
-using Cqrs.Behaviours.Registries;
+using Cqrs.Decorators.Registries;
 using Cqrs.Database;
-using Cqrs.Events;
 using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

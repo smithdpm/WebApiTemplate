@@ -3,7 +3,7 @@ using Ardalis.Result;
 using Serilog.Context;
 using Microsoft.Extensions.Logging;
 
-namespace Cqrs.Behaviours;
+namespace Cqrs.Decorators;
 
 public class LoggingDecorator<TCommand, TResponse>(
     ICommandHandler<TCommand, TResponse> innerHandler,

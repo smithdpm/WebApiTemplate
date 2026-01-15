@@ -1,7 +1,7 @@
 using Application;
 using Cqrs;
 using Cqrs.Builders;
-using Cqrs.Events;
+using Cqrs.Database;
 using Infrastructure;
 using Infrastructure.Database;
 using Scalar.AspNetCore;

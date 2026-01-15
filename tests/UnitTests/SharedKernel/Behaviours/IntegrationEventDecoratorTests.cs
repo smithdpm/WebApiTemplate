@@ -1,6 +1,6 @@
 using Ardalis.Result;
-using Cqrs.Behaviours;
-using Cqrs.Events;
+using Cqrs.Database;
+using Cqrs.Decorators;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
 using NSubstitute;

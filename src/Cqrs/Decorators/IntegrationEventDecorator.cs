@@ -1,11 +1,11 @@
 ﻿
 using Ardalis.Result;
 using SharedKernel.Database;
-using Cqrs.Events;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
+using Cqrs.Database;
 
-namespace Cqrs.Behaviours;
+namespace Cqrs.Decorators;
 
 public class IntegrationEventDecorator<TCommand, TResponse>(
     ICommandHandler<TCommand, TResponse> innerHandler,

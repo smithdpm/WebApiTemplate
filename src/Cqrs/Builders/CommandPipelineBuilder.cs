@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
-using Cqrs.Behaviours;
+using Cqrs.Decorators;
 using Cqrs.Messaging;
 
 namespace Cqrs.Builders;

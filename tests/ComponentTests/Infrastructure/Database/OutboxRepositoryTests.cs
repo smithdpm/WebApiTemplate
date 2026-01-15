@@ -2,7 +2,6 @@ using ComponentTests.TestCollections;
 using ComponentTests.TestCollections.Environments;
 using ComponentTests.TestCollections.Fixtures;
 using Cqrs.Database;
-using Cqrs.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;

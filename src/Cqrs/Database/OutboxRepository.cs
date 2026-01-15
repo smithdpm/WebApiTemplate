@@ -1,7 +1,5 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using Cqrs.Database;
-using Cqrs.Events;
 
 namespace Cqrs.Database;
 internal class OutboxRepository<TDbContext> : IOutboxRepository where TDbContext : DbContext

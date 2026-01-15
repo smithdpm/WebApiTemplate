@@ -4,7 +4,7 @@ using Ardalis.Result;
 using Cqrs.Messaging;
 using SharedKernel.Database;
 
-namespace Cqrs.Behaviours;
+namespace Cqrs.Decorators;
 public class AtomicTransactionDecorator<TCommand, TResponse>(
     ICommandHandler<TCommand, TResponse> innerHandler,
     IUnitOfWork unitOfWork) 

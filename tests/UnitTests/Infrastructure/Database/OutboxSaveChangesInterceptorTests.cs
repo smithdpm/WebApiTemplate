@@ -1,5 +1,4 @@
 using Cqrs.Database;
-using Cqrs.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SharedKernel.Events;

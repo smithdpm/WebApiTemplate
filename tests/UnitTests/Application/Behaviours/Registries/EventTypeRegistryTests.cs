@@ -1,4 +1,4 @@
-using Cqrs.Behaviours.Registries;
+using Cqrs.Decorators.Registries;
 using Cqrs.Events.IntegrationEvents;
 using SharedKernel.Events;
 using Shouldly;

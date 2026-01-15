@@ -3,7 +3,7 @@ using Ardalis.Result.FluentValidation;
 using FluentValidation;
 using Cqrs.Messaging;
 
-namespace Cqrs.Behaviours;
+namespace Cqrs.Decorators;
 
 public class ValidationDecorator<TCommand, TResponse>(
     ICommandHandler<TCommand, TResponse> innerHandler,
