@@ -1,9 +1,8 @@
-﻿
-using SharedKernel.Messaging;
-using Application.Cars;
+﻿using Application.Cars;
 using Application.Cars.GetById;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
+using Cqrs.Messaging;
 using Mapster;
 
 namespace Web.Api.Endpoints.Cars.GetCarById;

@@ -1,13 +1,12 @@
 using Ardalis.Result;
+using Cqrs.Behaviours;
+using Cqrs.Events;
+using Cqrs.Events.IntegrationEvents;
+using Cqrs.Messaging;
 using NSubstitute;
-using SharedKernel.Behaviours;
 using SharedKernel.Database;
-using SharedKernel.Events;
-using SharedKernel.Events.IntegrationEvents;
-using SharedKernel.Messaging;
 using Shouldly;
 using System.Text.Json;
-using Xunit;
 
 namespace UnitTests.SharedKernel.Behaviours;
 

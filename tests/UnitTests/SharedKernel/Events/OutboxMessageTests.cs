@@ -1,6 +1,5 @@
-using SharedKernel.Events;
+using Cqrs.Events;
 using Shouldly;
-using Xunit;
 
 namespace UnitTests.SharedKernel.Events;
 

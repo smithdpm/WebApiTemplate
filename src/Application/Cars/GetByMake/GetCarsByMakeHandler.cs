@@ -1,9 +1,9 @@
 ﻿
 
 using Ardalis.Result;
+using Cqrs.Messaging;
 using Domain.Cars;
 using SharedKernel.Database;
-using SharedKernel.Messaging;
 
 namespace Application.Cars.GetByMake;
 public class GetCarsByMakeHandler(IReadRepository<Car> repository) : IQueryHandler<GetCarsByMakeQuery, List<CarDto>>

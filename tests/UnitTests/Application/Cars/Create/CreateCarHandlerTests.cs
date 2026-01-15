@@ -1,10 +1,8 @@
 ﻿using Application.Cars.Create;
-using Domain.Abstractions;
 using Domain.Cars;
 using NSubstitute;
 using SharedKernel.Database;
 using Shouldly;
-using Xunit;
 using Infrastructure.IdentityGeneration;
 
 namespace UnitTests.Application.Cars.Create;

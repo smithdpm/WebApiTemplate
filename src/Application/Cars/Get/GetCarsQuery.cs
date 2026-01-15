@@ -1,4 +1,4 @@
-﻿using SharedKernel.Messaging;
+﻿using Cqrs.Messaging;
 
 namespace Application.Cars.Get;
 

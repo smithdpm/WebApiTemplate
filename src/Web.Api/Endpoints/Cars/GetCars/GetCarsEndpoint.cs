@@ -4,9 +4,9 @@ using Application.Cars.Get;
 using Application.Cars.GetByMake;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
+using Cqrs.Messaging;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using SharedKernel.Messaging;
 
 namespace Web.Api.Endpoints.Cars.GetCars;
 

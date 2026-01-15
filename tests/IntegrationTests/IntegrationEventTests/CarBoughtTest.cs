@@ -1,8 +1,8 @@
 ﻿
 using Application.Cars.CarBought;
+using Cqrs.Events.IntegrationEvents;
 using IntegrationTests.TestCollections.Environments;
 using Polly;
-using SharedKernel.Events.IntegrationEvents;
 using Shouldly;
 using System.Net.Http.Json;
 using Web.Api.Endpoints.Cars.GetCars;

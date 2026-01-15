@@ -1,4 +1,4 @@
-﻿using SharedKernel.Events.IntegrationEvents;
+﻿using Cqrs.Events.IntegrationEvents;
 
 namespace Application.Cars.CarBought;
 public record CarBoughtIntegrationEvent

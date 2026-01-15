@@ -1,6 +1,6 @@
 ﻿using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
-using SharedKernel.Events.IntegrationEvents;
+using Cqrs.Events.IntegrationEvents;
 
 
 namespace IntegrationTests;

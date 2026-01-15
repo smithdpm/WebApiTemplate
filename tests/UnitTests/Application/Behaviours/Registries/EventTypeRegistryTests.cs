@@ -1,13 +1,13 @@
-using Application.Behaviours.Registries;
-using SharedKernel.Events.DomainEvents;
-using SharedKernel.Events.IntegrationEvents;
+using Cqrs.Behaviours.Registries;
+using Cqrs.Events.IntegrationEvents;
+using SharedKernel.Events;
 using Shouldly;
 
 namespace UnitTests.Application.Behaviours.Registries;
 
 public class EventTypeRegistryTests
 {
-    private readonly EventTypeRegistry _registry;
+    private readonly IEventTypeRegistry _registry;
 
     public EventTypeRegistryTests()
     {

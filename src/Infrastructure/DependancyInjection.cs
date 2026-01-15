@@ -1,10 +1,12 @@
 ﻿using Application.Abstractions.Events;
 using Azure.Messaging.ServiceBus;
+using Cqrs.Abstractions.Events;
+using Cqrs.Database;
+using Cqrs.Events;
+using Cqrs.Events.ServiceBus;
 using Domain.Abstractions;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
-using Infrastructure.Events;
-using Infrastructure.Events.ServiceBus;
 using Infrastructure.IdentityGeneration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -27,8 +29,7 @@ public static class DependancyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
             services.AddDatabase(configuration)           
-                .AddAzureServiceBus(configuration)
-                .AddOutboxServices<ApplicationContext>()
+                .AddAzureServiceBus(configuration)               
                 .AddIdentityGenerators()
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
@@ -203,18 +204,7 @@ public static class DependancyInjection
         return services;
     }
 
-    private static IServiceCollection AddOutboxServices<TContext>(this IServiceCollection services) 
-        where TContext : DbContext
-    {
-        services.AddScoped<IRepository<OutboxMessage>, EfRepository<OutboxMessage>>();
-        services.AddSingleton<IOutboxRepository, OutboxRepository<TContext>>();
-        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
-        services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
-        services.AddHostedService(provider=>
-            ActivatorUtilities.CreateInstance<OutboxDispatcher>(provider));
 
-        return services;
-    }
 }
 
 

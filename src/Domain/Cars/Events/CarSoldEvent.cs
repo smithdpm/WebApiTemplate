@@ -1,4 +1,4 @@
-﻿using SharedKernel.Events.DomainEvents;
+﻿using SharedKernel.Events;
 
 namespace Domain.Cars.Events;
 

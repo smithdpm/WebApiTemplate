@@ -1,10 +1,10 @@
 using ComponentTests.TestCollections;
 using ComponentTests.TestCollections.Environments;
 using ComponentTests.TestCollections.Fixtures;
+using Cqrs.Database;
+using Cqrs.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Database;
-using SharedKernel.Events;
 using Shouldly;
 
 namespace ComponentTests.Infrastructure.Database;

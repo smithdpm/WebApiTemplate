@@ -1,8 +1,7 @@
 
-using Infrastructure.Database;
+using Cqrs.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Database;
 
 namespace ComponentTests.TestCollections.Fixtures;
 

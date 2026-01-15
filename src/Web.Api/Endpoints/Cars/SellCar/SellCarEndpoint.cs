@@ -1,7 +1,6 @@
 ﻿using Application.Cars.SellCar;
 using Ardalis.Result.AspNetCore;
-using SharedKernel.Messaging;
-using Web.Api.Extensions;
+using Cqrs.Messaging;
 
 namespace Web.Api.Endpoints.Cars.SellCars;
 

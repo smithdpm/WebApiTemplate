@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ardalis.Result" Version="10.1.0" />
-    <PackageReference Include="Ardalis.Result.FluentValidation" Version="10.1.0" />
-    <PackageReference Include="Ardalis.Specification" Version="9.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
-    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Ardalis.Result" />
+    <PackageReference Include="Ardalis.Result.FluentValidation" />
+    <PackageReference Include="Ardalis.Specification" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Serilog" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,8 @@
 ﻿using Application.Cars.Create;
 using Mapster;
-using SharedKernel.Messaging;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Web.Api.Extensions;
+using Cqrs.Messaging;
 
 namespace Web.Api.Endpoints.Cars.CreateCar3;
 

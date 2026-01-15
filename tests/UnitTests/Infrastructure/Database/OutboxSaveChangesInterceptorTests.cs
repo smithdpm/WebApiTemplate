@@ -1,8 +1,8 @@
-using Infrastructure.Database;
+using Cqrs.Database;
+using Cqrs.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SharedKernel.Events;
-using SharedKernel.Events.DomainEvents;
 using Shouldly;
 using System.Text.Json;
 

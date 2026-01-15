@@ -1,16 +1,13 @@
-using Application.Abstractions.Events;
-using Application.Behaviours.Registries;
-using Infrastructure.Database;
+using Cqrs.Abstractions.Events;
+using Cqrs.Behaviours.Registries;
+using Cqrs.Database;
+using Cqrs.Events;
+using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using SharedKernel.Database;
 using SharedKernel.Events;
-using SharedKernel.Events.DomainEvents;
-using SharedKernel.Events.IntegrationEvents;
-using Shouldly;
 using System.Text.Json;
-using Xunit;
 
 namespace UnitTests.Infrastructure.Database;
 

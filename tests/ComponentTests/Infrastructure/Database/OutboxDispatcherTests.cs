@@ -1,17 +1,16 @@
-using Application.Abstractions.Events;
-using Application.Behaviours.Registries;
 using ComponentTests.TestCollections;
 using ComponentTests.TestCollections.Environments;
-using Infrastructure.Database;
+using Cqrs.Abstractions.Events;
+using Cqrs.Behaviours.Registries;
+using Cqrs.Database;
+using Cqrs.Events;
+using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Polly;
-using SharedKernel.Database;
 using SharedKernel.Events;
-using SharedKernel.Events.DomainEvents;
-using SharedKernel.Events.IntegrationEvents;
 using Shouldly;
 
 namespace ComponentTests.Infrastructure.Database;
