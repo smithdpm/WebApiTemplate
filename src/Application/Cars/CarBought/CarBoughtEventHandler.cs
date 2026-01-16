@@ -4,9 +4,9 @@ using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
 
 namespace Application.Cars.CarBought;
-public class CarBoughtEventHandler(ICommandHandler<CreateCarCommand, Guid> handler) : IIntegrationEventHandler<CarBoughtIntegrationEvent>
+public class CarBoughtEventHandler(ICommandHandler<CreateCarCommand, Guid> handler) : IntegrationEventHandler<CarBoughtIntegrationEvent>
 {
-    public async Task HandleAsync(CarBoughtIntegrationEvent carBoughtIntegrationEvent, CancellationToken cancellationToken = default)
+    public override async Task HandleAsync(CarBoughtIntegrationEvent carBoughtIntegrationEvent, CancellationToken cancellationToken = default)
     {
         var createCarCommand = new CreateCarCommand(
             Model: carBoughtIntegrationEvent.Model,

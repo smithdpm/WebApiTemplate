@@ -179,10 +179,11 @@ public class ServiceBusTopicSubscriber : BackgroundService
     private async Task<MessageStepResult<bool>> DispatchEventToEventHandlers(IIntegrationEvent integrationEvent)
     {
         var eventType = integrationEvent.GetType();
-        var handlerType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
 
         using var scope = _scopeFactory.CreateAsyncScope();
-        var handlers = scope.ServiceProvider.GetServices(handlerType);
+        var handlers = scope.ServiceProvider
+            .GetServices<IIntegrationEventHandler>()
+            .Where(s=>s.EventType == eventType);
 
         if (!handlers.Any())
         {
@@ -195,52 +196,12 @@ public class ServiceBusTopicSubscriber : BackgroundService
         {
             if (handler == null) continue;
 
-            var handlerWrapper = HandlerWrapper.Create(handler, eventType);
-
-            await handlerWrapper.Handle(integrationEvent, CancellationToken.None);
+            await handler.HandleAsync(integrationEvent, CancellationToken.None);
         }
 
         return MessageStepResult<bool>.Success(true);
     }
 
-    private abstract class HandlerWrapper
-    {
-        public abstract Task Handle(IIntegrationEvent integrationEvent, CancellationToken cancellationToken);
-        public abstract Task Handle(CloudEvent cloudEvent, CancellationToken cancellationToken);
-
-        public static HandlerWrapper Create(object handler, Type integrationEventType)
-        {
-            Type wrapperType = typeof(HandlerWrapper<>).MakeGenericType(integrationEventType);
-            
-            var wrapper = Activator.CreateInstance(wrapperType, handler);
-
-            if (wrapper == null)
-                throw new Exception($"Creating instance of {wrapperType} returned null value.");
-
-            return (HandlerWrapper)wrapper;
-        }
-    }
-
-    private class HandlerWrapper<TEvent>(IIntegrationEventHandler<TEvent> handler) : HandlerWrapper where TEvent : IIntegrationEvent
-    {
-        public override Task Handle(IIntegrationEvent integrationEvent, CancellationToken cancellationToken)
-        {
-            return handler.HandleAsync((TEvent)integrationEvent, cancellationToken);
-        }
-
-        public override Task Handle(CloudEvent cloudEvent, CancellationToken cancellationToken)
-        {
-            if (cloudEvent.Data == null)
-                throw new Exception("CloudEvent Data is null. Ensure that this has the Integration Event correctly stored.");
-            
-            var integrationEvent = cloudEvent.Data.ToObjectFromJson<TEvent>();
-
-            if (integrationEvent == null)
-                throw new Exception($"Can not convert to {nameof(TEvent)} from CloudEvent.");
-
-            return handler.HandleAsync(integrationEvent, cancellationToken);
-        }
-    }
     private async Task HandleErrorAsync(ProcessErrorEventArgs args)
     {
         _logger.LogError(args.Exception, $"An error occured while running the Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
