@@ -1,10 +1,6 @@
-﻿
-
-using SharedKernel.Abstractions;
-
-namespace Application.Behaviours.RepositoryCaching;
-public interface ICacheInvalidationPolicy<T> 
-    where T : IHasId
+﻿namespace Application.Behaviours.RepositoryCaching;
+public interface ICacheInvalidationPolicy 
 {
-    IEnumerable<string> GetKeysToInvalidate(ChangedEntity<T> changedEntity);
+    Type EntityType { get; }
+    IEnumerable<string> GetKeysToInvalidate(ChangedEntity changedEntity);
 }

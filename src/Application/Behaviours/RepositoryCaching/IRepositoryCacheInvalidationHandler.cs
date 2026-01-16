@@ -1,8 +1,5 @@
-﻿using SharedKernel.Abstractions;
-
-namespace Application.Behaviours.RepositoryCaching;
-public interface IRepositoryCacheInvalidationHandler<T>
-    where T : IHasId
+﻿namespace Application.Behaviours.RepositoryCaching;
+public interface IRepositoryCacheInvalidationHandler
 {
-    Task HandleAsync(List<ChangedEntity<T>> changedEntities, CancellationToken cancellationToken);
+    Task HandleAsync(List<ChangedEntity> changedEntities, CancellationToken cancellationToken);
 }

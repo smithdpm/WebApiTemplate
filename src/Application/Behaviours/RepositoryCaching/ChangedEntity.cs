@@ -1,9 +1,6 @@
-﻿
-using SharedKernel.Abstractions;
-
-namespace Application.Behaviours.RepositoryCaching;
-public record ChangedEntity<T>
+﻿namespace Application.Behaviours.RepositoryCaching;
+public record ChangedEntity
     (string Id,
-    T? Before,
-    T? After)
-    where T : IHasId;
+    Type EntityType,
+    object? Before,
+    object? After);
