@@ -15,7 +15,6 @@ public class ApplicationContext: DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
         modelBuilder.ApplyOutboxConfiguration();
     }
 }

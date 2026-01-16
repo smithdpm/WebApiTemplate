@@ -1,6 +1,4 @@
 ﻿using Application.Abstractions.Events;
-using Application.Abstractions.Services;
-using Application.Behaviours.RepositoryCaching;
 using Azure.Messaging.ServiceBus;
 using Domain.Abstractions;
 using Infrastructure.Authorization;
@@ -12,15 +10,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using SharedKernel.Abstractions;
-using SharedKernel.Behaviours;
 using SharedKernel.Database;
 using SharedKernel.Events;
-using SharedKernel.Messaging;
 using System.Reflection;
 
 namespace Infrastructure;
@@ -47,6 +43,7 @@ public static class DependancyInjection
             useOnlyInMemoryDatabase = bool.Parse(configuration["UseOnlyInMemoryDatabase"]!);
         }
 
+        services.AddRepository(configuration);
         if (useOnlyInMemoryDatabase)
         {
 
@@ -66,20 +63,16 @@ public static class DependancyInjection
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
-            services.AddSingleton<CacheInvalidatorGenericHandler>();
-            services.AddSingleton<CacheInvalidationInterceptor>();
+            services.AddCacheInvalidationServices(configuration);
             services.AddSingleton<OutboxSaveChangesInterceptor>();
             services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {
                 options
-                .UseAzureSql(connectionString)
-                .AddInterceptors(provider.GetRequiredService<OutboxSaveChangesInterceptor>(), provider.GetRequiredService<CacheInvalidationInterceptor>());
+                .UseAzureSql(connectionString)     
+                .AddCacheInvalidation(provider)
+                .AddInterceptors(provider.GetRequiredService<OutboxSaveChangesInterceptor>());
             });
         }
-
-
-        services.AddRepository(configuration);
-
         return services;
     }
 
@@ -106,21 +99,11 @@ public static class DependancyInjection
     {
         services.AddScoped<IUnitOfWork, EfUnitOfWork<ApplicationContext>>();
 
-        var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
-            .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
-        services.Configure<RepositoryCacheSettings>(configuration.GetSection(nameof(RepositoryCacheSettings)));
-
         services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
         services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
              typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
-
-        if (repositoryCachingSettings.Enabled)
-        {
-            services.AddMemoryCache();
-            services.AddScoped<ICacheService, MemoryCache>();
-        }
 
         return services;
     }
@@ -133,7 +116,6 @@ public static class DependancyInjection
 
         if (!serviceBusEnabled)
             return services;
-
 
         var connectionString = configuration.GetSection("AzureServiceBus")["ConnectionString"];
         services.AddAzureClients(builder =>

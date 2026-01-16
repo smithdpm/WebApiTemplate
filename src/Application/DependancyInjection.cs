@@ -1,6 +1,4 @@
-﻿using Application.Behaviours;
-using Application.Behaviours.Registries;
-using Application.Behaviours.RepositoryCaching;
+﻿using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
 using Domain;
 using FluentValidation;
@@ -8,11 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Abstractions;
-using SharedKernel.Behaviours;
 using SharedKernel.Database;
-using SharedKernel.Events.DomainEvents;
-using SharedKernel.Events.IntegrationEvents;
-using SharedKernel.Messaging;
 using System.Reflection;
 
 
@@ -34,13 +28,14 @@ public static class DependancyInjection
             
             services.AddSingleton<IInvalidationMap>(invalidationMap);
 
-            services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(IRepositoryCacheInvalidationHandler<>)), false)
-                .AsImplementedInterfaces()
-                .WithScopedLifetime());
+            
+            //services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
+            //.AddClasses(classes => classes.AssignableTo(typeof(IRepositoryCacheInvalidationHandler<>)), false)
+            //    .AsImplementedInterfaces()
+            //    .WithScopedLifetime());
 
             services.Scan(scan => scan.FromAssembliesOf(typeof(DependancyInjection))
-            .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy<>)), false)
+            .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
         }
@@ -117,13 +112,14 @@ public static class DependancyInjection
     private static void RegisterPoliciesForType<TEntity>(IInvalidationMap map, IServiceProvider provider)
         where TEntity : IHasId
     {
-        var policies = provider.GetServices<ICacheInvalidationPolicy<TEntity>>();
+        var policies = provider.GetServices<ICacheInvalidationPolicy>()
+            .Where(p => p.EntityType == typeof(TEntity));
 
         if (!policies.Any()) return;
 
-        Func<ChangedEntity<TEntity>, IEnumerable<string>> combinedFunc = changedEntity =>
+        Func<ChangedEntity, IEnumerable<string>> combinedFunc = changedEntity =>
             policies.SelectMany(p => p.GetKeysToInvalidate(changedEntity));
 
-        map.RegisterMap(combinedFunc);
+        map.RegisterMap<TEntity>(combinedFunc);
     }
 }

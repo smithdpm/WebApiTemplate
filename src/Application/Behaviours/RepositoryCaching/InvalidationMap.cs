@@ -6,15 +6,14 @@ public class InvalidationMap : IInvalidationMap
 {
     private Dictionary<Type, Func<object, IEnumerable<string>>> _maps = new();
 
-    public void RegisterMap<T>(Func<ChangedEntity<T>, IEnumerable<string>> map) 
+    public void RegisterMap<T>(Func<ChangedEntity, IEnumerable<string>> map) 
         where T : IHasId
     {
-        _maps[typeof(T)] = (entity) => map((ChangedEntity<T>)entity);
+        _maps[typeof(T)] = (entity) => map((ChangedEntity)entity);
     }
-    public IEnumerable<string> GetCacheKeysToInvalidate<T>(ChangedEntity<T> changedEntity)
-       where T : IHasId
+    public IEnumerable<string> GetCacheKeysToInvalidate(ChangedEntity changedEntity)
     {
-        if (_maps.TryGetValue(typeof(T), out var map))
+        if (_maps.TryGetValue(changedEntity.EntityType, out var map))
         {
             return map(changedEntity);
         }
