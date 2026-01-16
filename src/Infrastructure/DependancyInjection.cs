@@ -1,8 +1,6 @@
-﻿using Application.Abstractions.Events;
-using Azure.Messaging.ServiceBus;
-using Cqrs.Abstractions.Events;
+﻿using Azure.Messaging.ServiceBus;
+using Cqrs.Builders;
 using Cqrs.Database;
-using Cqrs.Events;
 using Cqrs.Events.ServiceBus;
 using Domain.Abstractions;
 using Infrastructure.Authorization;
@@ -18,7 +16,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using SharedKernel.Database;
-using SharedKernel.Events;
 using System.Reflection;
 
 namespace Infrastructure;
@@ -65,13 +62,12 @@ public static class DependancyInjection
         {
             string? connectionString = configuration.GetConnectionString("Database");
             services.AddCacheInvalidationServices(configuration);
-            services.AddSingleton<OutboxSaveChangesInterceptor>();
             services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {
                 options
                 .UseAzureSql(connectionString)     
                 .AddCacheInvalidation(provider)
-                .AddInterceptors(provider.GetRequiredService<OutboxSaveChangesInterceptor>());
+                .AddCqrs(provider);
             });
         }
         return services;

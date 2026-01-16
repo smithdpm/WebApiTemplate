@@ -1,11 +1,9 @@
 using Application;
 using Cqrs;
 using Cqrs.Builders;
-using Cqrs.Database;
 using Infrastructure;
 using Infrastructure.Database;
 using Scalar.AspNetCore;
-using SharedKernel.Database;
 using System.Reflection;
 using Web.Api.Extensions;
 
@@ -29,8 +27,7 @@ builder.Services.AddOpenApi()
             pipelineBuilder.AddValidation();
             pipelineBuilder.AddLogging();
         })
-   .AddOutboxServices<ApplicationContext>()
-   .AddScoped<IRepository<OutboxMessage>, EfRepository<OutboxMessage>>(); ;
+   .AddOutboxServices<ApplicationContext>(typeof(EfRepository<>));
 
 
 builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());

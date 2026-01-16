@@ -41,11 +41,6 @@ public static class CacheInvalidationDbContextOptionsBuilder
     }
     public static DbContextOptionsBuilder AddCacheInvalidation(this DbContextOptionsBuilder optionsBuilder, IServiceProvider provider)
     {
-        //((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new CacheInvalidationContextOptionsExtension());
-        //services.AddSingleton<CacheInvalidatorGenericHandler>();
-        //services.AddSingleton<IRepositoryCacheInvalidationHandler, RepositoryCacheInvalidationHandler>();
-        //services.AddTransient<CacheInvalidationInterceptor>();
-        //services.AddTransient<OutboxSaveChangesInterceptor>();
         optionsBuilder.AddInterceptors(provider.GetRequiredService<CacheInvalidationInterceptor>());
         return optionsBuilder;
     }
