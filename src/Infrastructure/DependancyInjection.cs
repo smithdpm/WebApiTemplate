@@ -62,7 +62,7 @@ public static class DependancyInjection
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
-            services.AddCacheInvalidationServices([typeof(Application.DependancyInjection).Assembly], configuration);
+            services.AddCacheInvalidationServices(configuration);
 
             services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {

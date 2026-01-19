@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyModel;
 using RepositoryCaching.Cache;
 using RepositoryCaching.Database;
 using RepositoryCaching.Invalidation.Handlers;
@@ -13,7 +14,6 @@ namespace RepositoryCaching.Configuration;
 public static class ServiceRegistrationExtensions
 {
     public static void AddCacheInvalidationServices(this IServiceCollection services,
-       Assembly[] assembliesWithInvalidationPolicies,
        IConfiguration configuration)
     {
         var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
@@ -27,14 +27,36 @@ public static class ServiceRegistrationExtensions
             services.AddMemoryCache();
             services.AddSingleton<ICacheService, MemoryCache>();
 
-            services.Scan(scan => scan.FromAssemblies(assembliesWithInvalidationPolicies)
-            .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy)), false)
-                .AsImplementedInterfaces()
-                .WithSingletonLifetime());
+            services.RegisterInvalidationPolicies();
 
             services.AddSingleton<IInvalidationMap, InvalidationMap>();
             services.AddSingleton<IRepositoryCacheInvalidationHandler, RepositoryCacheInvalidationHandler>();
             services.AddSingleton<CacheInvalidationInterceptor>();
         }
+    }
+
+    private static void RegisterInvalidationPolicies(this IServiceCollection services)
+    {
+        services.Scan(scan => scan.FromAssemblies(GetDependantAssemblies())
+            .AddClasses(classes => classes.AssignableTo(typeof(ICacheInvalidationPolicy)), false)
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime());
+    }
+    private static IEnumerable<Assembly> GetDependantAssemblies()
+    {
+        var interfaceType = typeof(ICacheInvalidationPolicy);
+        var interfaceAssemblyName = interfaceType.Assembly.GetName().Name;
+
+        var assemblies = DependencyContext.Default!.RuntimeLibraries
+            .Where(lib =>
+                lib.Dependencies.Any(d => d.Name == interfaceAssemblyName))
+            .Select(lib =>
+            {
+                try { return Assembly.Load(new AssemblyName(lib.Name)); }
+                catch { return null; }
+            })
+            .Where(a => a is not null)
+            .ToList();
+        return assemblies!;
     }
 }
