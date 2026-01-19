@@ -1,14 +1,14 @@
-using Application.Abstractions.Services;
-using Application.Behaviours.RepositoryCaching;
 using Ardalis.Specification;
 using Domain.Cars;
 using Infrastructure.IdentityGeneration;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
+using RepositoryCaching.Cache;
+using RepositoryCaching.Configuration;
+using RepositoryCaching.Database;
 using SharedKernel.Database;
 using Shouldly;
-using Xunit;
 
 namespace UnitTests.Application.Behaviours.RepositoryCaching;
 
