@@ -1,6 +1,9 @@
-﻿
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using ReprEndpoints.Endpoints.Filters;
 
-namespace Web.Api.Endpoints;
+namespace ReprEndpoints.Endpoints;
 
 public abstract partial class Endpoint : IEndpoint
 {
@@ -21,17 +24,17 @@ public abstract partial class Endpoint : IEndpoint
         ConfigureEndpoint(builder);
     }
 
-    internal void AddTag(string tag)
+    public void AddTag(string tag)
     {
         _tags.Add(tag);
     }
 
-    internal void Name(string name)
+    public void Name(string name)
     {
         _name = name;
     }
 
-    internal void RequirePermission(string permission)
+    public void RequirePermission(string permission)
     {
         _permission = permission;
     }

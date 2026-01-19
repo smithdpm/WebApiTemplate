@@ -1,4 +1,7 @@
-﻿namespace Web.Api.Extensions;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+
+namespace ReprEndpoints.Extensions;
 
 public static class ApplicationBuilderExtensions
 {

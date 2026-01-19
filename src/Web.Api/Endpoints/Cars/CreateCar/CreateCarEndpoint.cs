@@ -3,6 +3,7 @@ using Mapster;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
 using Cqrs.Messaging;
+using ReprEndpoints.Endpoints;
 
 namespace Web.Api.Endpoints.Cars.CreateCar3;
 

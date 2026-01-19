@@ -1,4 +1,4 @@
-﻿namespace Web.Api.Endpoints;
+﻿namespace ReprEndpoints.Endpoints;
 
 public enum HttpVerb
 {

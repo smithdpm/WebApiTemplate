@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryCaching", "src\RepositoryCaching\RepositoryCaching.csproj", "{6DB90873-5A4A-41B0-B0F2-322983166A8D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReprEndpoints", "src\ReprEndpoints\ReprEndpoints.csproj", "{4A7A5329-0DEA-4277-B2FA-F32A7FB5B333}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +80,10 @@ Global
 		{6DB90873-5A4A-41B0-B0F2-322983166A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DB90873-5A4A-41B0-B0F2-322983166A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DB90873-5A4A-41B0-B0F2-322983166A8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A7A5329-0DEA-4277-B2FA-F32A7FB5B333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A7A5329-0DEA-4277-B2FA-F32A7FB5B333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A7A5329-0DEA-4277-B2FA-F32A7FB5B333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A7A5329-0DEA-4277-B2FA-F32A7FB5B333}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,6 +99,7 @@ Global
 		{1988BECD-4248-4389-B95C-1963EB1F4B60} = {FC1D2791-CA9A-4F2D-B9EA-E8BF5117C89A}
 		{9BBE1F8E-55B6-4DE2-B644-DB773CA18B99} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{6DB90873-5A4A-41B0-B0F2-322983166A8D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4A7A5329-0DEA-4277-B2FA-F32A7FB5B333} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3928A5A2-CEA8-4613-BAC3-CD801007A804}

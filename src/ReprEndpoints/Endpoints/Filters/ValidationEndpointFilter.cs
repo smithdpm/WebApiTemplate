@@ -1,7 +1,7 @@
-﻿namespace Web.Api.Endpoints;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
-using FluentValidation;
-
+namespace ReprEndpoints.Endpoints.Filters;
 public class ValidationEndpointFilter<TRequest>(IEnumerable<IValidator<TRequest>> validators) : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)

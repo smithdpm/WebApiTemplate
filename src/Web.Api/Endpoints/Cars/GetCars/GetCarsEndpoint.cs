@@ -7,6 +7,7 @@ using Ardalis.Result.AspNetCore;
 using Cqrs.Messaging;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using ReprEndpoints.Endpoints;
 
 namespace Web.Api.Endpoints.Cars.GetCars;
 

@@ -5,7 +5,7 @@ using Infrastructure;
 using Infrastructure.Database;
 using Scalar.AspNetCore;
 using System.Reflection;
-using Web.Api.Extensions;
+using ReprEndpoints.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +30,7 @@ builder.Services.AddOpenApi()
    .AddOutboxServices<ApplicationContext>(typeof(EfRepository<>));
 
 
-builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
+builder.Services.AddEndpoints();
 builder.Services.AddInfrastructureDependantBehaviours(builder.Configuration);
 
 var app = builder.Build();

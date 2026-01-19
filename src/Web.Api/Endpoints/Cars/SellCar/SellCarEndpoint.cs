@@ -1,6 +1,7 @@
 ﻿using Application.Cars.SellCar;
 using Ardalis.Result.AspNetCore;
 using Cqrs.Messaging;
+using ReprEndpoints.Endpoints;
 
 namespace Web.Api.Endpoints.Cars.SellCars;
 
