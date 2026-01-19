@@ -1,4 +1,4 @@
-﻿namespace Application.Behaviours.RepositoryCaching;
+﻿namespace RepositoryCaching.Invalidation;
 public record ChangedEntity
     (string Id,
     Type EntityType,

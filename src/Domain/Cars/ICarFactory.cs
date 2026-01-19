@@ -1,4 +1,6 @@
-﻿namespace Domain.Cars;
+﻿using SharedKernel.Abstractions;
+
+namespace Domain.Cars;
 
 public interface ICarFactory: IEntityFactory<Car, Guid>
 {     

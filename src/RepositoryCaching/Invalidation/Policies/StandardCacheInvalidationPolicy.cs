@@ -1,8 +1,9 @@
-﻿using SharedKernel.Abstractions;
+﻿using RepositoryCaching.Helpers;
+using SharedKernel.Abstractions;
 using SharedKernel.Extensions;
 
-namespace Application.Behaviours.RepositoryCaching;
-internal abstract class StandardCacheInvalidationPolicy<T> : ICacheInvalidationPolicy
+namespace RepositoryCaching.Invalidation.Policies;
+public abstract class StandardCacheInvalidationPolicy<T> : ICacheInvalidationPolicy
     where T : IHasId
 {
     public Type EntityType => typeof(T);

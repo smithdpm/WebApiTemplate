@@ -1,6 +1,4 @@
-﻿
-
-namespace Application.Behaviours.RepositoryCaching;
+﻿namespace RepositoryCaching.Configuration;
 
 public class EntityCacheSettings
 {

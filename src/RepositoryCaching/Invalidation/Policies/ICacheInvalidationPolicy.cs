@@ -1,4 +1,4 @@
-﻿namespace Application.Behaviours.RepositoryCaching;
+﻿namespace RepositoryCaching.Invalidation.Policies;
 public interface ICacheInvalidationPolicy 
 {
     Type EntityType { get; }

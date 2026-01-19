@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Cqrs.Builders;
-using Cqrs.Database;
 using Cqrs.Events.ServiceBus;
+using Domain;
 using Domain.Abstractions;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
@@ -15,6 +15,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
+using RepositoryCaching.Configuration;
 using SharedKernel.Database;
 using System.Reflection;
 
@@ -61,7 +62,8 @@ public static class DependancyInjection
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
-            services.AddCacheInvalidationServices(configuration);
+            services.AddCacheInvalidationServices([typeof(Application.DependancyInjection).Assembly], configuration);
+
             services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {
                 options
@@ -96,10 +98,10 @@ public static class DependancyInjection
     {
         services.AddScoped<IUnitOfWork, EfUnitOfWork<ApplicationContext>>();
 
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Entity<>).Assembly,
             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Entity<>).Assembly,
              typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
         return services;

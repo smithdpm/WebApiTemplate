@@ -1,6 +1,7 @@
-﻿using Application.Abstractions.Services;
+﻿using RepositoryCaching.Cache;
+using RepositoryCaching.Invalidation.Maps;
 
-namespace Application.Behaviours.RepositoryCaching;
+namespace RepositoryCaching.Invalidation.Handlers;
 public class RepositoryCacheInvalidationHandler
     (ICacheService cacheService, IInvalidationMap invalidationMap) 
     : IRepositoryCacheInvalidationHandler

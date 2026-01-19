@@ -1,12 +1,13 @@
-﻿using Application.Behaviours.RepositoryCaching;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using RepositoryCaching.Invalidation;
+using RepositoryCaching.Invalidation.Handlers;
 using SharedKernel.Abstractions;
 using SharedKernel.Database;
 using System.Runtime.CompilerServices;
 
-namespace Infrastructure.Database;
+namespace RepositoryCaching.Database;
 internal class CacheInvalidationInterceptor(IRepositoryCacheInvalidationHandler repositoryCacheInvalidationHandler) : SaveChangesInterceptor
 {
     private readonly ConditionalWeakTable<DbContext, List<ChangedEntity>> _changedEntities = new();

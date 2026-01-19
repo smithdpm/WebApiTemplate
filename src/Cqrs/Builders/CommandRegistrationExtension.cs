@@ -1,5 +1,4 @@
 ﻿
-
 using Cqrs.Decorators.Registries;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +32,7 @@ public static class CommandRegistrationExtension
             .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), false)
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
+
 
         services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
 

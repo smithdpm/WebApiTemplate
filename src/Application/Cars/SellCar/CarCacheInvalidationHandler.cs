@@ -1,8 +1,8 @@
-﻿using Application.Abstractions.Services;
-using Application.Behaviours.RepositoryCaching;
-using Cqrs.Events.DomainEvents;
+﻿using Cqrs.Events.DomainEvents;
 using Domain.Cars;
 using Domain.Cars.Events;
+using RepositoryCaching.Cache;
+using RepositoryCaching.Helpers;
 
 namespace Application.Cars.SellCar;
 

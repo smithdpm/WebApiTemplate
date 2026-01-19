@@ -1,9 +1,11 @@
-﻿using Application.Abstractions.Services;
-using Ardalis.Specification;
+﻿using Ardalis.Specification;
 using Microsoft.Extensions.Options;
+using RepositoryCaching.Cache;
+using RepositoryCaching.Configuration;
+using RepositoryCaching.Helpers;
 using SharedKernel.Database;
 
-namespace Application.Behaviours.RepositoryCaching;
+namespace RepositoryCaching.Database;
 
 public static class RepositoryCachingDecorator
 {

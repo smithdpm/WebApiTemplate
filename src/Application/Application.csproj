@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\RepositoryCaching\RepositoryCaching.csproj" />
     <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
@@ -34,6 +35,8 @@
 
   <ItemGroup>
     <Folder Include="Abstractions\Events\" />
+    <Folder Include="Abstractions\Services\" />
+    <Folder Include="Behaviours\RepositoryCaching\" />
   </ItemGroup>
 
 </Project>

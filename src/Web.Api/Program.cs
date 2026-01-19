@@ -34,7 +34,6 @@ builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 builder.Services.AddInfrastructureDependantBehaviours(builder.Configuration);
 
 var app = builder.Build();
-app.UseCacheInvalidationPolicies();
 app.MapEndpoints();
 
 

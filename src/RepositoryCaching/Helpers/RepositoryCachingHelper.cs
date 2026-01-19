@@ -1,5 +1,4 @@
-﻿
-namespace Application.Behaviours.RepositoryCaching;
+﻿namespace RepositoryCaching.Helpers;
 
 public static class RepositoryCachingHelper
 {

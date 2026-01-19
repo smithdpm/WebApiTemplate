@@ -1,4 +1,4 @@
-﻿namespace Domain;
+﻿namespace SharedKernel.Abstractions;
 
 public interface IEntity<TId>
 {
