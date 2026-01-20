@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Shared\Cqrs\Cqrs.AzureServiceBus\Cqrs.AzureServiceBus.csproj" />
     <ProjectReference Include="..\Shared\Cqrs\Cqrs\Cqrs.csproj" />
