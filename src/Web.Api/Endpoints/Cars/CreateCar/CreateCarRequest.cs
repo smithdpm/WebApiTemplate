@@ -1,4 +1,4 @@
-﻿namespace Web.Api.Endpoints.Cars.CreateCar3;
+﻿namespace Web.Api.Endpoints.Cars.CreateCar;
 
 public record CreateCarRequest
     (string Model,

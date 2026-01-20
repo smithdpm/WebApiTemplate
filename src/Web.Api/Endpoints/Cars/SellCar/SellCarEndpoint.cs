@@ -3,7 +3,7 @@ using Ardalis.Result.AspNetCore;
 using Cqrs.Messaging;
 using ReprEndpoints.Endpoints;
 
-namespace Web.Api.Endpoints.Cars.SellCars;
+namespace Web.Api.Endpoints.Cars.SellCar;
 
 public partial class SellCarEndpoint : Endpoint<SellCarRequest>
 {

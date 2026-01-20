@@ -13,10 +13,9 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\..\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

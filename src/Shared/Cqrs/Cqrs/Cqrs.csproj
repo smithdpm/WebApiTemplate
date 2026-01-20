@@ -17,13 +17,12 @@
     <PackageReference Include="Scrutor" />
     <PackageReference Include="System.Memory.Data" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="UnitTests" />
     <InternalsVisibleTo Include="ComponentTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 </Project>
