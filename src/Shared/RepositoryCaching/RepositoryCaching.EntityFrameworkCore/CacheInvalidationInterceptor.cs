@@ -7,7 +7,7 @@ using SharedKernel.Abstractions;
 using SharedKernel.Database;
 using System.Runtime.CompilerServices;
 
-namespace RepositoryCaching.Database;
+namespace RepositoryCaching.EntityFrameworkCore;
 internal class CacheInvalidationInterceptor(IRepositoryCacheInvalidationHandler repositoryCacheInvalidationHandler) : SaveChangesInterceptor
 {
     private readonly ConditionalWeakTable<DbContext, List<ChangedEntity>> _changedEntities = new();

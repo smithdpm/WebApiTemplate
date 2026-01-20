@@ -1,38 +1,28 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
-using RepositoryCaching.Cache;
 using RepositoryCaching.Database;
 using RepositoryCaching.Invalidation.Handlers;
 using RepositoryCaching.Invalidation.Maps;
 using RepositoryCaching.Invalidation.Policies;
 using SharedKernel.Database;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace RepositoryCaching.Configuration;
-
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceRegistrationExtensions
 {
     public static void AddCacheInvalidationServices(this IServiceCollection services,
        IConfiguration configuration)
     {
-        var repositoryCachingSettings = configuration.GetSection(nameof(RepositoryCacheSettings))
-            .Get<RepositoryCacheSettings>() ?? new RepositoryCacheSettings();
+        services.Decorate(typeof(IRepository<>), typeof(RepositoryCachingDecorator.CachedRepository<>));
+        services.Decorate(typeof(IReadRepository<>), typeof(RepositoryCachingDecorator.CachedRepository<>));
 
-        if (repositoryCachingSettings.Enabled)
-        {
-            services.Decorate(typeof(IRepository<>), typeof(RepositoryCachingDecorator.CachedRepository<>));
-            services.Decorate(typeof(IReadRepository<>), typeof(RepositoryCachingDecorator.CachedRepository<>));
+        services.RegisterInvalidationPolicies();
 
-            services.AddMemoryCache();
-            services.AddSingleton<ICacheService, MemoryCache>();
-
-            services.RegisterInvalidationPolicies();
-
-            services.AddSingleton<IInvalidationMap, InvalidationMap>();
-            services.AddSingleton<IRepositoryCacheInvalidationHandler, RepositoryCacheInvalidationHandler>();
-            services.AddSingleton<CacheInvalidationInterceptor>();
-        }
+        services.AddSingleton<IInvalidationMap, InvalidationMap>();
+        services.AddSingleton<IRepositoryCacheInvalidationHandler, RepositoryCacheInvalidationHandler>();
     }
 
     private static void RegisterInvalidationPolicies(this IServiceCollection services)

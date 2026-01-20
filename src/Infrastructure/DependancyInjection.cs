@@ -11,10 +11,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
-using RepositoryCaching.Configuration;
 using SharedKernel.Database;
 using System.Reflection;
 using Cqrs.EntityFrameworkCore.Configuration;
+using RepositoryCaching.EntityFrameworkCore;
 
 namespace Infrastructure;
 
@@ -58,7 +58,7 @@ public static class DependancyInjection
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
-            services.AddCacheInvalidationServices(configuration);
+            services.AddEFCoreCacheInvalidationServices(configuration);
 
             services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {

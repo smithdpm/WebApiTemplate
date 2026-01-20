@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using RepositoryCaching.Database;
 
-namespace RepositoryCaching.Configuration;
+namespace RepositoryCaching.EntityFrameworkCore;
 public static class DbContextOptionsBuilderExtensions
 {
     public static DbContextOptionsBuilder AddCacheInvalidation(this DbContextOptionsBuilder optionsBuilder, IServiceProvider provider)

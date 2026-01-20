@@ -16,16 +16,16 @@
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageVersion Include="Mapster" Version="7.4.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.8" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.12" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="9.0.12" />
     <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.12" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.9" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.3.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.12" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.12" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Azure" Version="1.13.1" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
@@ -37,6 +37,7 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.12" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.11" />
     <PackageVersion Include="Microsoft.Identity.Web" Version="3.13.2" />
     <PackageVersion Include="Microsoft.Identity.Web.DownstreamApi" Version="3.13.2" />
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
