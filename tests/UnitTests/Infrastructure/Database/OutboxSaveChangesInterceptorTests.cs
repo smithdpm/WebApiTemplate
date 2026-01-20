@@ -1,4 +1,5 @@
-using Cqrs.Database;
+using Cqrs.EntityFrameworkCore.Database;
+using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SharedKernel.Events;

@@ -1,9 +1,9 @@
-﻿
+﻿using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SharedKernel.Events;
 
-namespace Cqrs.Database;
+namespace Cqrs.EntityFrameworkCore.Database;
 public class OutboxSaveChangesInterceptor: SaveChangesInterceptor
 {
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(

@@ -3,7 +3,7 @@ using Ardalis.Result;
 using SharedKernel.Database;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
-using Cqrs.Database;
+using Cqrs.Outbox;
 
 namespace Cqrs.Decorators;
 

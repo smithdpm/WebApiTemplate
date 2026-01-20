@@ -7,26 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ardalis.Specification" />
+    <Compile Remove="Events\**" />
+    <EmbeddedResource Remove="Events\**" />
+    <None Remove="Events\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" />
-    <PackageReference Include="CloudNative.CloudEvents" />
-    <PackageReference Include="CloudNative.CloudEvents.SystemTextJson" />
-    <PackageReference Include="EFCore.NamingConventions" />
-    <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-    <PackageReference Include="Microsoft.Extensions.Azure" />
     <PackageReference Include="Microsoft.Identity.Web" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="UUIDNext" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\Shared\Cqrs\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Shared\Cqrs\Cqrs.EntityFrameworkCore\Cqrs.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Shared\RepositoryCaching\RepositoryCaching\RepositoryCaching.csproj" />
     <ProjectReference Include="..\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
@@ -34,10 +31,6 @@
     <InternalsVisibleTo Include="UnitTests" />
     <InternalsVisibleTo Include="ComponentTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Events\" />
   </ItemGroup>
 
 </Project>

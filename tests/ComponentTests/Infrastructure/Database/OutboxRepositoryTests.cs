@@ -1,7 +1,7 @@
 using ComponentTests.TestCollections;
 using ComponentTests.TestCollections.Environments;
 using ComponentTests.TestCollections.Fixtures;
-using Cqrs.Database;
+using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;

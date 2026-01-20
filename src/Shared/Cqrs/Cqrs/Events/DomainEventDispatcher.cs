@@ -1,11 +1,13 @@
 ﻿using Cqrs.Abstractions.Events;
-using Microsoft.Extensions.DependencyInjection;
 using Cqrs.Events.DomainEvents;
+using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Events;
+using System.ComponentModel;
 
 namespace Cqrs.Events;
 
-internal class DomainEventDispatcher(IServiceScopeFactory scopeFactory) : IDomainEventDispatcher
+[EditorBrowsable(EditorBrowsableState.Never)]
+public class DomainEventDispatcher(IServiceScopeFactory scopeFactory) : IDomainEventDispatcher
 {
     public async Task DispatchEventsAsync(IEnumerable<IDomainEvent> domainEvents, CancellationToken cancellationToken = default)
     {

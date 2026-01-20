@@ -3,9 +3,10 @@ using Cqrs.Abstractions.Events;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Cqrs.Events.IntegrationEvents;
+using Cqrs.Events;
 
 
-namespace Cqrs.Events.ServiceBus;
+namespace Cqrs.AzureServiceBus.Dispatcher;
 internal class ServiceBusEventDispatcher(IAzureClientFactory<ServiceBusSender> senderFactory) : IIntegrationEventDispatcher
 {
     public async Task DispatchEventsAsync(IEnumerable<IntegrationEventBase> integrationEvents, string queueOrTopic, CancellationToken cancellationToken = default)

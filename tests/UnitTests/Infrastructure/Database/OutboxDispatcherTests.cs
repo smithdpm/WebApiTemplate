@@ -1,12 +1,12 @@
 using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
-using Cqrs.Database;
 using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using SharedKernel.Events;
 using System.Text.Json;
+using Cqrs.Outbox;
 
 namespace UnitTests.Infrastructure.Database;
 

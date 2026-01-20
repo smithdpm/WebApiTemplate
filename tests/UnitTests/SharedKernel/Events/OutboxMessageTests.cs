@@ -1,4 +1,4 @@
-using Cqrs.Database;
+using Cqrs.Outbox;
 using Shouldly;
 
 namespace UnitTests.SharedKernel.Events;

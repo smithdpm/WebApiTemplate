@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Cqrs.Database;
+using Cqrs.Outbox;
+using Cqrs.EntityFrameworkCore.Configuration;
 
 namespace ComponentTests.TestCollections.Fixtures;
 

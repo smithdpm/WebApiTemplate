@@ -1,4 +1,5 @@
-﻿namespace Cqrs.Database;
+﻿namespace Cqrs.Outbox;
+
 public interface IOutboxRepository
 {
     public Task<List<OutboxMessage>> FetchOutboxMessagesForProcessing(int batchSize, int lockDuration, CancellationToken cancellationToken);

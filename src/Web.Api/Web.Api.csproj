@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ardalis.Result.AspNetCore" />
+    <PackageReference Include="Mapster" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
@@ -23,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Shared\Cqrs\Cqrs.AzureServiceBus\Cqrs.AzureServiceBus.csproj" />
     <ProjectReference Include="..\Shared\Cqrs\Cqrs\Cqrs.csproj" />
     <ProjectReference Include="..\Shared\ReprEndpoints\ReprEndpoints\ReprEndpoints.csproj" />
     <ProjectReference Include="..\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />

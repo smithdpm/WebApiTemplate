@@ -1,10 +1,12 @@
 ﻿
+using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
-using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
+using Cqrs.Events;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
+using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Cqrs.Builders;
@@ -14,6 +16,14 @@ public static class CommandRegistrationExtension
         Assembly applicationAssembly,
         Assembly domainAssembly,
         Action<ICommandPipelineBuilder> configurePipeline)
+    {
+        services.AddCqrsBehaviours(applicationAssembly, domainAssembly);
+        services.ConfigurePipeline(configurePipeline);
+        return services;
+    }
+    public static IServiceCollection AddCqrsBehaviours(this IServiceCollection services,
+        Assembly applicationAssembly,
+        Assembly domainAssembly)
     {
         
         services.Scan(scan => scan.FromAssemblies(applicationAssembly)
@@ -34,7 +44,7 @@ public static class CommandRegistrationExtension
                 .WithScopedLifetime());
 
 
-        services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly, includeInternalTypes: true);
+        services.AddValidatorsFromAssembly(applicationAssembly, includeInternalTypes: true);
 
         services.AddSingleton<IEventTypeRegistry>(r =>
         {
@@ -44,8 +54,20 @@ public static class CommandRegistrationExtension
             return registry;
         });
 
+        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
+        
+
+        return services;
+    }
+
+    private static IServiceCollection ConfigurePipeline(this IServiceCollection services, Action<ICommandPipelineBuilder> configurePipeline)
+    {
         var builder = new CommandPipelineBuilder(services);
+        builder.AddIntegrationEventHandling();
+        builder.AddAtomicTransactionHandling();
         configurePipeline(builder);
+        builder.AddValidation();
+        builder.AddLogging();
 
         return services;
     }

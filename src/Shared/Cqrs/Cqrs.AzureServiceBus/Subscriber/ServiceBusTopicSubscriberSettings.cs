@@ -1,5 +1,4 @@
-﻿
-namespace Cqrs.Events.ServiceBus;
+﻿namespace Cqrs.AzureServiceBus.Subscriber;
 
 public class ServiceBusTopicSubscriberSettings
 {

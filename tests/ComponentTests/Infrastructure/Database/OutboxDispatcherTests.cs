@@ -2,7 +2,6 @@ using ComponentTests.TestCollections;
 using ComponentTests.TestCollections.Environments;
 using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
-using Cqrs.Database;
 using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +10,7 @@ using NSubstitute;
 using Polly;
 using SharedKernel.Events;
 using Shouldly;
+using Cqrs.Outbox;
 
 namespace ComponentTests.Infrastructure.Database;
 

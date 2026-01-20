@@ -1,15 +1,17 @@
 ﻿
 
+using Ardalis.Result;
 using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
-using Ardalis.Result;
+using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Cqrs.Events.IntegrationEvents;
+using System.ComponentModel;
 using System.Text.Json;
 
-namespace Cqrs.Database;
-internal class OutboxDispatcher : BackgroundService
+namespace Cqrs.Outbox;
+[EditorBrowsable(EditorBrowsableState.Never)]
+public class OutboxDispatcher : BackgroundService
 {
     private readonly ILogger<OutboxDispatcher> _logger;
     private readonly IOutboxRepository _outboxRepository;

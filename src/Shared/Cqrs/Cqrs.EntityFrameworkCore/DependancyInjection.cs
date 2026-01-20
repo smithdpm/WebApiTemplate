@@ -1,13 +1,10 @@
-﻿
-using Cqrs.Abstractions.Events;
-using Cqrs.Database;
-using Cqrs.Events;
-using Cqrs.Events.ServiceBus;
+﻿using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Database;
+using Cqrs.EntityFrameworkCore.Database;
 
-namespace Cqrs;
+namespace Cqrs.EntityFrameworkCore;
 public static class DependancyInjection
 {
     public static IServiceCollection AddOutboxServices<TContext>(this IServiceCollection services, Type repositoryImplementation)
@@ -15,8 +12,6 @@ public static class DependancyInjection
     {
         services.AddRepository(repositoryImplementation);
         services.AddSingleton<IOutboxRepository, OutboxRepository<TContext>>();
-        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
-        services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
         services.AddSingleton<OutboxSaveChangesInterceptor>();
         services.AddHostedService(provider =>
             ActivatorUtilities.CreateInstance<OutboxDispatcher>(provider));

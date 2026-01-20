@@ -1,7 +1,7 @@
 ﻿using Domain.Cars;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using Cqrs.Database;
+using Cqrs.EntityFrameworkCore.Configuration;
 
 namespace Infrastructure.Database;
 

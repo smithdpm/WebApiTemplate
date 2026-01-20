@@ -1,7 +1,7 @@
-﻿
+﻿using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cqrs.Database;
+namespace Cqrs.EntityFrameworkCore.Configuration;
 public static class OutboxModelBuilderExtensions
 {
     public static void ApplyOutboxConfiguration(this ModelBuilder modelBuilder, string schema = "outbox")
@@ -12,12 +12,13 @@ public static class OutboxModelBuilderExtensions
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
-            builder.HasIndex(x => new {
+            builder.HasIndex(x => new
+            {
                 x.ProcessedAtUtc,
                 x.LockedUntilUtc
             })
-                   .HasFilter("[ProcessedAtUtc] IS NULL")
-                   .HasDatabaseName("IX_Outbox_Unprocessed");
+            .HasFilter("[ProcessedAtUtc] IS NULL")
+            .HasDatabaseName("IX_Outbox_Unprocessed");
         });
     }
 }

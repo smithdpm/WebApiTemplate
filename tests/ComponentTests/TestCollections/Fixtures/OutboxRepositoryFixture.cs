@@ -1,7 +1,7 @@
-
-using Cqrs.Database;
+using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Cqrs.EntityFrameworkCore.Database;
 
 namespace ComponentTests.TestCollections.Fixtures;
 

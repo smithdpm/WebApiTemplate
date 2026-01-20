@@ -1,8 +1,8 @@
 using Ardalis.Result;
-using Cqrs.Database;
 using Cqrs.Decorators;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
+using Cqrs.Outbox;
 using NSubstitute;
 using SharedKernel.Database;
 using Shouldly;

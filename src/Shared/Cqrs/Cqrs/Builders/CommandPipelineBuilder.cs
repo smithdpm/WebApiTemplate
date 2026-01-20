@@ -20,28 +20,28 @@ internal class CommandPipelineBuilder(IServiceCollection services) : ICommandPip
         return this;
     }
 
-    public ICommandPipelineBuilder AddIntegrationEventHandling()
+    internal ICommandPipelineBuilder AddIntegrationEventHandling()
     {
         Services.Decorate(typeof(ICommandHandler<,>), typeof(IntegrationEventDecorator<,>));
         Services.Decorate(typeof(ICommandHandler<>), typeof(IntegrationEventDecorator<>));
         return this;
     }
 
-    public ICommandPipelineBuilder AddAtomicTransactionHandling()
+    internal ICommandPipelineBuilder AddAtomicTransactionHandling()
     {
         Services.Decorate(typeof(ICommandHandler<,>), typeof(AtomicTransactionDecorator<,>));
         Services.Decorate(typeof(ICommandHandler<>), typeof(AtomicTransactionDecorator<>));
         return this;
     }
 
-    public ICommandPipelineBuilder AddLogging()
+    internal ICommandPipelineBuilder AddLogging()
     {
         Services.Decorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator<,>));
         Services.Decorate(typeof(ICommandHandler<>), typeof(LoggingDecorator<>));
         return this;
     }
 
-    public ICommandPipelineBuilder AddValidation()
+    internal ICommandPipelineBuilder AddValidation()
     {
         Services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator<,>));
         Services.Decorate(typeof(ICommandHandler<>), typeof(ValidationDecorator<>));

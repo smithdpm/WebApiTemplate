@@ -1,6 +1,4 @@
-﻿
-
-namespace Cqrs.Events.ServiceBus;
+﻿namespace Cqrs.AzureServiceBus.Subscriber;
 internal record MessageStepResult<T>
     (
     T Value,
@@ -14,7 +12,7 @@ internal record MessageStepResult<T>
     public static MessageStepResult<T> Success(T value)
         => new(value, MessageStepStatus.Success);
     public static MessageStepResult<T> DeadLetter(string reasonCode, string description)
-        => new(default(T)!, MessageStepStatus.DeadLetter, reasonCode, description);
+        => new(default!, MessageStepStatus.DeadLetter, reasonCode, description);
     public static MessageStepResult<T> Skip(string reasonCode, string description)
-        => new(default(T)!, MessageStepStatus.Skip, reasonCode, description);
+        => new(default!, MessageStepStatus.Skip, reasonCode, description);
 }

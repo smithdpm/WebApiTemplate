@@ -1,7 +1,7 @@
-﻿
+﻿using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 
-namespace Cqrs.Database;
+namespace Cqrs.EntityFrameworkCore.Database;
 internal class OutboxRepository<TDbContext> : IOutboxRepository where TDbContext : DbContext
 {
     protected readonly IDbContextFactory<TDbContext> _contextFactory;

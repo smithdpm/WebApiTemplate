@@ -9,7 +9,7 @@ using Cqrs.Events.IntegrationEvents;
 using System.Text.Json;
 
 
-namespace Cqrs.Events.ServiceBus;
+namespace Cqrs.AzureServiceBus.Subscriber;
 public class ServiceBusTopicSubscriber : BackgroundService
 {
     private readonly ILogger<ServiceBusTopicSubscriber> _logger;
