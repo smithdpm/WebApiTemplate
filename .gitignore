@@ -6,6 +6,7 @@
 ## Custom ignores
 /src/Web.Api/appsettings.Development.json
 /tests/coverage-report/
+*.claude
 
 # User-specific files
 *.rsuser

@@ -3,7 +3,6 @@ using Domain.Cars.Specifications;
 using Infrastructure.IdentityGeneration;
 using NSubstitute;
 using Shouldly;
-using Xunit;
 
 namespace Domain.UnitTests.Cars.Specifications;
 
