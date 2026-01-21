@@ -1,7 +1,7 @@
 using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+using Cqrs.EntityFrameworkCore.Database;
 
 namespace Cqrs.IntegrationTests.TestCollections.Fixtures;
 
@@ -29,20 +29,7 @@ public sealed class OutboxRepositoryFixture : IAsyncLifetime
                     options.UseSqlServer(_databaseConnectionString);
                 });
 
-        // Use reflection to register the internal OutboxRepository
-        services.AddSingleton<IOutboxRepository>(provider =>
-        {
-            var dbContextFactory = provider.GetRequiredService<IDbContextFactory<TestOutboxContext>>();
-            var dbContext = dbContextFactory.CreateDbContext();
-            
-            // Get the assembly containing OutboxRepository
-            var cqrsAssembly = Assembly.GetAssembly(typeof(Cqrs.EntityFrameworkCore.DependancyInjection));
-            var outboxRepositoryType = cqrsAssembly!.GetType("Cqrs.EntityFrameworkCore.Database.OutboxRepository`1");
-            var genericType = outboxRepositoryType!.MakeGenericType(typeof(TestOutboxContext));
-            
-            return (IOutboxRepository)Activator.CreateInstance(genericType, dbContext)!;
-        });
-
+        services.AddSingleton<IOutboxRepository, OutboxRepository<TestOutboxContext>>();
 
         ServiceProvider = services.BuildServiceProvider();
 
