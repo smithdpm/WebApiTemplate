@@ -27,6 +27,7 @@ public class GetCarByIdHandlerTests
     {
         // Arrange
         var testCar = _carFactory.Create("Toyota", "Corolla", 2020, 15000, 20000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         var query = new GetCarByIdQuery(testCar.Id);
 
@@ -35,7 +36,7 @@ public class GetCarByIdHandlerTests
         await _repository.SingleOrDefaultAsync(Arg.Do<ISingleResultSpecification<Car, CarDto>>(arg => capturedSpec = arg), Arg.Any<CancellationToken>());
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, cancellationToken);
 
         // Assert
         capturedSpec.ShouldNotBeNull();
@@ -49,6 +50,7 @@ public class GetCarByIdHandlerTests
         // Arrange
         var carId = Guid.Parse("381da394-fae2-418e-988a-0f6d181360a6");
         var testCar = new CarDto(carId, "Toyota", "Corolla", 2020, 15000, 20000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         var query = new GetCarByIdQuery(testCar.Id);
 
@@ -57,7 +59,7 @@ public class GetCarByIdHandlerTests
             .Returns(testCar);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -70,6 +72,7 @@ public class GetCarByIdHandlerTests
     {
         // Arrange
         var carId = Guid.Parse("381da394-fae2-418e-988a-0f6d181360a6");
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         var query = new GetCarByIdQuery(carId);
 
@@ -78,7 +81,7 @@ public class GetCarByIdHandlerTests
             .ReturnsNull();
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeFalse();

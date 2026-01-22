@@ -46,9 +46,10 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _cachedRepository.AddAsync(car);
+        await _cachedRepository.AddAsync(car, cancellationToken);
 
         // Assert
         await _innerRepository.Received(1).AddAsync(car, Arg.Any<CancellationToken>());
@@ -67,9 +68,10 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _cachedRepository.AddRangeAsync(cars);
+        await _cachedRepository.AddRangeAsync(cars, cancellationToken);
 
         // Assert
         await _innerRepository.Received(1).AddRangeAsync(cars, Arg.Any<CancellationToken>());
@@ -86,12 +88,13 @@ public class RepositoryCachingDecoratorTests
         var carId = Guid.NewGuid();
         var cachedCar = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
             .Returns(cachedCar);
 
         // Act
-        var result = await _cachedRepository.GetByIdAsync(carId);
+        var result = await _cachedRepository.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedCar);
@@ -106,6 +109,7 @@ public class RepositoryCachingDecoratorTests
         var carId = Guid.NewGuid();
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -113,7 +117,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.GetByIdAsync(carId);
+        var result = await _cachedRepository.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -128,12 +132,13 @@ public class RepositoryCachingDecoratorTests
         _cacheSettings.Enabled = false;
         var carId = Guid.NewGuid();
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.GetByIdAsync(carId, Arg.Any<CancellationToken>())
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.GetByIdAsync(carId);
+        var result = await _cachedRepository.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -154,12 +159,13 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("test-cache-key");
 
         var cachedCars = new List<Car> { _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m) };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<Car>>("test-cache-key", Arg.Any<CancellationToken>())
             .Returns(cachedCars);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedCars.First());
@@ -175,6 +181,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("test-cache-key");
 
         var cars = new List<Car> { _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m) };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<Car>>("test-cache-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -182,7 +189,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(cars);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cars.First());
@@ -198,11 +205,12 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(false);
 
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.FirstOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -223,12 +231,13 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("single-result-key");
 
         var cachedCar = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>("single-result-key", Arg.Any<CancellationToken>())
             .Returns(cachedCar);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedCar);
@@ -244,6 +253,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("single-result-key");
 
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>("single-result-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -251,7 +261,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -267,11 +277,12 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(false);
 
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.FirstOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -292,12 +303,13 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.ListAsync(Arg.Any<CancellationToken>())
             .Returns(cars);
 
         // Act
-        var result = await _cachedRepository.ListAsync();
+        var result = await _cachedRepository.ListAsync(cancellationToken);
 
         // Assert
         result.ShouldBe(cars);
@@ -317,12 +329,13 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<Car>>("list-cache-key", Arg.Any<CancellationToken>())
             .Returns(cachedCars);
 
         // Act
-        var result = await _cachedRepository.ListAsync(spec);
+        var result = await _cachedRepository.ListAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedCars);
@@ -342,6 +355,7 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<Car>>("list-cache-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -349,7 +363,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(cars);
 
         // Act
-        var result = await _cachedRepository.ListAsync(spec);
+        var result = await _cachedRepository.ListAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cars);
@@ -369,12 +383,13 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.ListAsync(spec, Arg.Any<CancellationToken>())
             .Returns(cars);
 
         // Act
-        var result = await _cachedRepository.ListAsync(spec);
+        var result = await _cachedRepository.ListAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cars);
@@ -395,12 +410,13 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("single-cache-key");
 
         var cachedCar = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>("single-cache-key", Arg.Any<CancellationToken>())
             .Returns(cachedCar);
 
         // Act
-        var result = await _cachedRepository.SingleOrDefaultAsync(spec);
+        var result = await _cachedRepository.SingleOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedCar);
@@ -416,6 +432,7 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("single-cache-key");
 
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>("single-cache-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -423,7 +440,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.SingleOrDefaultAsync(spec);
+        var result = await _cachedRepository.SingleOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -439,11 +456,12 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(false);
 
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.SingleOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.SingleOrDefaultAsync(spec);
+        var result = await _cachedRepository.SingleOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -460,12 +478,13 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.UpdateAsync(car, Arg.Any<CancellationToken>())
             .Returns(1);
 
         // Act
-        var result = await _cachedRepository.UpdateAsync(car);
+        var result = await _cachedRepository.UpdateAsync(car, cancellationToken);
 
         // Assert
         result.ShouldBe(1);
@@ -481,12 +500,13 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create  ("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.UpdateRangeAsync(cars, Arg.Any<CancellationToken>())
             .Returns(2);
 
         // Act
-        var result = await _cachedRepository.UpdateRangeAsync(cars);
+        var result = await _cachedRepository.UpdateRangeAsync(cars, cancellationToken);
 
         // Assert
         result.ShouldBe(2);
@@ -498,12 +518,13 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.DeleteAsync(car, Arg.Any<CancellationToken>())
             .Returns(1);
 
         // Act
-        var result = await _cachedRepository.DeleteAsync(car);
+        var result = await _cachedRepository.DeleteAsync(car, cancellationToken);
 
         // Assert
         result.ShouldBe(1);
@@ -519,12 +540,13 @@ public class RepositoryCachingDecoratorTests
             _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m),
             _carFactory.Create("Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.DeleteRangeAsync(cars, Arg.Any<CancellationToken>())
             .Returns(2);
 
         // Act
-        var result = await _cachedRepository.DeleteRangeAsync(cars);
+        var result = await _cachedRepository.DeleteRangeAsync(cars, cancellationToken);
 
         // Assert
         result.ShouldBe(2);
@@ -536,12 +558,13 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var spec = Substitute.For<ISpecification<Car>>();
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.DeleteRangeAsync(spec, Arg.Any<CancellationToken>())
             .Returns(3);
 
         // Act
-        var result = await _cachedRepository.DeleteRangeAsync(spec);
+        var result = await _cachedRepository.DeleteRangeAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(3);
@@ -557,12 +580,13 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var spec = Substitute.For<ISpecification<Car>>();
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.CountAsync(spec, Arg.Any<CancellationToken>())
             .Returns(5);
 
         // Act
-        var result = await _cachedRepository.CountAsync(spec);
+        var result = await _cachedRepository.CountAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(5);
@@ -573,11 +597,12 @@ public class RepositoryCachingDecoratorTests
     public async Task CountAsync_WithoutSpecification_ShouldCallInnerRepository()
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.CountAsync(Arg.Any<CancellationToken>())
             .Returns(10);
 
         // Act
-        var result = await _cachedRepository.CountAsync();
+        var result = await _cachedRepository.CountAsync(cancellationToken);
 
         // Assert
         result.ShouldBe(10);
@@ -589,12 +614,13 @@ public class RepositoryCachingDecoratorTests
     {
         // Arrange
         var spec = Substitute.For<ISpecification<Car>>();
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.AnyAsync(spec, Arg.Any<CancellationToken>())
             .Returns(true);
 
         // Act
-        var result = await _cachedRepository.AnyAsync(spec);
+        var result = await _cachedRepository.AnyAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBeTrue();
@@ -605,11 +631,12 @@ public class RepositoryCachingDecoratorTests
     public async Task AnyAsync_WithoutSpecification_ShouldCallInnerRepository()
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.AnyAsync(Arg.Any<CancellationToken>())
             .Returns(false);
 
         // Act
-        var result = await _cachedRepository.AnyAsync();
+        var result = await _cachedRepository.AnyAsync(cancellationToken);
 
         // Assert
         result.ShouldBeFalse();
@@ -624,11 +651,12 @@ public class RepositoryCachingDecoratorTests
     public async Task SaveChangesAsync_ShouldCallInnerRepository()
     {
         // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.SaveChangesAsync(Arg.Any<CancellationToken>())
             .Returns(3);
 
         // Act
-        var result = await _cachedRepository.SaveChangesAsync();
+        var result = await _cachedRepository.SaveChangesAsync(cancellationToken);
 
         // Assert
         result.ShouldBe(3);
@@ -646,12 +674,13 @@ public class RepositoryCachingDecoratorTests
         _cacheSettings.PerEntitySettings["Car"].Enabled = false;
         var carId = Guid.NewGuid();
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.GetByIdAsync(carId, Arg.Any<CancellationToken>())
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.GetByIdAsync(carId);
+        var result = await _cachedRepository.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -669,6 +698,7 @@ public class RepositoryCachingDecoratorTests
         var carId = Guid.NewGuid();
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -676,7 +706,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(car);
 
         // Act
-        var result = await _cachedRepository.GetByIdAsync(carId);
+        var result = await _cachedRepository.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -699,6 +729,7 @@ public class RepositoryCachingDecoratorTests
         var carId = Guid.NewGuid();
         var car = _carFactory.Create("Toyota", "Camry", 2020, 10000, 25000m);
         var cacheKey = $"Car-{carId}";
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -706,7 +737,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(car);
 
         // Act
-        var result = await cachedRepoWithoutEntitySettings.GetByIdAsync(carId);
+        var result = await cachedRepoWithoutEntitySettings.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBe(car);
@@ -729,12 +760,13 @@ public class RepositoryCachingDecoratorTests
         { 
             new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m) 
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<CarDto>>("generic-result-key", Arg.Any<CancellationToken>())
             .Returns(cachedResults);
 
         // Act
-        var result = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var result = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedResults.First());
@@ -754,6 +786,7 @@ public class RepositoryCachingDecoratorTests
             new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m),
             new CarDto(Guid.NewGuid(), "Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<CarDto>>("generic-list-key", Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -761,7 +794,7 @@ public class RepositoryCachingDecoratorTests
             .Returns(results);
 
         // Act
-        var result = await _cachedRepository.ListAsync(spec);
+        var result = await _cachedRepository.ListAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(results);
@@ -778,12 +811,13 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("single-generic-key");
 
         var cachedResult = new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<CarDto>("single-generic-key", Arg.Any<CancellationToken>())
             .Returns(cachedResult);
 
         // Act
-        var result = await _cachedRepository.SingleOrDefaultAsync(spec);
+        var result = await _cachedRepository.SingleOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(cachedResult);
@@ -798,11 +832,12 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(false);
 
         var result = new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.FirstOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(result);
 
         // Act
-        var actualResult = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var actualResult = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         actualResult.ShouldBe(result);
@@ -822,12 +857,13 @@ public class RepositoryCachingDecoratorTests
             new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m),
             new CarDto(Guid.NewGuid(), "Honda", "Civic", 2021, 5000, 22000m)
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _innerRepository.ListAsync(spec, Arg.Any<CancellationToken>())
             .Returns(results);
 
         // Act
-        var actualResult = await _cachedRepository.ListAsync(spec);
+        var actualResult = await _cachedRepository.ListAsync(spec, cancellationToken);
 
         // Assert
         actualResult.ShouldBe(results);
@@ -843,11 +879,12 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(false);
 
         var result = new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.SingleOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(result);
 
         // Act
-        var actualResult = await _cachedRepository.SingleOrDefaultAsync(spec);
+        var actualResult = await _cachedRepository.SingleOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         actualResult.ShouldBe(result);
@@ -863,11 +900,12 @@ public class RepositoryCachingDecoratorTests
         spec.CacheEnabled.Returns(false);
 
         var result = new CarDto(Guid.NewGuid(), "Toyota", "Camry", 2020, 10000, 25000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
         _innerRepository.FirstOrDefaultAsync(spec, Arg.Any<CancellationToken>())
             .Returns(result);
 
         // Act
-        var actualResult = await _cachedRepository.FirstOrDefaultAsync(spec);
+        var actualResult = await _cachedRepository.FirstOrDefaultAsync(spec, cancellationToken);
 
         // Assert
         actualResult.ShouldBe(result);
@@ -885,6 +923,7 @@ public class RepositoryCachingDecoratorTests
         // Arrange
         var carId = Guid.NewGuid();
         var cacheKey = $"Car-{carId}";
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<Car>(cacheKey, Arg.Any<CancellationToken>())
             .ReturnsNull();
@@ -892,7 +931,7 @@ public class RepositoryCachingDecoratorTests
             .ReturnsNull();
 
         // Act
-        var result = await _cachedRepository.GetByIdAsync(carId);
+        var result = await _cachedRepository.GetByIdAsync(carId, cancellationToken);
 
         // Assert
         result.ShouldBeNull();
@@ -908,12 +947,13 @@ public class RepositoryCachingDecoratorTests
         spec.CacheKey.Returns("empty-list-key");
 
         var emptyCachedList = new List<Car>();
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _cacheService.GetAsync<List<Car>>("empty-list-key", Arg.Any<CancellationToken>())
             .Returns(emptyCachedList);
 
         // Act
-        var result = await _cachedRepository.ListAsync(spec);
+        var result = await _cachedRepository.ListAsync(spec, cancellationToken);
 
         // Assert
         result.ShouldBe(emptyCachedList);

@@ -26,11 +26,12 @@ public class GetCarsHandlerTests
         // Arrange
         var query = new GetCarsQuery(null, null);
         var cars = GetCars();
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         _repository.ListAsync(Arg.Any<CancellationToken>()).Returns(cars);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();

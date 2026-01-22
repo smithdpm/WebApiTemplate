@@ -24,12 +24,13 @@ public class OutboxSaveChangesInterceptorTests
         var entityWithEvents = new TestEntityWithEvents("Test Entity");
         var testEvent = new TestDomainEvent { EntityId = entityWithEvents.Id, Name = "Test Event" };
         entityWithEvents.AddDomainEvent(testEvent);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         using var testDbContext = CreateTestDbContext(_interceptor);
         testDbContext.Add(entityWithEvents);
 
         // Act
-        await testDbContext.SaveChangesAsync(CancellationToken.None);
+        await testDbContext.SaveChangesAsync(cancellationToken);
         
         // Assert
         entityWithEvents.DomainEvents.ShouldBeEmpty();
@@ -45,12 +46,13 @@ public class OutboxSaveChangesInterceptorTests
     {
         // Arrange
         var entityWithoutEvents = new TestEntityWithEvents("Entity Without Events");
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         using var testDbContext = CreateTestDbContext(_interceptor);
         testDbContext.Add(entityWithoutEvents);
 
         // Act
-        await testDbContext.SaveChangesAsync(CancellationToken.None);
+        await testDbContext.SaveChangesAsync(cancellationToken);
 
         // Assert
         testDbContext.OutboxMessages.Count().ShouldBe(0);
@@ -62,6 +64,7 @@ public class OutboxSaveChangesInterceptorTests
         // Arrange
         var entity1 = new TestEntityWithEvents("Entity 1");
         var entity2 = new TestEntityWithEvents("Entity 2");
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         entity1.AddDomainEvent(new TestDomainEvent { EntityId = entity1.Id, Name = "Event1" });
         entity2.AddDomainEvent(new TestDomainEvent { EntityId = entity2.Id, Name = "Event2" });
@@ -71,7 +74,7 @@ public class OutboxSaveChangesInterceptorTests
         testDbContext.AddRange(entity1, entity2);
 
         // Act
-        await testDbContext.SaveChangesAsync(CancellationToken.None);
+        await testDbContext.SaveChangesAsync(cancellationToken);
 
         // Assert
         entity1.DomainEvents.ShouldBeEmpty();
@@ -93,6 +96,7 @@ public class OutboxSaveChangesInterceptorTests
             new() { EntityId = entity.Id, Name = "Event2" },
             new() { EntityId = entity.Id, Name = "Event3" }
         };
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         foreach (var evt in events)
             entity.AddDomainEvent(evt);
@@ -101,7 +105,7 @@ public class OutboxSaveChangesInterceptorTests
         testDbContext.Add(entity);
 
         // Act
-        await testDbContext.SaveChangesAsync(CancellationToken.None);
+        await testDbContext.SaveChangesAsync(cancellationToken);
 
         // Assert
         entity.DomainEvents.ShouldBeEmpty();
@@ -139,12 +143,13 @@ public class OutboxSaveChangesInterceptorTests
 
         var entity = new TestEntityWithEvents("Complex Event Entity");
         entity.AddDomainEvent(complexEvent);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         using var testDbContext = CreateTestDbContext(_interceptor);
         testDbContext.Add(entity);
 
         // Act
-        await testDbContext.SaveChangesAsync(CancellationToken.None);
+        await testDbContext.SaveChangesAsync(cancellationToken);
 
         // Assert
         entity.DomainEvents.ShouldBeEmpty();

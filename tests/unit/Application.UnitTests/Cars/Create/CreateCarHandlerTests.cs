@@ -24,9 +24,10 @@ public class CreateCarHandlerTests
     {
         // Arrange
         var command = new CreateCarCommand("Toyota", "Corolla", 2020, 15000, 20000m);
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, cancellationToken);
 
         // Assert   
         result.IsSuccess.ShouldBeTrue();
