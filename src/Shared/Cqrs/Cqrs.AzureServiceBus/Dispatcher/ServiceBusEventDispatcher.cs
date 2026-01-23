@@ -3,7 +3,6 @@ using Cqrs.Abstractions.Events;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.Events;
 
 
 namespace Cqrs.AzureServiceBus.Dispatcher;

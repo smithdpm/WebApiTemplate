@@ -21,7 +21,7 @@ public static class CommandRegistrationExtension
         services.ConfigurePipeline(configurePipeline);
         return services;
     }
-    public static IServiceCollection AddCqrsBehaviours(this IServiceCollection services,
+    private static IServiceCollection AddCqrsBehaviours(this IServiceCollection services,
         Assembly applicationAssembly,
         Assembly domainAssembly)
     {

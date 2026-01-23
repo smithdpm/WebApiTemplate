@@ -24,17 +24,17 @@ public abstract partial class Endpoint : IEndpoint
         ConfigureEndpoint(builder);
     }
 
-    public void AddTag(string tag)
+    protected void AddTag(string tag)
     {
         _tags.Add(tag);
     }
 
-    public void Name(string name)
+    protected void Name(string name)
     {
         _name = name;
     }
 
-    public void RequirePermission(string permission)
+    protected void RequirePermission(string permission)
     {
         _permission = permission;
     }

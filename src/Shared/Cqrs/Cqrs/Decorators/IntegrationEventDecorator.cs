@@ -50,26 +50,3 @@ public class IntegrationEventDecorator<TCommand>(
         return result;
     }
 }
-
-public static class IntegrationEventExtensions
-{
-    public static List<OutboxMessage> IntegrationEventsToOutboxMessages(IReadOnlyDictionary<string, List<IntegrationEventBase>> integrationEventsToSend)
-    {
-        var outboxMessages = new List<OutboxMessage>();
-
-        foreach (var eventDestination in integrationEventsToSend)
-        {
-            string destination = eventDestination.Key;
-
-            foreach (var integrationEvent in eventDestination.Value)
-                outboxMessages.Add(new OutboxMessage(
-                eventType: integrationEvent.GetType().Name ?? string.Empty,
-                destination: destination,
-                payload: System.Text.Json.JsonSerializer.Serialize(integrationEvent, integrationEvent.GetType()),
-                occurredOnUtc: integrationEvent.Timestamp
-            ));
-        }
-
-        return outboxMessages;
-    }
-}
