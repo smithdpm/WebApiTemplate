@@ -1,9 +1,9 @@
 ﻿using Application.Cars.SellCar;
 using Ardalis.Result.AspNetCore;
-using SharedKernel.Messaging;
-using Web.Api.Extensions;
+using Cqrs.Messaging;
+using ReprEndpoints.Endpoints;
 
-namespace Web.Api.Endpoints.Cars.SellCars;
+namespace Web.Api.Endpoints.Cars.SellCar;
 
 public partial class SellCarEndpoint : Endpoint<SellCarRequest>
 {

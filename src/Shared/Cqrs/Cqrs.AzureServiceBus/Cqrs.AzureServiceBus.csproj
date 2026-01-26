@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Messaging.ServiceBus" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
+  </ItemGroup>
+
+</Project>

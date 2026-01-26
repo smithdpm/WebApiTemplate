@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SharedKernel\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\RepositoryCaching\RepositoryCaching.csproj" />
+  </ItemGroup>
+
+</Project>

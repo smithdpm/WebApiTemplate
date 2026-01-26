@@ -1,4 +1,4 @@
-namespace Application.Cars.GetById;
+namespace Application.Cars;
 
 
 

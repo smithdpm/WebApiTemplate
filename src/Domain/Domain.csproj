@@ -1,17 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Ardalis.Specification" Version="9.3.0" />
+    <PackageReference Include="Ardalis.Result" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

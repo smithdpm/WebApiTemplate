@@ -1,23 +1,20 @@
-﻿using Application.Abstractions.Events;
-using Azure.Messaging.ServiceBus;
+﻿using Domain;
 using Domain.Abstractions;
 using Infrastructure.Authorization;
 using Infrastructure.Database;
-using Infrastructure.Events;
-using Infrastructure.Events.ServiceBus;
 using Infrastructure.IdentityGeneration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using SharedKernel.Database;
-using SharedKernel.Events;
 using System.Reflection;
+using Cqrs.EntityFrameworkCore.Configuration;
+using RepositoryCaching.EntityFrameworkCore;
 
 namespace Infrastructure;
 
@@ -26,9 +23,7 @@ public static class DependancyInjection
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         IConfiguration configuration) => 
-            services.AddDatabase(configuration)           
-                .AddAzureServiceBus(configuration)
-                .AddOutboxServices<ApplicationContext>()
+            services.AddDatabase(configuration)                   
                 .AddIdentityGenerators()
                 .AddAuthenticationCustom(configuration)
                 .AddAuthorizationCustom();
@@ -63,14 +58,14 @@ public static class DependancyInjection
         else
         {
             string? connectionString = configuration.GetConnectionString("Database");
-            services.AddCacheInvalidationServices(configuration);
-            services.AddSingleton<OutboxSaveChangesInterceptor>();
+            services.AddEFCoreCacheInvalidationServices(configuration);
+
             services.AddDbContextFactory<ApplicationContext>((provider, options) =>
             {
                 options
                 .UseAzureSql(connectionString)     
                 .AddCacheInvalidation(provider)
-                .AddInterceptors(provider.GetRequiredService<OutboxSaveChangesInterceptor>());
+                .AddCqrs(provider);
             });
         }
         return services;
@@ -99,82 +94,14 @@ public static class DependancyInjection
     {
         services.AddScoped<IUnitOfWork, EfUnitOfWork<ApplicationContext>>();
 
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Entity<>).Assembly,
             typeof(IRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
-        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Domain.IEntity<>).Assembly,
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Entity<>).Assembly,
              typeof(IReadRepository<>), typeof(EfRepository<>), typeof(IAggregateRoot));
 
         return services;
     }
-
-
-    private static IServiceCollection AddAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
-    {
-        var serviceBusEnabled = false;
-        bool.TryParse(configuration.GetSection("AzureServiceBus")["Enabled"], out serviceBusEnabled);
-
-        if (!serviceBusEnabled)
-            return services;
-
-        var connectionString = configuration.GetSection("AzureServiceBus")["ConnectionString"];
-        services.AddAzureClients(builder =>
-        {
-            builder.AddServiceBusClient(connectionString);
-        });
-
-        services.AddAzureServiceBusQueueSenders(configuration);
-        services.AddAzureServiceBusTopicSubscribers(configuration);
-
-        return services;
-    }
-
-    private static IServiceCollection AddAzureServiceBusQueueSenders(this IServiceCollection services, IConfiguration configuration)
-    {
-        var queueNames = configuration.GetSection("AzureServiceBus:Sender:Queues").Get<List<string>>();
-        var topicNames = configuration.GetSection("AzureServiceBus:Sender:Topics").Get<List<string>>();
-
-        var queueAndTopicNames = new List<string>();
-        if (queueNames!=null)
-            queueAndTopicNames.AddRange(queueNames);
-        if (topicNames != null)
-            queueAndTopicNames.AddRange(topicNames);
-
-        services.AddAzureClients(builder =>
-        {
-            foreach (var name in queueAndTopicNames)
-            {
-                builder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, _, provider) =>
-                    provider
-                        .GetRequiredService<ServiceBusClient>()
-                        .CreateSender(name)
-                )
-                .WithName(name);
-            }
-        });
-
-        return services;
-    }
-
-
-    private static IServiceCollection AddAzureServiceBusTopicSubscribers(this IServiceCollection services, IConfiguration configuration)
-    {
-        var topicSubscribers = configuration.GetSection("AzureServiceBus:TopicSubscribers").Get<List<ServiceBusTopicSubscriberSettings>>();
-
-        if (topicSubscribers == null)
-            return services;
-
-        foreach (var topicSubscriber in topicSubscribers)
-        {
-            services.AddHostedService(provider =>
-            ActivatorUtilities.CreateInstance<ServiceBusTopicSubscriber>(
-                    provider,
-                    topicSubscriber)
-            );
-        }
-        return services;
-    }
-
     private static IServiceCollection AddAuthenticationCustom(this IServiceCollection services, IConfiguration configuration) 
     {   
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -182,7 +109,6 @@ public static class DependancyInjection
 
         return services;
     } 
-
 
     private static IServiceCollection AddAuthorizationCustom(this IServiceCollection services)
     {
@@ -199,19 +125,6 @@ public static class DependancyInjection
     private static IServiceCollection AddIdentityGenerators(this IServiceCollection services)
     {
         services.AddScoped<IIdGenerator<Guid>, UuidSqlServerFriendlyGenerator>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddOutboxServices<TContext>(this IServiceCollection services) 
-        where TContext : DbContext
-    {
-        services.AddScoped<IRepository<OutboxMessage>, EfRepository<OutboxMessage>>();
-        services.AddSingleton<IOutboxRepository, OutboxRepository<TContext>>();
-        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
-        services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
-        services.AddHostedService(provider=>
-            ActivatorUtilities.CreateInstance<OutboxDispatcher>(provider));
 
         return services;
     }

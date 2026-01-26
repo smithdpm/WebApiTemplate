@@ -1,19 +1,12 @@
 ﻿using Application.Cars.Create;
 using Ardalis.Result;
-using Domain.Cars;
-using SharedKernel.Database;
-using SharedKernel.Events.IntegrationEvents;
-using SharedKernel.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Cqrs.Events.IntegrationEvents;
+using Cqrs.Messaging;
 
 namespace Application.Cars.CarBought;
-public class CarBoughtEventHandler(ICommandHandler<CreateCarCommand, Guid> handler) : IIntegrationEventHandler<CarBoughtIntegrationEvent>
+public class CarBoughtEventHandler(ICommandHandler<CreateCarCommand, Guid> handler) : IntegrationEventHandler<CarBoughtIntegrationEvent>
 {
-    public async Task HandleAsync(CarBoughtIntegrationEvent carBoughtIntegrationEvent, CancellationToken cancellationToken = default)
+    public override async Task HandleAsync(CarBoughtIntegrationEvent carBoughtIntegrationEvent, CancellationToken cancellationToken = default)
     {
         var createCarCommand = new CreateCarCommand(
             Model: carBoughtIntegrationEvent.Model,

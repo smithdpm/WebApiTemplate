@@ -1,32 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Ardalis.Specification" Version="9.3.0" />
-    <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="9.3.0" />
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
-    <PackageReference Include="CloudNative.CloudEvents" Version="2.8.0" />
-    <PackageReference Include="CloudNative.CloudEvents.SystemTextJson" Version="2.8.0" />
-    <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
-    <PackageReference Include="Mapster" Version="7.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.13.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.13.2" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="UUIDNext" Version="4.2.2" />
+    <Compile Remove="Events\**" />
+    <EmbeddedResource Remove="Events\**" />
+    <None Remove="Events\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Application\Application.csproj" />
-    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+    <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Identity.Web" />
+    <PackageReference Include="UUIDNext" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Shared\Cqrs\Cqrs.EntityFrameworkCore\Cqrs.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Shared\RepositoryCaching\RepositoryCaching.EntityFrameworkCore\RepositoryCaching.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
   <ItemGroup>

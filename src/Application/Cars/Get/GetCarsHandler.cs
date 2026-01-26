@@ -1,7 +1,7 @@
 ﻿using SharedKernel.Database;
-using SharedKernel.Messaging;
 using Domain.Cars;
 using Ardalis.Result;
+using Cqrs.Messaging;
 
 namespace Application.Cars.Get;
 

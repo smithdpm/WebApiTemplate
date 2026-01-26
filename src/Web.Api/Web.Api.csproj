@@ -1,29 +1,31 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-WebApiTemplate-869a7993-3060-4a7e-aa80-80f81ee8e94f</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ardalis.Result.AspNetCore" Version="10.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.8" NoWarn="NU1605" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="3.13.2" />
-    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="3.13.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.11.6" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
+    <PackageReference Include="Ardalis.Result.AspNetCore" />
+    <PackageReference Include="Mapster" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" NoWarn="NU1605" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Identity.Web" />
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\SharedKernel\SharedKernel.csproj" />
+    <ProjectReference Include="..\Shared\Cqrs\Cqrs.AzureServiceBus\Cqrs.AzureServiceBus.csproj" />
+    <ProjectReference Include="..\Shared\Cqrs\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\Shared\ReprEndpoints\ReprEndpoints\ReprEndpoints.csproj" />
+    <ProjectReference Include="..\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

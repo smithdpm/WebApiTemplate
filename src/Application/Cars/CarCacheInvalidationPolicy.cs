@@ -1,7 +1,6 @@
-﻿
-using Application.Behaviours.RepositoryCaching;
-using Application.Cars.GetByMake;
+﻿using Application.Cars.GetByMake;
 using Domain.Cars;
+using RepositoryCaching.Invalidation.Policies;
 
 namespace Application.Cars;
 internal class CarCacheInvalidationPolicy : StandardCacheInvalidationPolicy<Car>

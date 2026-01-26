@@ -1,10 +1,11 @@
 using Application;
-using Application.Behaviours;
+using Cqrs.Builders;
 using Infrastructure;
 using Infrastructure.Database;
 using Scalar.AspNetCore;
-using System.Reflection;
-using Web.Api.Extensions;
+using ReprEndpoints.Extensions;
+using Cqrs.EntityFrameworkCore;
+using Cqrs.AzureServiceBus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,23 +17,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi()
    .AddInfrastructure(builder.Configuration)
+   .AddEventServices(builder.Configuration)
    .AddCqrsBehaviours(
         typeof(Application.DependancyInjection).Assembly,
         typeof(Domain.Entity<>).Assembly,
         pipelineBuilder =>
         {
-            pipelineBuilder.AddIntegrationEventHandling();
-            pipelineBuilder.AddAtomicTransactionHandling();
-            pipelineBuilder.AddValidation();
-            pipelineBuilder.AddLogging();
-        });
+        })
+   .AddOutboxServices<ApplicationContext>(typeof(EfRepository<>));
 
 
-builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
+builder.Services.AddEndpoints();
 builder.Services.AddInfrastructureDependantBehaviours(builder.Configuration);
 
 var app = builder.Build();
-app.UseCacheInvalidationPolicies();
 app.MapEndpoints();
 
 

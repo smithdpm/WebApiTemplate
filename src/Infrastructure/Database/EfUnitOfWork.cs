@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Database;
 
 namespace Infrastructure.Database;
 public class EfUnitOfWork<TDbContext>(TDbContext dbContext) : IUnitOfWork
