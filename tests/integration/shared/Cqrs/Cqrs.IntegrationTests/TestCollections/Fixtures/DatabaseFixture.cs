@@ -1,7 +1,5 @@
-using Infrastructure.Database;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.Database;
+
+using Microsoft.Data.SqlClient;
 using Testcontainers.MsSql;
 
 namespace Cqrs.IntegrationTests.TestCollections.Fixtures;
@@ -24,5 +22,27 @@ public sealed class DatabaseFixture : IAsyncLifetime
     public async ValueTask DisposeAsync()
     {
         await _dbContainer.DisposeAsync();
+    }
+
+    public async Task<string> CreateDatabaseAsync(string databaseName)
+    {
+        using var connection = new SqlConnection(_dbContainer.GetConnectionString());
+        await connection.OpenAsync();
+        using var command = connection.CreateCommand();
+        command.CommandText = $"CREATE DATABASE [{databaseName}];";
+        await command.ExecuteNonQueryAsync();
+        
+        var connectionStringBuilder = new SqlConnectionStringBuilder(_dbContainer.GetConnectionString());
+        connectionStringBuilder.InitialCatalog = databaseName;
+        return connectionStringBuilder.ConnectionString;
+    }
+
+    public async Task DropDatabaseAsync(string databaseName)
+    {
+        using var connection = new SqlConnection(_dbContainer.GetConnectionString());
+        await connection.OpenAsync();
+        using var command = connection.CreateCommand();
+        command.CommandText = $"DROP DATABASE [{databaseName}];";
+        await command.ExecuteNonQueryAsync();
     }
 }
