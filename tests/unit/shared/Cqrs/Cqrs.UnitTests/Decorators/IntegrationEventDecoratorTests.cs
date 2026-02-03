@@ -33,7 +33,7 @@ public class IntegrationEventDecoratorTests
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" }, "topic1");
             innerHandler.SetResult(Result<string>.Success("Success"));
 
             // Act
@@ -58,7 +58,7 @@ public class IntegrationEventDecoratorTests
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" }, "topic1");
             innerHandler.SetResult(Result<string>.Error("Command failed"));
 
             // Act
@@ -119,7 +119,7 @@ public class IntegrationEventDecoratorTests
             
             var destination = "order-events-topic";
             var integrationEvent = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "order-created" };
-            innerHandler.AddIntegrationEvent(destination, integrationEvent);
+            innerHandler.AddIntegrationEvent(integrationEvent, destination);
             innerHandler.SetResult(Result<string>.Success("Success"));
 
             List<OutboxMessage> capturedMessages = null;
@@ -148,9 +148,9 @@ public class IntegrationEventDecoratorTests
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event1" });
-            innerHandler.AddIntegrationEvent("topic2", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event2" });
-            innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event3" });
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event1" }, "topic1");
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event2" }, "topic2");
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event3" }, "topic1");
             innerHandler.SetResult(Result<string>.Success("Success"));
 
             List<OutboxMessage> capturedMessages = null;
@@ -183,7 +183,7 @@ public class IntegrationEventDecoratorTests
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" }, "topic1");   
             innerHandler.SetResult(Result.Success());
 
             // Act
@@ -208,7 +208,7 @@ public class IntegrationEventDecoratorTests
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.AddIntegrationEvent("topic1", new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" });
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" }, "topic1");
             innerHandler.SetResult(Result.Error("Command failed"));
 
             // Act

@@ -21,6 +21,7 @@ public class OutboxDispatcher : BackgroundService
     private int _maxProcessingAttempts = 3;
     private int _batchSize = 10;
     private int _lockDuration = 60;
+    private string _defaultTopicName = "default-topic";
 
     public OutboxDispatcher(
         ILogger<OutboxDispatcher> logger,
@@ -107,7 +108,7 @@ public class OutboxDispatcher : BackgroundService
         {
             await _integrationEventDispatcher.DispatchEventsAsync(
                 integrationEvents: new List<IntegrationEventBase>() { integrationEventResult.Value },
-                queueOrTopic: message.Destination!,
+                queueOrTopic: UpdateDefaultDestination(message.Destination),
                 cancellationToken);
             await _outboxRepository.MarkMessageAsCompleted(message.Id, cancellationToken);
         }
@@ -141,5 +142,16 @@ public class OutboxDispatcher : BackgroundService
                 $"JSON Deserialization failed for domain event type {message.EventType}. ExceptionMessage: {jsonEx.Message}"
                 );
         }
+    }
+
+    private string UpdateDefaultDestination(string? destination)
+    {
+        if (string.IsNullOrWhiteSpace(destination))
+            return _defaultTopicName;
+
+        if (destination.Equals("default", StringComparison.OrdinalIgnoreCase))
+            return _defaultTopicName;
+
+        return destination;
     }
 }

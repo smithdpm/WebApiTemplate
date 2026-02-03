@@ -21,7 +21,7 @@ internal class SellCarHandler(IRepository<Car> repository) : CommandHandler<Sell
 
         if(result.IsSuccess)
         {
-            AddIntegrationEvent("cars-events", new CarSoldIntegrationEvent(car.Id, (DateTime)car.SoldAt!, (decimal)car.SoldPrice!));
+            AddIntegrationEvent(new CarSoldIntegrationEvent(car.Id, (DateTime)car.SoldAt!, (decimal)car.SoldPrice!));
             await repository.UpdateAsync(car, cancellationToken);
         }           
 

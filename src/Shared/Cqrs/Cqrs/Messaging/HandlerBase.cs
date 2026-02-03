@@ -11,11 +11,16 @@ public abstract class HandlerBase<TInput, TResult> : IHandler<TInput, TResult>
     [NotMapped]
     public IReadOnlyDictionary<string, List<IntegrationEventBase>> IntegrationEventsToSend => _integrationEvents.AsReadOnly();
 
-    public void AddIntegrationEvent(string destination, IntegrationEventBase eventItem)
+    public void AddIntegrationEvent(IntegrationEventBase eventItem, string destination)
     {
         if (!_integrationEvents.ContainsKey(destination))
             _integrationEvents[destination] = new List<IntegrationEventBase>();
         _integrationEvents[destination].Add(eventItem);
+    }
+
+    public void AddIntegrationEvent(IntegrationEventBase eventItem)
+    {
+        AddIntegrationEvent(eventItem, "default");
     }
 
     public void ClearIntegrationEvents() => _integrationEvents.Clear();

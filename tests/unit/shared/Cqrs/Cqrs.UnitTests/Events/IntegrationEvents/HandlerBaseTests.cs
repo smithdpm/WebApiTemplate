@@ -22,7 +22,7 @@ public class HandlerBaseTests
         var integrationEvent = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test-data" };
 
         // Act
-        _testHandler.AddIntegrationEvent(destination, integrationEvent);
+        _testHandler.AddIntegrationEvent(integrationEvent, destination);
 
         // Assert
         _testHandler.IntegrationEventsToSend.ShouldContainKey(destination);
@@ -41,9 +41,9 @@ public class HandlerBaseTests
         var event3 = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event3" };
 
         // Act
-        _testHandler.AddIntegrationEvent(destination1, event1);
-        _testHandler.AddIntegrationEvent(destination2, event2);
-        _testHandler.AddIntegrationEvent(destination1, event3);
+        _testHandler.AddIntegrationEvent(event1, destination1);
+        _testHandler.AddIntegrationEvent(event2, destination2);
+        _testHandler.AddIntegrationEvent(event3, destination1);
 
         // Assert
         var events = _testHandler.IntegrationEventsToSend;
@@ -61,7 +61,7 @@ public class HandlerBaseTests
         // Arrange
         var destination = "test-topic";
         var integrationEvent = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test-data" };
-        _testHandler.AddIntegrationEvent(destination, integrationEvent);
+        _testHandler.AddIntegrationEvent(integrationEvent, destination);
 
         // Act
         _testHandler.ClearIntegrationEvents();
