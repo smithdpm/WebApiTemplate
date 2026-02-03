@@ -219,6 +219,10 @@ public class CommandRegistrationExtensionTests
         var applicationAssembly = typeof(BasicApplicationClass).Assembly;
         var domainAssembly = typeof(BasicDomainClass).Assembly;
 
+        services.AddFakeLogging();
+        services.AddScoped(sp => { return Substitute.For<IRepository<OutboxMessage>>(); });
+        services.AddScoped(sp => { return Substitute.For<IUnitOfWork>(); });
+
         // Act
         services.AddCqrsBehaviours(applicationAssembly, domainAssembly, builder => { });
 
@@ -236,6 +240,10 @@ public class CommandRegistrationExtensionTests
         var services = new ServiceCollection();
         var applicationAssembly = typeof(BasicApplicationClass).Assembly;
         var domainAssembly = typeof(BasicDomainClass).Assembly;
+
+        services.AddFakeLogging();
+        services.AddScoped(sp => { return Substitute.For<IRepository<OutboxMessage>>(); });
+        services.AddScoped(sp => { return Substitute.For<IUnitOfWork>(); });
 
         // Act
         services.AddCqrsBehaviours(applicationAssembly, domainAssembly, builder => { });

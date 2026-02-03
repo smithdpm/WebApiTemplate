@@ -8,11 +8,11 @@ public abstract class IntegrationEventHandler<TEvent> : HandlerBase<TEvent, Resu
     where TEvent : IIntegrationEvent
 {
     public Type EventType => typeof(TEvent);
-    public Task<Result> HandleAsync(IIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
+    async Task<Result> IIntegrationEventHandler.HandleAsync(IIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
     {
         if (integrationEvent is TEvent typedEvent)
         {
-            return HandleAsync(typedEvent, cancellationToken);
+            return await HandleAsync(typedEvent, cancellationToken);
         }
         else
         {

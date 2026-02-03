@@ -15,7 +15,7 @@ public class IntegrationEventHandlerTests
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await handler.HandleAsync(integrationEvent as IIntegrationEvent, cancellationToken);
+        await ((IIntegrationEventHandler)handler).HandleAsync(integrationEvent as IIntegrationEvent, cancellationToken);
 
         // Assert
         handler.HandledEvent.ShouldBe(integrationEvent);
@@ -30,8 +30,8 @@ public class IntegrationEventHandlerTests
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act & Assert
-        var exception = await Record.ExceptionAsync(() => 
-            handler.HandleAsync(wrongEvent as IIntegrationEvent, cancellationToken));
+        var exception = await Record.ExceptionAsync(() =>
+            ((IIntegrationEventHandler)handler).HandleAsync(wrongEvent as IIntegrationEvent, cancellationToken));
         
         exception.ShouldNotBeNull();
         exception.ShouldBeOfType<ArgumentException>();

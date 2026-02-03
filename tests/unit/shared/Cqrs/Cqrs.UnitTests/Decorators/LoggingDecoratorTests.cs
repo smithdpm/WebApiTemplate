@@ -43,7 +43,7 @@ public class LoggingDecoratorTests
 
             var logs = _fakeLogger.Collector.GetSnapshot();
             Assert.All(logs, log => log.Level.ShouldBe(LogLevel.Information));
-            Assert.Contains(logs, log => log.Message.Contains("Handling command"));
+            Assert.Contains(logs, log => log.Message.Contains("Handling operation"));
             Assert.Contains(logs, log => log.Message.Contains("handled successfully"));
         }
 
@@ -141,7 +141,7 @@ public class LoggingDecoratorTests
             
             var logs = _fakeLogger.Collector.GetSnapshot();
             Assert.All(logs, log => log.Level.ShouldBe(LogLevel.Information));
-            Assert.Contains(logs, log => log.Message.Contains("Handling command"));
+            Assert.Contains(logs, log => log.Message.Contains("Handling operation"));
             Assert.Contains(logs, log => log.Message.Contains("handled successfully"));
         }
 
