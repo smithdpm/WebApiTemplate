@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\src\Shared\Cqrs\Cqrs.AzureServiceBus\Cqrs.AzureServiceBus.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\src\Shared\Cqrs\Cqrs.EntityFrameworkCore\Cqrs.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\src\Shared\Cqrs\Cqrs\Cqrs.csproj" />
+  </ItemGroup>
+
+</Project>

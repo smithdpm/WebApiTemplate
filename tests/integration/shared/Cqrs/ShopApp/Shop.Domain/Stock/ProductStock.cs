@@ -29,4 +29,6 @@ public class ProductStock
     }
 
     public bool IsInStock(int quantity) => TotalInStock >= quantity;
+
+    public bool IsLowStock() => TotalInStock <= 10;
 }

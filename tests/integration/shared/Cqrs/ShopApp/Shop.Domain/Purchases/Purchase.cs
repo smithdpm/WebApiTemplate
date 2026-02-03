@@ -15,11 +15,3 @@ public class Purchase : HasDomainEvents
         AddDomainEvent(new PurchaseCreatedDomainEvent(Id, soldProducts));
     }
 }
-
-//public class PurchaseFactory
-//{
-//    public static Purchase Create(List<SoldProduct> soldProducts)
-//    {
-//        return new Purchase(soldProducts);
-//    }
-//}
