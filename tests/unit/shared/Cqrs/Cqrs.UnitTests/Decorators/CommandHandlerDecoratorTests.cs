@@ -19,7 +19,7 @@ public class CommandHandlerDecoratorTests
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.Handle(command, cancellationToken)
+            innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
             
             var decorator = new TestCommandHandlerDecorator<TestCommand, string>(innerHandler);
@@ -30,7 +30,7 @@ public class CommandHandlerDecoratorTests
             // Assert
             result.IsSuccess.ShouldBeTrue();
             result.Value.ShouldBe(expectedResult);
-            await innerHandler.Received(1).Handle(command, cancellationToken);
+            await innerHandler.Received(1).HandleAsync(command, cancellationToken);
         }
     }
 
@@ -44,7 +44,7 @@ public class CommandHandlerDecoratorTests
             var command = new TestCommandWithoutResponse { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.Handle(command, cancellationToken)
+            innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Success());
             
             var decorator = new TestCommandWithoutResponseHandlerDecorator<TestCommandWithoutResponse>(innerHandler);
@@ -54,7 +54,7 @@ public class CommandHandlerDecoratorTests
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
-            await innerHandler.Received(1).Handle(command, cancellationToken);
+            await innerHandler.Received(1).HandleAsync(command, cancellationToken);
         }
     }
 
@@ -76,7 +76,7 @@ public class CommandHandlerDecoratorTests
         {
         }
 
-        public override Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
+        public override Task<Result<TResponse>> HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
             return HandleInner(command, cancellationToken);
         }
@@ -95,7 +95,7 @@ public class CommandHandlerDecoratorTests
         {
         }
 
-        public override Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
+        public override Task<Result> HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
             return HandleInner(command, cancellationToken);
         }

@@ -10,7 +10,7 @@ public record AddItemCommand(string Name): ICommand<Guid>;
 
 public class AddItemCommandHandler(ApplicationDbContext dbContext) : ICommandHandler<AddItemCommand, Guid>
 {
-    public Task<Result<Guid>> Handle(AddItemCommand command, CancellationToken cancellationToken)
+    public Task<Result<Guid>> HandleAsync(AddItemCommand command, CancellationToken cancellationToken)
     {
         var newItem = new Item(command.Name);
         dbContext.Add(newItem);

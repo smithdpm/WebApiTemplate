@@ -2,10 +2,10 @@
 using Azure.Messaging;
 using Azure.Messaging.ServiceBus;
 using Cqrs.Decorators.Registries;
+using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Cqrs.Events.IntegrationEvents;
 using System.Text.Json;
 
 
@@ -181,9 +181,10 @@ public class ServiceBusTopicSubscriber : BackgroundService
         var eventType = integrationEvent.GetType();
 
         using var scope = _scopeFactory.CreateAsyncScope();
+
         var handlers = scope.ServiceProvider
-            .GetServices<IIntegrationEventHandler>()
-            .Where(s=>s.EventType == eventType);
+                    .GetServices(typeof(IIntegrationEventHandler<>).MakeGenericType(eventType))
+                    .Cast<IIntegrationEventHandler>();
 
         if (!handlers.Any())
         {

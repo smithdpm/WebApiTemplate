@@ -1,15 +1,14 @@
-﻿using SharedKernel.Events;
+﻿using Ardalis.Result;
+using Cqrs.Messaging;
+using SharedKernel.Events;
 
 namespace Cqrs.Events.DomainEvents;
 
-public interface IDomainEventHandler<TEvent>: IDomainEventHandler 
-    where TEvent : IDomainEvent
-{
-    Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default);
-}
+public interface IDomainEventHandler<TEvent>: IDomainEventHandler, IHandler<TEvent, Result>
+    where TEvent : IDomainEvent;
 
 public interface IDomainEventHandler
 {
     Type EventType { get; }
-    Task HandleAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default);
+    Task<Result> HandleAsync(IDomainEvent domainEvent, CancellationToken cancellationToken);
 }

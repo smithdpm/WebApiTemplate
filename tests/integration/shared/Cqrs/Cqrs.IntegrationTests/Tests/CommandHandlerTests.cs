@@ -66,7 +66,7 @@ public class CommandHandlerTests
             .Where(p=> p.ProductName == "Apples" || p.ProductName == "Bananas" || p.ProductName == "Kiwis")
             .ToListAsync(cancellationToken);
 
-        var result = await handler.Handle(command, cancellationToken);
+        var result = await handler.HandleAsync(command, cancellationToken);
 
         // Assert
         await WaitForOutboxToCompleteMessages(dbContext, cancellationToken);

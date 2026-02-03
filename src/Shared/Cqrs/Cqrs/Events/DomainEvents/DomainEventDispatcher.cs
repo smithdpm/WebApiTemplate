@@ -1,11 +1,10 @@
 ﻿using Cqrs.Abstractions.Events;
-using Cqrs.Events.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 using System.ComponentModel;
 
-namespace Cqrs.Events;
+namespace Cqrs.Events.DomainEvents;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public class DomainEventDispatcher(
@@ -19,9 +18,8 @@ public class DomainEventDispatcher(
             using (var scope = scopeFactory.CreateScope())
             {
                 var handlers = scope.ServiceProvider
-                    .GetServices<IDomainEventHandler>()
-                    .Where(s=>s.EventType == domainEvent.GetType())
-                    .ToList();
+                    .GetServices(typeof(IDomainEventHandler<>).MakeGenericType(domainEvent.GetType()))
+                    .Cast<IDomainEventHandler>();
 
                 if (!handlers.Any())
                 {

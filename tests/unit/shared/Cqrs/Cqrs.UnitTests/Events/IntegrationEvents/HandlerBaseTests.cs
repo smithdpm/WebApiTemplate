@@ -1,15 +1,17 @@
+using Ardalis.Result;
 using Cqrs.Events.IntegrationEvents;
+using Cqrs.Messaging;
 using Shouldly;
 
 namespace Cqrs.UnitTests.Events.IntegrationEvents;
 
-public class HasIntegrationEventsTests
+public class HandlerBaseTests
 {
-    private readonly HasIntegrationEvents _hasIntegrationEvents;
+    private readonly TestHandler _testHandler;
 
-    public HasIntegrationEventsTests()
+    public HandlerBaseTests()
     {
-        _hasIntegrationEvents = new HasIntegrationEvents();
+        _testHandler = new TestHandler();
     }
 
     [Fact]
@@ -20,12 +22,12 @@ public class HasIntegrationEventsTests
         var integrationEvent = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test-data" };
 
         // Act
-        _hasIntegrationEvents.AddIntegrationEvent(destination, integrationEvent);
+        _testHandler.AddIntegrationEvent(destination, integrationEvent);
 
         // Assert
-        _hasIntegrationEvents.IntegrationEventsToSend.ShouldContainKey(destination);
-        _hasIntegrationEvents.IntegrationEventsToSend[destination].Count.ShouldBe(1);
-        _hasIntegrationEvents.IntegrationEventsToSend[destination][0].ShouldBe(integrationEvent);
+        _testHandler.IntegrationEventsToSend.ShouldContainKey(destination);
+        _testHandler.IntegrationEventsToSend[destination].Count.ShouldBe(1);
+        _testHandler.IntegrationEventsToSend[destination][0].ShouldBe(integrationEvent);
     }
 
     [Fact]
@@ -39,12 +41,12 @@ public class HasIntegrationEventsTests
         var event3 = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "event3" };
 
         // Act
-        _hasIntegrationEvents.AddIntegrationEvent(destination1, event1);
-        _hasIntegrationEvents.AddIntegrationEvent(destination2, event2);
-        _hasIntegrationEvents.AddIntegrationEvent(destination1, event3);
+        _testHandler.AddIntegrationEvent(destination1, event1);
+        _testHandler.AddIntegrationEvent(destination2, event2);
+        _testHandler.AddIntegrationEvent(destination1, event3);
 
         // Assert
-        var events = _hasIntegrationEvents.IntegrationEventsToSend;
+        var events = _testHandler.IntegrationEventsToSend;
         events.Count.ShouldBe(2);
         events[destination1].Count.ShouldBe(2);
         events[destination1].ShouldContain(event1);
@@ -59,18 +61,29 @@ public class HasIntegrationEventsTests
         // Arrange
         var destination = "test-topic";
         var integrationEvent = new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test-data" };
-        _hasIntegrationEvents.AddIntegrationEvent(destination, integrationEvent);
+        _testHandler.AddIntegrationEvent(destination, integrationEvent);
 
         // Act
-        _hasIntegrationEvents.ClearIntegrationEvents();
+        _testHandler.ClearIntegrationEvents();
 
         // Assert
-        _hasIntegrationEvents.IntegrationEventsToSend.ShouldBeEmpty();
+        _testHandler.IntegrationEventsToSend.ShouldBeEmpty();
     }
 
     public record TestIntegrationEvent : IntegrationEventBase
     {
         public Guid EventId { get; init; }
         public string Data { get; init; } = string.Empty;
+    }
+
+    public class TestHandler : HandlerBase<string, Result<string>>
+    {
+        public Guid EventId { get; init; }
+        public string Data { get; init; } = string.Empty;
+
+        public override Task<Result<string>> HandleAsync(string input, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(Result.Success("success"));
+        }
     }
 }

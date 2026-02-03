@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Cqrs.Decorators;
+using Cqrs.Decorators.AtomicTransactionDecorator;
 using Cqrs.Messaging;
 using NSubstitute;
 using SharedKernel.Database;
@@ -13,13 +14,15 @@ public class AtomicTransactionDecoratorTests
     {
         private readonly ICommandHandler<TestCommand, string> _innerHandler;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly AtomicTransactionDecorator<TestCommand, string> _decorator;
+        private readonly AtomicTransactionCommandDecorator<TestCommand, string> _decorator;
+        private readonly IAtomicTransactionBehaviour _atomicTransactionBehaviour;
 
         public CommandHandlerWithResponseTests()
         {
             _innerHandler = Substitute.For<ICommandHandler<TestCommand, string>>();
             _unitOfWork = Substitute.For<IUnitOfWork>();
-            _decorator = new AtomicTransactionDecorator<TestCommand, string>(_innerHandler, _unitOfWork);
+            _atomicTransactionBehaviour = new AtomicTransactionBehaviour(_unitOfWork);
+            _decorator = new AtomicTransactionCommandDecorator<TestCommand, string>(_innerHandler, _atomicTransactionBehaviour);
         }
 
         [Fact]
@@ -30,12 +33,12 @@ public class AtomicTransactionDecoratorTests
             var expectedResult = "Success";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
             _unitOfWork.HasChanges().Returns(true);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -51,12 +54,12 @@ public class AtomicTransactionDecoratorTests
             var errorMessage = "Command failed";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Error(errorMessage));
             _unitOfWork.HasChanges().Returns(true);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -71,12 +74,12 @@ public class AtomicTransactionDecoratorTests
             var expectedResult = "Success";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
             _unitOfWork.HasChanges().Returns(false);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -92,17 +95,17 @@ public class AtomicTransactionDecoratorTests
             var expectedResult = "Expected Result";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
             _unitOfWork.HasChanges().Returns(false);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
             result.Value.ShouldBe(expectedResult);
-            await _innerHandler.Received(1).Handle(command, cancellationToken);
+            await _innerHandler.Received(1).HandleAsync(command, cancellationToken);
         }
     }
 
@@ -110,13 +113,15 @@ public class AtomicTransactionDecoratorTests
     {
         private readonly ICommandHandler<TestVoidCommand> _innerHandler;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly AtomicTransactionDecorator<TestVoidCommand> _decorator;
+        private readonly AtomicTransactionCommandDecorator<TestVoidCommand> _decorator;
+        private readonly IAtomicTransactionBehaviour _atomicTransactionBehaviour;
 
         public CommandHandlerWithoutResponseTests()
         {
             _innerHandler = Substitute.For<ICommandHandler<TestVoidCommand>>();
             _unitOfWork = Substitute.For<IUnitOfWork>();
-            _decorator = new AtomicTransactionDecorator<TestVoidCommand>(_innerHandler, _unitOfWork);
+            _atomicTransactionBehaviour = new AtomicTransactionBehaviour(_unitOfWork);
+            _decorator = new AtomicTransactionCommandDecorator<TestVoidCommand>(_innerHandler, _atomicTransactionBehaviour);
         }
 
         [Fact]
@@ -126,12 +131,12 @@ public class AtomicTransactionDecoratorTests
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Success());
             _unitOfWork.HasChanges().Returns(true);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -146,12 +151,12 @@ public class AtomicTransactionDecoratorTests
             var errorMessage = "Command failed";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Error(errorMessage));
             _unitOfWork.HasChanges().Returns(true);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -165,12 +170,12 @@ public class AtomicTransactionDecoratorTests
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Success());
             _unitOfWork.HasChanges().Returns(false);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();

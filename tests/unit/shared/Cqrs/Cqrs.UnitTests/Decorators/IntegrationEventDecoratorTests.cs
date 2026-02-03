@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Cqrs.Decorators;
+using Cqrs.Decorators.IntegrationEventToOutboxDecorator;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
 using Cqrs.Outbox;
@@ -13,10 +14,12 @@ namespace Cqrs.UnitTests.Decorators;
 public class IntegrationEventDecoratorTests
 {
     private readonly IRepository<OutboxMessage> _repository;
+    private readonly IIntegrationEventToOutboxBehaviour _integrationEventBehaviour;
 
     public IntegrationEventDecoratorTests()
     {
         _repository = Substitute.For<IRepository<OutboxMessage>>();
+        _integrationEventBehaviour = new IntegrationEventToOutboxBehaviour(_repository);
     }
 
     public class CommandHandlerWithResponseTests : IntegrationEventDecoratorTests
@@ -26,7 +29,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestCommand, string>(innerHandler, _integrationEventBehaviour);
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
@@ -34,7 +37,7 @@ public class IntegrationEventDecoratorTests
             innerHandler.SetResult(Result<string>.Success("Success"));
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -51,7 +54,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestCommand, string>(innerHandler, _integrationEventBehaviour);
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
@@ -59,7 +62,7 @@ public class IntegrationEventDecoratorTests
             innerHandler.SetResult(Result<string>.Error("Command failed"));
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -72,14 +75,14 @@ public class IntegrationEventDecoratorTests
             // Arrange
             var expectedResult = "Expected Result";
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestCommand, string>(innerHandler, _integrationEventBehaviour);
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
             innerHandler.SetResult(Result<string>.Success(expectedResult));
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -87,18 +90,18 @@ public class IntegrationEventDecoratorTests
         }
 
         [Fact]
-        public async Task Handle_ShouldHandleNoEvents_WhenHandlerNotImplementIHasIntegrationEvents()
+        public async Task Handle_ShouldHandleNoEvents_WhenHandlerHasEventsToSend()
         {
             // Arrange
-            var innerHandler = new TestCommandHandlerWithoutEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
+            var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestCommand, string>(innerHandler, _integrationEventBehaviour);
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
             innerHandler.SetResult(Result<string>.Success("Success"));
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -110,7 +113,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestCommand, string>(innerHandler, _integrationEventBehaviour);
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
@@ -123,7 +126,7 @@ public class IntegrationEventDecoratorTests
             await _repository.AddRangeAsync(Arg.Do<List<OutboxMessage>>(messages => capturedMessages = messages), Arg.Any<CancellationToken>());
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -141,7 +144,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestCommandHandlerWithEvents<TestCommand, string>();
-            var decorator = new IntegrationEventDecorator<TestCommand, string>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestCommand, string>(innerHandler, _integrationEventBehaviour);
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
@@ -154,7 +157,7 @@ public class IntegrationEventDecoratorTests
             await _repository.AddRangeAsync(Arg.Do<List<OutboxMessage>>(messages => capturedMessages = messages), Arg.Any<CancellationToken>());
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -176,7 +179,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestVoidCommandHandlerWithEvents<TestVoidCommand>();
-            var decorator = new IntegrationEventDecorator<TestVoidCommand>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestVoidCommand>(innerHandler, _integrationEventBehaviour);
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
@@ -184,7 +187,7 @@ public class IntegrationEventDecoratorTests
             innerHandler.SetResult(Result.Success());
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -201,7 +204,7 @@ public class IntegrationEventDecoratorTests
         {
             // Arrange
             var innerHandler = new TestVoidCommandHandlerWithEvents<TestVoidCommand>();
-            var decorator = new IntegrationEventDecorator<TestVoidCommand>(innerHandler, _repository);
+            var decorator = new IntegrationEventToOutboxCommandDecorator<TestVoidCommand>(innerHandler, _integrationEventBehaviour);
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
@@ -209,7 +212,7 @@ public class IntegrationEventDecoratorTests
             innerHandler.SetResult(Result.Error("Command failed"));
 
             // Act
-            var result = await decorator.Handle(command, cancellationToken);
+            var result = await decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -233,7 +236,7 @@ public class IntegrationEventDecoratorTests
         public string Data { get; init; } = string.Empty;
     }
 
-    private class TestCommandHandlerWithEvents<TCommand, TResponse> : HasIntegrationEvents, ICommandHandler<TCommand, TResponse>
+    private class TestCommandHandlerWithEvents<TCommand, TResponse> : CommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
     {
         private Result<TResponse> _result = null!;
@@ -243,13 +246,13 @@ public class IntegrationEventDecoratorTests
             _result = result;
         }
 
-        public Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
+        public override Task<Result<TResponse>> HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
             return Task.FromResult(_result);
         }
     }
 
-    private class TestVoidCommandHandlerWithEvents<TCommand> : HasIntegrationEvents, ICommandHandler<TCommand>
+    private class TestVoidCommandHandlerWithEvents<TCommand> : CommandHandler<TCommand>
         where TCommand : ICommand
     {
         private Result _result = null!;
@@ -259,23 +262,7 @@ public class IntegrationEventDecoratorTests
             _result = result;
         }
 
-        public Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(_result);
-        }
-    }
-
-    private class TestCommandHandlerWithoutEvents<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>
-        where TCommand : ICommand<TResponse>
-    {
-        private Result<TResponse> _result = null!;
-
-        public void SetResult(Result<TResponse> result)
-        {
-            _result = result;
-        }
-
-        public Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
+        public override Task<Result> HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
             return Task.FromResult(_result);
         }

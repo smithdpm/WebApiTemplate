@@ -1,4 +1,5 @@
-﻿using Cqrs.Events.DomainEvents;
+﻿using Ardalis.Result;
+using Cqrs.Events.DomainEvents;
 using Domain.Cars;
 using Domain.Cars.Events;
 using RepositoryCaching.Cache;
@@ -8,10 +9,11 @@ namespace Application.Cars.SellCar;
 
 public class CarCacheInvalidationHandler(ICacheService cacheService) : DomainEventHandler<CarSoldEvent>
 {
-    public override async Task HandleAsync(CarSoldEvent domainEvent, CancellationToken cancellationToken = default)
+    public override async Task<Result> HandleAsync(CarSoldEvent domainEvent, CancellationToken cancellationToken = default)
     {
         var cacheKey = RepositoryCachingHelper.GenerateCacheKey(typeof(Car).Name, domainEvent.CarId.ToString());
         await cacheService.RemoveAsync(cacheKey, cancellationToken);
+        return Result.Success();
     }
 }
 

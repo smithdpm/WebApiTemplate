@@ -27,7 +27,7 @@ public class CreateCarHandlerTests
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        var result = await _handler.Handle(command, cancellationToken);
+        var result = await _handler.HandleAsync(command, cancellationToken);
 
         // Assert   
         result.IsSuccess.ShouldBeTrue();

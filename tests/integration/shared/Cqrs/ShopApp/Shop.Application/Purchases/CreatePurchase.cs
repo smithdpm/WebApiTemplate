@@ -11,9 +11,9 @@ public record CreatePurchaseCommand(List<ProductPurchase> ProductPurchases) : IC
 public record ProductPurchase(string ProductName, int PurchaseQuantity) : ICommand<Guid>;
 
 
-public class CreatePurchaseCommandHandler(ApplicationDbContext dbContext) : ICommandHandler<CreatePurchaseCommand, Guid>
+public class CreatePurchaseCommandHandler(ApplicationDbContext dbContext) : CommandHandler<CreatePurchaseCommand, Guid>
 {
-    public async Task<Result<Guid>> Handle(CreatePurchaseCommand command, CancellationToken cancellationToken)
+    public override async Task<Result<Guid>> HandleAsync(CreatePurchaseCommand command, CancellationToken cancellationToken)
     {
         var availableStock = await dbContext.ProductStocks
             .Where(ps => command.ProductPurchases.Select(pp => pp.ProductName).Contains(ps.ProductName))

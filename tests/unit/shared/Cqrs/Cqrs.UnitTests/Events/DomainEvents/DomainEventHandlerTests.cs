@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using Cqrs.Events.DomainEvents;
 using SharedKernel.Events;
 using Shouldly;
@@ -15,7 +16,7 @@ public class DomainEventHandlerTests
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await handler.HandleAsync(domainEvent as IDomainEvent, cancellationToken);
+        await (handler as IDomainEventHandler).HandleAsync(domainEvent as IDomainEvent, cancellationToken);
 
         // Assert
         handler.HandledEvent.ShouldBe(domainEvent);
@@ -30,8 +31,8 @@ public class DomainEventHandlerTests
         var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act & Assert
-        var exception = await Record.ExceptionAsync(() => 
-            handler.HandleAsync(wrongEvent as IDomainEvent, cancellationToken));
+        var exception = await Record.ExceptionAsync(() =>
+            (handler as IDomainEventHandler).HandleAsync(wrongEvent as IDomainEvent, cancellationToken));
         
         exception.ShouldNotBeNull();
         exception.ShouldBeOfType<ArgumentException>();
@@ -56,10 +57,10 @@ public class DomainEventHandlerTests
     {
         public TestDomainEvent? HandledEvent { get; private set; }
 
-        public override Task HandleAsync(TestDomainEvent domainEvent, CancellationToken cancellationToken = default)
+        public override Task<Result> HandleAsync(TestDomainEvent domainEvent, CancellationToken cancellationToken = default)
         {
             HandledEvent = domainEvent;
-            return Task.CompletedTask;
+            return Task.FromResult(Result.Success());
         }
     }
 

@@ -1,14 +1,15 @@
-﻿
-
+﻿using Ardalis.Result;
+using Cqrs.Events.IntegrationEvents;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Cqrs.Events.IntegrationEvents;
-public class HasIntegrationEvents : IHasIntegrationEvents
+namespace Cqrs.Messaging;
+
+public abstract class HandlerBase<TInput, TResult> : IHandler<TInput, TResult>
+    where TResult : IResult
 {
+    private Dictionary<string, List<IntegrationEventBase>> _integrationEvents = new();
     [NotMapped]
     public IReadOnlyDictionary<string, List<IntegrationEventBase>> IntegrationEventsToSend => _integrationEvents.AsReadOnly();
-
-    private Dictionary<string, List<IntegrationEventBase>> _integrationEvents = new();
 
     public void AddIntegrationEvent(string destination, IntegrationEventBase eventItem)
     {
@@ -18,4 +19,6 @@ public class HasIntegrationEvents : IHasIntegrationEvents
     }
 
     public void ClearIntegrationEvents() => _integrationEvents.Clear();
+
+    public abstract Task<TResult> HandleAsync(TInput input, CancellationToken cancellationToken);
 }

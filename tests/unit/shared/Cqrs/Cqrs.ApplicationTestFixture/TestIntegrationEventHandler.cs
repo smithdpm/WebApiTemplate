@@ -1,11 +1,12 @@
+using Ardalis.Result;
 using Cqrs.Events.IntegrationEvents;
 
 namespace Cqrs.ApplicationTestFixture;
 
 public class TestIntegrationEventHandler : IntegrationEventHandler<TestIntegrationEvent>
 {
-    public override Task HandleAsync(TestIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
+    public override Task<Result> HandleAsync(TestIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(Result.Success());
     }
 }

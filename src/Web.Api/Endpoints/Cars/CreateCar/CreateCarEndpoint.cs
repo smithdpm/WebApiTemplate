@@ -21,7 +21,7 @@ public class CreateCar3Endpoint : Endpoint<CreateCarRequest>
     protected override Delegate Handler => 
         async (CreateCarRequest request, ICommandHandler<CreateCarCommand, Guid> handler, CancellationToken cancellationToken) =>
     {
-        Result<Guid> result = await handler.Handle(request.Adapt<CreateCarCommand>(), cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(request.Adapt<CreateCarCommand>(), cancellationToken);
 
         return result.ToMinimalApiResult();
     };

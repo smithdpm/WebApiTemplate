@@ -10,7 +10,7 @@ public record UpdateItemNameCommand(Guid Id, string NewName) : ICommand;
 
 public class UpdateItemNameCommandHandler(ApplicationDbContext dbContext) : ICommandHandler<UpdateItemNameCommand>
 {
-    public async Task<Result> Handle(UpdateItemNameCommand command, CancellationToken cancellationToken)
+    public async Task<Result> HandleAsync(UpdateItemNameCommand command, CancellationToken cancellationToken)
     {
 
         var item = await dbContext.FindAsync<Item>(command.Id, cancellationToken);

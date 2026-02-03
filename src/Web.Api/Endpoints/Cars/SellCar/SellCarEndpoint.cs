@@ -15,7 +15,7 @@ public partial class SellCarEndpoint : Endpoint<SellCarRequest>
         {
             var command = new SellCarCommand(carId, request.SalePrice);
 
-            var result = await handler.Handle(command, cancellationToken);
+            var result = await handler.HandleAsync(command, cancellationToken);
 
             return result.ToMinimalApiResult();
         };

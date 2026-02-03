@@ -1,5 +1,4 @@
 using Cqrs.Abstractions.Events;
-using Cqrs.Events;
 using Cqrs.Events.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -117,13 +116,16 @@ public class DomainEventDispatcherTests
         // Assert
         await _resolvedMockHandlers["handler1"][0].Received(1).HandleAsync(domainEvent, cancellationToken);
         await _resolvedMockHandlers["handler2"][0].Received(1).HandleAsync(domainEvent, cancellationToken);
-        await _resolvedMockHandlers["handler3"][0].DidNotReceive().HandleAsync(Arg.Any<IDomainEvent>(), Arg.Any<CancellationToken>());
+        _resolvedMockHandlers.ContainsKey("handler3").ShouldBeFalse();
     }
 
     private void RegisterMockHandlerForEventType<TEvent>(string handlerKey) where TEvent : IDomainEvent
     {
-        _services.AddScoped<IDomainEventHandler>(sp => {
-            var mockHandler = Substitute.For<IDomainEventHandler>();
+        //var eventandlerType = typeof(IDomainEventHandler<>).MakeGenericType(typeof(TEvent));
+
+        _services.AddScoped<IDomainEventHandler<TEvent>>(sp =>
+        {
+            var mockHandler = Substitute.For<IDomainEventHandler<TEvent>>();
             mockHandler.EventType.Returns(typeof(TEvent));
             if (!_resolvedMockHandlers.ContainsKey(handlerKey))
                 _resolvedMockHandlers[handlerKey] = new List<IDomainEventHandler>();

@@ -8,9 +8,9 @@ using Cqrs.Events.IntegrationEvents;
 
 namespace Application.Cars.SellCar;
 
-internal class SellCarHandler(IRepository<Car> repository) : HasIntegrationEvents, ICommandHandler<SellCarCommand>
+internal class SellCarHandler(IRepository<Car> repository) : CommandHandler<SellCarCommand>
 {
-    public async Task<Result> Handle(SellCarCommand command, CancellationToken cancellationToken)
+    public override async Task<Result> HandleAsync(SellCarCommand command, CancellationToken cancellationToken)
     {
         var car = await repository.GetByIdAsync(command.CarId, cancellationToken);
 

@@ -1,12 +1,13 @@
 ﻿
+using Ardalis.Result;
+using Cqrs.Messaging;
+
 namespace Cqrs.Events.IntegrationEvents;
-public interface IIntegrationEventHandler<TEvent>: IIntegrationEventHandler
-    where TEvent : IIntegrationEvent
-{
-    Task HandleAsync(TEvent integrationEvent, CancellationToken cancellationToken = default);
-}
+public interface IIntegrationEventHandler<TEvent>: IIntegrationEventHandler, IHandler<TEvent, Result>
+    where TEvent : IIntegrationEvent;
+
 public interface IIntegrationEventHandler
 {
     Type EventType { get; }
-    Task HandleAsync(IIntegrationEvent integrationEvent, CancellationToken cancellationToken = default);
+    Task<Result> HandleAsync(IIntegrationEvent integrationEvent, CancellationToken cancellationToken);
 }

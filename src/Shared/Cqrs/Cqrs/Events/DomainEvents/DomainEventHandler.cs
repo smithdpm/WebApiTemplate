@@ -1,22 +1,23 @@
-﻿using SharedKernel.Events;
+﻿using Ardalis.Result;
+using Cqrs.Messaging;
+using SharedKernel.Events;
 
 namespace Cqrs.Events.DomainEvents;
 
-public abstract class DomainEventHandler<TEvent> : IDomainEventHandler<TEvent>
+public abstract class DomainEventHandler<TEvent> : HandlerBase<TEvent, Result>, IDomainEventHandler<TEvent>
     where TEvent : IDomainEvent
 {
     public Type EventType => typeof(TEvent);
 
-    public Task HandleAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
+    async Task<Result> IDomainEventHandler.HandleAsync(IDomainEvent domainEvent, CancellationToken cancellationToken)
     {
         if (domainEvent is TEvent typedEvent)
         {
-            return HandleAsync(typedEvent, cancellationToken);
+            return await HandleAsync(typedEvent, cancellationToken);
         }
         else
         {
             throw new ArgumentException($"Invalid event type. Expected {typeof(TEvent).Name}, but received {domainEvent.GetType().Name}.");
         }
     }
-    public abstract Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default);
 }

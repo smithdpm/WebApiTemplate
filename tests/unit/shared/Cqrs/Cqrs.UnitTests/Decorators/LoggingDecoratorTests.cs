@@ -1,10 +1,10 @@
 using Ardalis.Result;
-using Cqrs.Decorators;
 using Cqrs.Messaging;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Shouldly;
 using Microsoft.Extensions.Logging.Testing;
+using Cqrs.Decorators.LoggingDecorator;
 
 namespace Cqrs.UnitTests.Decorators;
 
@@ -12,15 +12,16 @@ public class LoggingDecoratorTests
 {
     public class CommandHandlerWithResponseTests : LoggingDecoratorTests
     {
-        private readonly FakeLogger<LoggingDecorator<TestCommand, string>> _fakeLogger;
+        private readonly FakeLogger<LoggingBehaviour> _fakeLogger;
         private readonly ICommandHandler<TestCommand, string> _innerHandler;
-        private readonly LoggingDecorator<TestCommand, string> _decorator;
-
+        private readonly LoggingCommandDecorator<TestCommand, string> _decorator;
+        private readonly ILoggingBehaviour _loggingBehaviour;
         public CommandHandlerWithResponseTests()
         {
-            _fakeLogger = new FakeLogger<LoggingDecorator<TestCommand, string>>();
+            _fakeLogger = new FakeLogger<LoggingBehaviour>();
             _innerHandler = Substitute.For<ICommandHandler<TestCommand, string>>();
-            _decorator = new LoggingDecorator<TestCommand, string>(_innerHandler, _fakeLogger);
+            _loggingBehaviour = new LoggingBehaviour(_fakeLogger);
+            _decorator = new LoggingCommandDecorator<TestCommand, string>(_innerHandler, _loggingBehaviour);
         }
 
         [Fact]
@@ -31,11 +32,11 @@ public class LoggingDecoratorTests
             var expectedResult = "Success";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -54,11 +55,11 @@ public class LoggingDecoratorTests
             var errorMessage = "Command failed";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Error(errorMessage));
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -76,16 +77,16 @@ public class LoggingDecoratorTests
             var expectedResult = "Expected Result";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
             result.Value.ShouldBe(expectedResult);
-            await _innerHandler.Received(1).Handle(command, cancellationToken);
+            await _innerHandler.Received(1).HandleAsync(command, cancellationToken);
         }
 
         [Fact]
@@ -95,11 +96,11 @@ public class LoggingDecoratorTests
             var command = new TestCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success("Success"));
 
             // Act
-            await _decorator.Handle(command, cancellationToken);
+            await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             var logs = _fakeLogger.Collector.GetSnapshot();
@@ -109,15 +110,17 @@ public class LoggingDecoratorTests
 
     public class CommandHandlerWithoutResponseTests : LoggingDecoratorTests
     {
-        private readonly FakeLogger<LoggingDecorator<TestVoidCommand>> _fakeLogger;
+        private readonly FakeLogger<LoggingBehaviour> _fakeLogger;
         private readonly ICommandHandler<TestVoidCommand> _innerHandler;
-        private readonly LoggingDecorator<TestVoidCommand> _decorator;
+        private readonly LoggingBehaviour _loggingBehaviour;
+        private readonly LoggingCommandDecorator<TestVoidCommand> _decorator;
 
         public CommandHandlerWithoutResponseTests()
         {
-            _fakeLogger = new FakeLogger<LoggingDecorator<TestVoidCommand>>();
+            _fakeLogger = new FakeLogger<LoggingBehaviour>();
             _innerHandler = Substitute.For<ICommandHandler<TestVoidCommand>>();
-            _decorator = new LoggingDecorator<TestVoidCommand>(_innerHandler, _fakeLogger);
+            _loggingBehaviour = new LoggingBehaviour(_fakeLogger);
+            _decorator = new LoggingCommandDecorator<TestVoidCommand>(_innerHandler, _loggingBehaviour);
         }
 
         [Fact]
@@ -127,11 +130,11 @@ public class LoggingDecoratorTests
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Success());
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -150,11 +153,11 @@ public class LoggingDecoratorTests
             var errorMessage = "Command failed";
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Error(errorMessage));
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -172,15 +175,15 @@ public class LoggingDecoratorTests
             var cancellationToken = TestContext.Current.CancellationToken;
             var expectedResult = Result.Success();
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(expectedResult);
 
             // Act
-            var result = await _decorator.Handle(command, cancellationToken);
+            var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.ShouldBe(expectedResult);
-            await _innerHandler.Received(1).Handle(command, cancellationToken);
+            await _innerHandler.Received(1).HandleAsync(command, cancellationToken);
         }
 
          [Fact]
@@ -191,11 +194,11 @@ public class LoggingDecoratorTests
             var cancellationToken = TestContext.Current.CancellationToken;
             var expectedResult = Result.Success();
             
-            _innerHandler.Handle(command, cancellationToken)
+            _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(expectedResult);
 
             // Act
-            await _decorator.Handle(command, cancellationToken);
+            await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             var logs = _fakeLogger.Collector.GetSnapshot();

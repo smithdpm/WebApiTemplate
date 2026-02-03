@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using Cqrs.Events.IntegrationEvents;
 using Shouldly;
 
@@ -55,10 +56,10 @@ public class IntegrationEventHandlerTests
     {
         public TestIntegrationEvent? HandledEvent { get; private set; }
 
-        public override Task HandleAsync(TestIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
+        public override Task<Result> HandleAsync(TestIntegrationEvent integrationEvent, CancellationToken cancellationToken = default)
         {
             HandledEvent = integrationEvent;
-            return Task.CompletedTask;
+            return Task.FromResult(Result.Success());
         }
     }
 

@@ -1,7 +1,9 @@
 ﻿
 using Cqrs.Abstractions.Events;
+using Cqrs.Decorators.AtomicTransactionDecorator;
+using Cqrs.Decorators.IntegrationEventToOutboxDecorator;
+using Cqrs.Decorators.LoggingDecorator;
 using Cqrs.Decorators.Registries;
-using Cqrs.Events;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
@@ -25,7 +27,7 @@ public static class CommandRegistrationExtension
         Assembly applicationAssembly,
         Assembly domainAssembly)
     {
-        
+
         services.Scan(scan => scan.FromAssemblies(applicationAssembly)
             .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), false)
                 .AsImplementedInterfaces()
@@ -43,6 +45,9 @@ public static class CommandRegistrationExtension
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
 
+        services.AddScoped<ILoggingBehaviour, LoggingBehaviour>();
+        services.AddScoped<IAtomicTransactionBehaviour, AtomicTransactionBehaviour>();
+        services.AddScoped<IIntegrationEventToOutboxBehaviour, IntegrationEventToOutboxBehaviour>();
 
         services.AddValidatorsFromAssembly(applicationAssembly, includeInternalTypes: true);
 
