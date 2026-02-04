@@ -7,6 +7,7 @@ using NSubstitute.ExceptionExtensions;
 using SharedKernel.Events;
 using System.Text.Json;
 using Cqrs.Outbox;
+using Microsoft.Extensions.Options;
 
 namespace Cqrs.EntityFrameworkCore.UnitTests.Database;
 
@@ -26,13 +27,14 @@ public class OutboxDispatcherTests
         _eventTypeRegistry = Substitute.For<IEventTypeRegistry>();
         _domainEventDispatcher = Substitute.For<IDomainEventDispatcher>();
         _integrationEventDispatcher = Substitute.For<IIntegrationEventDispatcher>();
-        
+        var options = Options.Create(new OutboxConfigurationSettings());
         _dispatcher = new TestableOutboxDispatcher(
             _logger,
             _outboxRepository,
             _eventTypeRegistry,
             _domainEventDispatcher,
-            _integrationEventDispatcher);
+            _integrationEventDispatcher,
+            options);
     }
 
     [Fact]
@@ -317,8 +319,9 @@ public class OutboxDispatcherTests
             IOutboxRepository outboxRepository,
             IEventTypeRegistry eventTypeRegistry,
             IDomainEventDispatcher domainEventDispatcher,
-            IIntegrationEventDispatcher integrationEventDispatcher)
-            : base(logger, outboxRepository, eventTypeRegistry, domainEventDispatcher, integrationEventDispatcher)
+            IIntegrationEventDispatcher integrationEventDispatcher,
+            IOptions<OutboxConfigurationSettings> options)
+            : base(logger, outboxRepository, eventTypeRegistry, domainEventDispatcher, integrationEventDispatcher, options)
         {
         }
 

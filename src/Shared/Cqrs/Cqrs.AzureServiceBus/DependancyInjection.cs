@@ -21,12 +21,12 @@ public static class DependancyInjection
     private static IServiceCollection AddAzureServiceBus(this IServiceCollection services, IConfiguration configuration)
     {
         var serviceBusEnabled = false;
-        bool.TryParse(configuration.GetSection("AzureServiceBus")["Enabled"], out serviceBusEnabled);
+        bool.TryParse(configuration.GetSection("CqrsSettings:AzureServiceBus")["Enabled"], out serviceBusEnabled);
 
         if (!serviceBusEnabled)
             return services;
 
-        var connectionString = configuration.GetSection("AzureServiceBus")["ConnectionString"];
+        var connectionString = configuration.GetSection("CqrsSettings:AzureServiceBus")["ConnectionString"];
         services.AddAzureClients(builder =>
         {
             builder.AddServiceBusClient(connectionString);
@@ -40,8 +40,8 @@ public static class DependancyInjection
 
     private static IServiceCollection AddAzureServiceBusQueueSenders(this IServiceCollection services, IConfiguration configuration)
     {
-        var queueNames = configuration.GetSection("AzureServiceBus:Sender:Queues").Get<List<string>>();
-        var topicNames = configuration.GetSection("AzureServiceBus:Sender:Topics").Get<List<string>>();
+        var queueNames = configuration.GetSection("CqrsSettings:DispatchSettings:Queues").Get<List<string>>();
+        var topicNames = configuration.GetSection("CqrsSettings:DispatchSettings:Topics").Get<List<string>>();
 
         var queueAndTopicNames = new List<string>();
         if (queueNames != null)
@@ -67,7 +67,7 @@ public static class DependancyInjection
 
     private static IServiceCollection AddAzureServiceBusTopicSubscribers(this IServiceCollection services, IConfiguration configuration)
     {
-        var topicSubscribers = configuration.GetSection("AzureServiceBus:TopicSubscribers").Get<List<ServiceBusTopicSubscriberSettings>>();
+        var topicSubscribers = configuration.GetSection("CqrsSettings:TopicSubscribers").Get<List<ServiceBusTopicSubscriberSettings>>();
 
         if (topicSubscribers == null)
             return services;

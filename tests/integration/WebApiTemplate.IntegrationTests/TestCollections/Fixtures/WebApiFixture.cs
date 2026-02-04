@@ -24,7 +24,7 @@ public class WebApiFixture(): WebApplicationFactory<Program>
     {       
         Environment.SetEnvironmentVariable("UseOnlyInMemoryDatabase", "false");
         Environment.SetEnvironmentVariable("ConnectionStrings:Database", _databaseConnectionString);
-        Environment.SetEnvironmentVariable("AzureServiceBus:ConnectionString", _serviceBusConnectionString);
+        Environment.SetEnvironmentVariable("CqrsSettings:AzureServiceBus:ConnectionString", _serviceBusConnectionString);
     }
 
 

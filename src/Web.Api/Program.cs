@@ -24,7 +24,7 @@ builder.Services.AddOpenApi()
         pipelineBuilder =>
         {
         })
-   .AddOutboxServices<ApplicationContext>(typeof(EfRepository<>));
+   .AddOutboxServices<ApplicationContext>(typeof(EfRepository<>), builder.Configuration);
 
 
 builder.Services.AddEndpoints();

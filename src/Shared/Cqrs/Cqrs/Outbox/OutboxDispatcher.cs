@@ -6,6 +6,7 @@ using Cqrs.Decorators.Registries;
 using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.ComponentModel;
 using System.Text.Json;
 
@@ -18,30 +19,29 @@ public class OutboxDispatcher : BackgroundService
     private readonly IEventTypeRegistry _eventTypeRegistry;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly IIntegrationEventDispatcher _integrationEventDispatcher;
-    private int _maxProcessingAttempts = 3;
-    private int _batchSize = 10;
-    private int _lockDuration = 60;
-    private string _defaultTopicName = "default-topic";
+    private readonly OutboxConfigurationSettings _settings;
 
     public OutboxDispatcher(
         ILogger<OutboxDispatcher> logger,
         IOutboxRepository outboxRepository,
         IEventTypeRegistry eventTypeRegistry,
         IDomainEventDispatcher domainEventDispatcher,
-        IIntegrationEventDispatcher integrationEventDispatcher)
+        IIntegrationEventDispatcher integrationEventDispatcher,
+        IOptions<OutboxConfigurationSettings> options)
     {
         _logger = logger;
         _outboxRepository = outboxRepository;
         _eventTypeRegistry = eventTypeRegistry;
         _domainEventDispatcher = domainEventDispatcher;
         _integrationEventDispatcher = integrationEventDispatcher;
+        _settings = options.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var messages = await _outboxRepository.FetchOutboxMessagesForProcessing(_batchSize, _lockDuration, cancellationToken);
+            var messages = await _outboxRepository.FetchOutboxMessagesForProcessing(_settings.BatchSize, _settings.LockDurationInSeconds, cancellationToken);
 
             foreach (var message in messages)
             {
@@ -60,7 +60,7 @@ public class OutboxDispatcher : BackgroundService
                 {
                     _logger.LogError(ex, "Error occured while proccessing message Id {OutboxMessageId}. Error: {errorMessage}.",
                             message.Id, ex.Message);
-                    if (message.ProcessingAttempts >= _maxProcessingAttempts -1)
+                    if (message.ProcessingAttempts >= _settings.MaxProcessingAttempts -1)
                     {
                         _logger.LogError(ex, "Outbox message with Id {OutboxMessageId} has exceeded max processing attempts. Marking as errored.",
                             message.Id);
@@ -147,10 +147,10 @@ public class OutboxDispatcher : BackgroundService
     private string UpdateDefaultDestination(string? destination)
     {
         if (string.IsNullOrWhiteSpace(destination))
-            return _defaultTopicName;
+            return _settings.DefaultTopicName;
 
         if (destination.Equals("default", StringComparison.OrdinalIgnoreCase))
-            return _defaultTopicName;
+            return _settings.DefaultTopicName;
 
         return destination;
     }

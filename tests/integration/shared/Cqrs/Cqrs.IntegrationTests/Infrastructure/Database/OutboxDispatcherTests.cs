@@ -1,16 +1,14 @@
-using Cqrs.IntegrationTests.TestCollections;
-using Cqrs.IntegrationTests.TestCollections.Environments;
 using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
 using Cqrs.Events.IntegrationEvents;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Cqrs.IntegrationTests.TestCollections;
+using Cqrs.IntegrationTests.TestCollections.Environments;
+using Cqrs.Outbox;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Polly;
 using SharedKernel.Events;
 using Shouldly;
-using Cqrs.Outbox;
 
 namespace Cqrs.IntegrationTests.Infrastructure.Database;
 
@@ -37,13 +35,15 @@ public class OutboxDispatcherTests : IAsyncLifetime
         
         _eventTypeRegistry.GetTypeByName("TestDomainEvent").Returns(typeof(TestDomainEvent));
         _eventTypeRegistry.GetTypeByName("TestIntegrationEvent").Returns(typeof(TestIntegrationEvent));
+        var options = Options.Create(new OutboxConfigurationSettings());
 
         _outboxDispatcher = new OutboxDispatcher(
             _logger,
             _repository,
             _eventTypeRegistry,
             _domainEventDispatcher,
-            _integrationEventDispatcher);
+            _integrationEventDispatcher,
+            options);
     }
 
     public async ValueTask InitializeAsync()
@@ -215,34 +215,6 @@ public class OutboxDispatcherTests : IAsyncLifetime
                 .FindAsync(new object[] { messageId }, cancellationToken);
             return message?.Error != null && message.ProcessedAtUtc.HasValue;
         });
-    }
-
-    private class TestableOutboxDispatcher : BackgroundService
-    {
-        private readonly OutboxDispatcher _innerDispatcher;
-
-        public TestableOutboxDispatcher(
-            ILogger<OutboxDispatcher> logger,
-            IOutboxRepository outboxRepository,
-            IEventTypeRegistry eventTypeRegistry,
-            IDomainEventDispatcher domainEventDispatcher,
-            IIntegrationEventDispatcher integrationEventDispatcher)
-        {
-            _innerDispatcher = new OutboxDispatcher(
-                logger,
-                outboxRepository,
-                eventTypeRegistry,
-                domainEventDispatcher,
-                integrationEventDispatcher);
-        }
-
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            // Use reflection to call the protected ExecuteAsync method
-            var method = typeof(OutboxDispatcher).GetMethod("ExecuteAsync", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            return (Task)method!.Invoke(_innerDispatcher, new object[] { stoppingToken })!;
-        }
     }
 
     private record TestDomainEvent : DomainEventBase, IDomainEvent

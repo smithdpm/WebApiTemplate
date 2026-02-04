@@ -50,6 +50,6 @@ public static class ConfigruationExtensions
                 typeof(BasicApplicationClass).Assembly,
                 typeof(Cqrs.DomainTestFixture.BasicDomainClass).Assembly,
                 pipelineBuilder => { })
-            .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepositoryBase<>));
+            .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepositoryBase<>), configuration);
     }
 }

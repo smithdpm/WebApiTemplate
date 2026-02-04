@@ -50,6 +50,6 @@ public static class ConfigruationExtensions
                 typeof(Program).Assembly,
                 typeof(Program).Assembly,
                 pipelineBuilder => { })
-            .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepositoryBase<>));
+            .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepositoryBase<>), configuration);
     }
 }
