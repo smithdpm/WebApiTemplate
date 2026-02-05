@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Cqrs.Outbox;
 using Cqrs.EntityFrameworkCore.Configuration;
 
-namespace Cqrs.IntegrationTests.TestCollections.Fixtures;
+namespace Cqrs.IntegrationTests.DbContexts;
 
 public class TestOutboxContext : DbContext
 {

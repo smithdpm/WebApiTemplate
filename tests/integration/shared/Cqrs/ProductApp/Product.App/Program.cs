@@ -24,7 +24,7 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
-public partial class Program
+public partial class ProductAppProgram
 {
 }
 
@@ -42,7 +42,7 @@ public static class ConfigruationExtensions
         services.AddScoped<IUnitOfWork, EfUnitOfWork<ApplicationDbContext>>();
 
         var repositoryInterface = typeof(IRepository<>).MakeGenericType(typeof(OutboxMessage));
-        var repositoryImplementation = typeof(AtomicRepositoryBase<>).MakeGenericType(typeof(OutboxMessage));
+        var repositoryImplementation = typeof(AtomicRepository<>).MakeGenericType(typeof(OutboxMessage));
         services.AddScoped(repositoryInterface, repositoryImplementation);
 
         services.AddEventServices(configuration)
@@ -50,6 +50,6 @@ public static class ConfigruationExtensions
                 typeof(Program).Assembly,
                 typeof(Program).Assembly,
                 pipelineBuilder => { })
-            .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepositoryBase<>), configuration);
+            .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepository<>), configuration);
     }
 }

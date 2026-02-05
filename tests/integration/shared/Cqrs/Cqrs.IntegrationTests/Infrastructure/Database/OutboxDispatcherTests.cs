@@ -1,8 +1,8 @@
 using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.IntegrationTests.TestCollections;
-using Cqrs.IntegrationTests.TestCollections.Environments;
+using Cqrs.IntegrationTests.Fixtures;
+using Cqrs.IntegrationTests.Fixtures.CollectionFixtures;
 using Cqrs.Outbox;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -15,7 +15,7 @@ namespace Cqrs.IntegrationTests.Infrastructure.Database;
 [Collection(nameof(OutboxRepositoryCollection))]
 public class OutboxDispatcherTests : IAsyncLifetime
 {
-    private readonly OutboxRepositoryEnvironment _environment;
+    private readonly OutboxRepositoryFixture _outboxRepositoryFixture;
     private readonly IOutboxRepository _repository;
     private readonly IEventTypeRegistry _eventTypeRegistry;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
@@ -24,10 +24,10 @@ public class OutboxDispatcherTests : IAsyncLifetime
 
     private readonly OutboxDispatcher _outboxDispatcher;
     
-    public OutboxDispatcherTests(OutboxRepositoryEnvironment environment)
+    public OutboxDispatcherTests(OutboxRepositoryFixture outboxRepositoryFixture)
     {
-        _environment = environment;
-        _repository = environment.OutboxRepository.ServiceProvider.GetRequiredService<IOutboxRepository>();
+        _outboxRepositoryFixture = outboxRepositoryFixture;
+        _repository = outboxRepositoryFixture.ServiceProvider.GetRequiredService<IOutboxRepository>();
         _eventTypeRegistry = Substitute.For<IEventTypeRegistry>();
         _domainEventDispatcher = Substitute.For<IDomainEventDispatcher>();
         _integrationEventDispatcher = Substitute.For<IIntegrationEventDispatcher>();
@@ -48,7 +48,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        await _environment.OutboxRepository.CleanDatabaseAsync();
+        await _outboxRepositoryFixture.CleanDatabaseAsync();
     }
 
     public async ValueTask DisposeAsync() => await Task.CompletedTask;
@@ -57,7 +57,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
     public async Task BackgroundService_ShouldPollContinuously()
     {
         // Arrange
-        using var context = await _environment.OutboxRepository.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
 
         var message1 = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
         var message2 = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"124\"}", DateTimeOffset.UtcNow);
@@ -85,7 +85,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
     public async Task BackgroundService_ShouldDispatchToBothDispatchers()
     {
         // Arrange
-        using var context = await _environment.OutboxRepository.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
         
         // Add messages with and without destinations
         var domainMessage = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
@@ -121,7 +121,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
             .DispatchEventsAsync(Arg.Any<List<IDomainEvent>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new Exception("Test dispatcher error")));
 
-        using var context = await _environment.OutboxRepository.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
         
         var message = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
         context.Set<OutboxMessage>().Add(message);
@@ -136,7 +136,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
         await _outboxDispatcher.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert - Message should be marked for retry
-        using var verifyContext = await _environment.OutboxRepository.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        using var verifyContext = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
         var updatedMessage = await verifyContext.Set<OutboxMessage>().FindAsync(new object[] { message.Id }, TestContext.Current.CancellationToken);
         updatedMessage!.ProcessingAttempts.ShouldBeGreaterThan(0);
     }
@@ -149,7 +149,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
             .DispatchEventsAsync(Arg.Any<List<IDomainEvent>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new Exception("Persistent error")));
 
-        using var context = await _environment.OutboxRepository.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
         
         // Add message and set attempts to threshold (2, so next will be 3rd attempt)
         var message = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
@@ -169,7 +169,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
         await _outboxDispatcher.StopAsync(TestContext.Current.CancellationToken);
 
         // Assert - Message should be marked as errored
-        using var verifyContext = await _environment.OutboxRepository.CreateDbContextAsync(TestContext.Current.CancellationToken);
+        using var verifyContext = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
         var updatedMessage = await verifyContext.Set<OutboxMessage>().FindAsync(new object[] { message.Id }, TestContext.Current.CancellationToken);
             
         updatedMessage!.Error.ShouldNotBeNull();
@@ -184,7 +184,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
             .WaitAndRetryAsync(50, _ => TimeSpan.FromMilliseconds(200));
 
         return retryPolicy.ExecuteAsync(
-            () => _environment.OutboxRepository.CheckAllMessagesHaveBeenProcessedAsync());
+            () => _outboxRepositoryFixture.CheckAllMessagesHaveBeenProcessedAsync());
     }
 
     private Task<bool> WaitForMessageProcessingAttemptAsync(int messageId, int expectedAttempts, CancellationToken cancellationToken)
@@ -195,7 +195,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
 
         return retryPolicy.ExecuteAsync(async () =>
         {
-            using var context = await _environment.OutboxRepository.CreateDbContextAsync(cancellationToken);
+            using var context = await _outboxRepositoryFixture.CreateDbContextAsync(cancellationToken);
             var message = await context.Set<OutboxMessage>()
                 .FindAsync(new object[] { messageId }, cancellationToken);
             return message?.ProcessingAttempts >= expectedAttempts;
@@ -210,7 +210,7 @@ public class OutboxDispatcherTests : IAsyncLifetime
 
         return retryPolicy.ExecuteAsync(async () =>
         {
-            using var context = await _environment.OutboxRepository.CreateDbContextAsync(cancellationToken);
+            using var context = await _outboxRepositoryFixture.CreateDbContextAsync(cancellationToken);
             var message = await context.Set<OutboxMessage>()
                 .FindAsync(new object[] { messageId }, cancellationToken);
             return message?.Error != null && message.ProcessedAtUtc.HasValue;

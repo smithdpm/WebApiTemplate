@@ -1,6 +1,8 @@
-﻿using Testcontainers.ServiceBus;
+﻿using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
+using Testcontainers.ServiceBus;
 
-namespace Cqrs.IntegrationTests.TestCollections.Fixtures;
+[assembly: AssemblyFixture(typeof(ServiceBusFixture))]
+namespace Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 public class ServiceBusFixture : IAsyncLifetime
 {
     private readonly ServiceBusContainer _serviceBusContainer = new ServiceBusBuilder()

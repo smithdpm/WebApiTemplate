@@ -29,7 +29,7 @@
             },
             "Subscriptions": [
               {
-                "Name": "subscription.1",
+                "Name": "product-service",
                 "Properties": {
                   "DeadLetteringOnMessageExpiration": false,
                   "DefaultMessageTimeToLive": "PT1H",
@@ -43,7 +43,7 @@
             ]
           },
           {
-            "Name": "basket-events",
+            "Name": "product-events",
             "Properties": {
               "DefaultMessageTimeToLive": "PT1H",
               "DuplicateDetectionHistoryTimeWindow": "PT20S",
@@ -51,7 +51,7 @@
             },
             "Subscriptions": [
               {
-                "Name": "items-service",
+                "Name": "shop-service",
                 "Properties": {
                   "DeadLetteringOnMessageExpiration": false,
                   "DefaultMessageTimeToLive": "PT1H",

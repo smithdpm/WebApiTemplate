@@ -1,4 +1,6 @@
-﻿using Cqrs.IntegrationTests.TestCollections.Environments;
+﻿using Ardalis.Result;
+using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
+using Cqrs.IntegrationTests.Fixtures.ClassFixtures;
 using Cqrs.Messaging;
 using Cqrs.Outbox;
 using Microsoft.AspNetCore.TestHost;
@@ -6,45 +8,153 @@ using Microsoft.EntityFrameworkCore;
 using Polly;
 using Shop.Application.Database;
 using Shop.Application.Purchases;
+using Shop.Application.Stock;
 using Shouldly;
 
 namespace Cqrs.IntegrationTests.Tests;
 
-
-[Collection("IntegrationTestCollection")]
-public class CommandHandlerTests
+[Collection("CommandHandlerTests")]
+public class CommandHandlerTests: IClassFixture<ShopAppFixture>
 {
-    private readonly IntegrationTestEnvironment _environment;
-    private readonly HttpClient _host;
     private readonly TestServer _server;
-    public CommandHandlerTests(IntegrationTestEnvironment environment)
+    private readonly ShopAppFixture _shopApp;
+
+    public CommandHandlerTests(DatabaseServerFixture databaseServerFixture
+        , ShopAppFixture shopAppFixture)
     {
-        _environment = environment;
-        var dbConnectionString = _environment.Database.CreateDatabaseAsync("CommandHandlerTestsDb").GetAwaiter().GetResult();
-        _environment.ShopApp.SetDatabaseConnectionString(dbConnectionString);
-        _server = _environment.ShopApp.Server;
+        _shopApp = shopAppFixture;
+        _server = _shopApp.ShopApp.Server;
     }
 
-    //[Fact]
-    //public async Task WebCommandHandler_ShouldReturnResultSuccesfully_WhenCalledWithValidCommand()
-    //{
-    //    var cancellationToken = TestContext.Current.CancellationToken;
-    //    var client = _environment.PrimaryApp.CreateClient();
-    //    //var handler = _host.Services.GetRequiredService<ICommandHandler<AddItemCommand,Guid>>();
-    //    //var result = await handler.Handle(new AddItemCommand("Test Item"), CancellationToken.None);
-    //    var response = await client.PostAsJsonAsync("/items", new AddItemCommand("Test Item"), cancellationToken);
-    //    using var createdJson = await response.Content.ReadFromJsonAsync<JsonDocument>(cancellationToken);
 
-    //    // Assert
-    //    response.StatusCode.ShouldBe(HttpStatusCode.Created);
-    //    createdJson!.RootElement.GetGuid().ShouldNotBe(Guid.Empty);
+    #region Validator tests
+    [Fact]
+    public async Task CommandHandlerWithValidator_ShouldReturnValidationError_WhenCalledWithInvalidCommand()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
 
-    //    //result.IsSuccess.ShouldBeTrue();
-    //    //result.Value.ShouldNotBe(Guid.Empty);
-    //}
+        using var scope = _server.Services.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<CreatePurchaseCommand, Guid>>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var command = new CreatePurchaseCommand(
+            ProductPurchases: new List<ProductPurchase>
+            {
+                new ProductPurchase(string.Empty, 4),
+                new ProductPurchase("Bananas", -2)
+            }
+        );
+
+        // Act
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.ValidationErrors.ShouldContain(
+            ve => ve.Identifier == "ProductPurchases[0].ProductName" && ve.ErrorMessage.Contains("Product name must not be empty")
+        );
+        result.ValidationErrors.ShouldContain(
+            ve => ve.Identifier == "ProductPurchases[1].PurchaseQuantity" && ve.ErrorMessage.Contains("Purchase quantity must be greater than zero.")
+        );
+    }
 
     [Fact]
-    public async Task CommandHandler_ShouldReturnResultSuccesfully_WhenCalledWithValidCommand()
+    public async Task CommandHandlerWithValidator_ShouldExecuteSuccessfully_WhenCalledWithValidCommand()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var scope = _server.Services.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<CreatePurchaseCommand, Guid>>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var command = new CreatePurchaseCommand(
+            ProductPurchases: new List<ProductPurchase>
+            {
+                new ProductPurchase("Apples", 4),
+                new ProductPurchase("Bananas", 2)
+            }
+        );
+
+        // Act
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Created);
+        result.Value.ShouldBeOfType<Guid>();
+        result.Value.ShouldNotBe(Guid.Empty);
+    }
+
+    [Fact]
+    public async Task NoResultCommandHandlerWithValidator_ShouldReturnValidationError_WhenCalledWithInvalidCommand()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var scope = _server.Services.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<UpdateStockCommand>>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var command = new UpdateStockCommand(
+            ProductName: "",
+            QuantityToAdd: -5
+        );
+
+        // Act
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        // Assert
+        result.IsSuccess.ShouldBeFalse();
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.ValidationErrors.ShouldContain(
+            ve => ve.Identifier == "ProductName" && ve.ErrorMessage.Contains("Product name must not be empty")
+        );
+        result.ValidationErrors.ShouldContain(
+            ve => ve.Identifier == "QuantityToAdd" && ve.ErrorMessage.Contains("Quantity to add must be greater than zero.")
+        );
+    }
+
+    [Fact]
+    public async Task NoResultCommandHandlerWithValidator_ShouldExecuteSuccessfully_WhenCalledWithValidCommand()
+    {
+        // Arrange
+        var cancellationToken = TestContext.Current.CancellationToken;
+
+        using var scope = _server.Services.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<UpdateStockCommand>>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var command = new UpdateStockCommand(
+            ProductName: "Apples",
+            QuantityToAdd: 5
+        );
+
+        var initalQuantity = await dbContext.ProductStocks
+            .AsNoTracking()
+            .Where(p => p.ProductName == "Apples")
+            .Select(a => a.TotalInStock).SingleAsync(cancellationToken);
+
+        // Act
+        var result = await handler.HandleAsync(command, cancellationToken);
+
+        // Assert
+        result.IsSuccess.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Ok);
+        var finalQuantity = await dbContext.ProductStocks
+            .AsNoTracking()
+            .Where(p => p.ProductName == "Apples")
+            .Select(a => a.TotalInStock).SingleAsync(cancellationToken);
+
+        finalQuantity.ShouldBe(initalQuantity + 5);
+    }
+    #endregion
+
+    #region Domain event tests
+    [Fact]
+    public async Task CommandHandlerWithDomainEvent_ShouldExecuteDomainHanlder_WhenCalledWithValidCommand()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
@@ -82,6 +192,14 @@ public class CommandHandlerTests
             initialStock.SingleOrDefault(p => p.ProductName == "Apples")?.TotalInStock - 4 ?? -4
         );
     }
+    #endregion
+
+    #region Inter-service communication tests
+    [Fact]
+    public async Task CommandHandlerWithIntegrationEvent_ShouldExecuteIntegrationHanlder_WhenCalledWithValidCommand()
+    {
+    }
+    #endregion
 
     private async Task<bool> OutboxMessagesStillPendingAsync(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
     {

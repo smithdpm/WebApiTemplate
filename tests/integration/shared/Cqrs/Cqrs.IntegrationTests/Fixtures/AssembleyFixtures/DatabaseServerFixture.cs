@@ -1,10 +1,11 @@
-
+using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 using Microsoft.Data.SqlClient;
 using Testcontainers.MsSql;
 
-namespace Cqrs.IntegrationTests.TestCollections.Fixtures;
+[assembly: AssemblyFixture(typeof(DatabaseServerFixture))]
+namespace Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 
-public sealed class DatabaseFixture : IAsyncLifetime
+public sealed class DatabaseServerFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
         .WithImage("mcr.microsoft.com/mssql/server:2022-CU10-ubuntu-22.04")

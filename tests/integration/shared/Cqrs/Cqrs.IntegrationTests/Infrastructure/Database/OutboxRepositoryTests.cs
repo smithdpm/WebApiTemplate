@@ -1,6 +1,5 @@
-using Cqrs.IntegrationTests.TestCollections;
-using Cqrs.IntegrationTests.TestCollections.Environments;
-using Cqrs.IntegrationTests.TestCollections.Fixtures;
+using Cqrs.IntegrationTests.Fixtures;
+using Cqrs.IntegrationTests.Fixtures.CollectionFixtures;
 using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,10 +13,10 @@ public class OutboxRepositoryTests : IAsyncLifetime
     private readonly OutboxRepositoryFixture _fixture;
     private readonly IOutboxRepository _repository;
 
-    public OutboxRepositoryTests(OutboxRepositoryEnvironment environment)
+    public OutboxRepositoryTests(OutboxRepositoryFixture outboxRepositoryFixture)
     {
-        _fixture = environment.OutboxRepository;
-        _repository = environment.OutboxRepository.ServiceProvider.GetRequiredService<IOutboxRepository>();
+        _fixture = outboxRepositoryFixture;
+        _repository = outboxRepositoryFixture.ServiceProvider.GetRequiredService<IOutboxRepository>();
     }
 
     public async ValueTask InitializeAsync()

@@ -1,32 +1,39 @@
+using Cqrs.EntityFrameworkCore.Database;
+using Cqrs.IntegrationTests.DbContexts;
+using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Cqrs.EntityFrameworkCore.Database;
 
-namespace Cqrs.IntegrationTests.TestCollections.Fixtures;
+namespace Cqrs.IntegrationTests.Fixtures;
 
 public sealed class OutboxRepositoryFixture : IAsyncLifetime
 {
     public IServiceProvider ServiceProvider { get; private set; } = null!;
-    private string? _databaseConnectionString;
+    private DatabaseServerFixture _databaseServerFixture; 
+    private string _databaseName;
 
-    public void SetDatabaseConnectionString(string connectionString)
-        => _databaseConnectionString = connectionString;
+    public OutboxRepositoryFixture(DatabaseServerFixture databaseServerFixture)
+    {
+        _databaseServerFixture = databaseServerFixture;
+        _databaseName = $"OutboxTestDb_{Guid.CreateVersion7()}";
+    }
     public async ValueTask DisposeAsync()
     {
         if (ServiceProvider is IDisposable disposable)
         {
             disposable.Dispose();
         }
+        await _databaseServerFixture.DropDatabaseAsync(_databaseName);
     }
 
     public async ValueTask InitializeAsync()
     {
+        var databaseConnectionString = await _databaseServerFixture.CreateDatabaseAsync(_databaseName);
         var services = new ServiceCollection();
 
         services.AddDbContextFactory<TestOutboxContext>(options =>
                 {
-                    options.UseSqlServer(_databaseConnectionString);
+                    options.UseSqlServer(databaseConnectionString);
                 });
 
         services.AddSingleton<IOutboxRepository, OutboxRepository<TestOutboxContext>>();
