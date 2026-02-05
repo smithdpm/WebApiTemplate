@@ -6,15 +6,15 @@ using SharedKernel.Database;
 
 namespace Product.App.Database;
 
-public class AtomicRepositoryBase<T>: RepositoryBase<T>, IRepository<T>
+public class AtomicRepository<T>: RepositoryBase<T>, IRepository<T>
     where T : class, IAggregateRoot
 {
-    public AtomicRepositoryBase(ApplicationDbContext dbContext)
+    public AtomicRepository(ApplicationDbContext dbContext)
         : this(dbContext, Ardalis.Specification.EntityFrameworkCore.SpecificationEvaluator.Default)
     {
     }
 
-    public AtomicRepositoryBase(ApplicationDbContext dbContext, ISpecificationEvaluator specificationEvaluator)
+    public AtomicRepository(ApplicationDbContext dbContext, ISpecificationEvaluator specificationEvaluator)
         : base(dbContext, specificationEvaluator)
     {
     }

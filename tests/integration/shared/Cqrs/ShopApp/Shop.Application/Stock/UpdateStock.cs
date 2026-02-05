@@ -1,5 +1,6 @@
 ﻿using Ardalis.Result;
 using Cqrs.Messaging;
+using FluentValidation;
 using Shop.Application.Database;
 
 namespace Shop.Application.Stock;
@@ -7,6 +8,16 @@ namespace Shop.Application.Stock;
 public record UpdateStockCommand(string ProductName, int QuantityToAdd): ICommand;
 
 
+public class UpdateStockCommandValidator : AbstractValidator<UpdateStockCommand>
+{
+    public UpdateStockCommandValidator()
+    {
+        RuleFor(us => us.ProductName)
+            .NotEmpty().WithMessage("Product name must not be empty.");
+        RuleFor(pp => pp.QuantityToAdd)
+               .GreaterThan(0).WithMessage("Quantity to add must be greater than zero.");
+    }
+}
 public class UpdateStockCommandHandler(
     ApplicationDbContext applicationDbContext) : CommandHandler<UpdateStockCommand>
 {

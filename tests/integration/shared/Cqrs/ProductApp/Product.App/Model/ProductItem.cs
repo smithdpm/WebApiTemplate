@@ -1,6 +1,10 @@
-﻿namespace Product.App.Model;
+﻿using Product.App.Events;
+using SharedKernel.Database;
+using SharedKernel.Events;
 
-public class ProductItem
+namespace Product.App.Model;
+
+public class ProductItem: IAggregateRoot
 {
     public Guid Id = Guid.NewGuid();
 

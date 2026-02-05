@@ -59,7 +59,7 @@ public class CreatePurchaseCommandHandler(ApplicationDbContext dbContext) : Comm
         }
         var newPurchase = new Purchase(soldProducts);
         dbContext.Add(newPurchase);
-        return Result<Guid>.Success(newPurchase.Id);
+        return Result<Guid>.Created(newPurchase.Id);
     }
 }
 
