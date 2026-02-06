@@ -2,7 +2,7 @@
 using Azure.Messaging.ServiceBus;
 using Cqrs.Abstractions.Events;
 using Cqrs.AzureServiceBus.Dispatcher;
-using Cqrs.AzureServiceBus.Subscriber;
+using Cqrs.AzureServiceBus.Reciever.Subscriber;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,13 +32,13 @@ public static class DependancyInjection
             builder.AddServiceBusClient(connectionString);
         });
 
-        services.AddAzureServiceBusQueueSenders(configuration);
+        services.AddAzureServiceBusSenders(configuration);
         services.AddAzureServiceBusTopicSubscribers(configuration);
 
         return services;
     }
 
-    private static IServiceCollection AddAzureServiceBusQueueSenders(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddAzureServiceBusSenders(this IServiceCollection services, IConfiguration configuration)
     {
         var queueNames = configuration.GetSection("CqrsSettings:DispatchSettings:Queues").Get<List<string>>();
         var topicNames = configuration.GetSection("CqrsSettings:DispatchSettings:Topics").Get<List<string>>();
@@ -67,7 +67,7 @@ public static class DependancyInjection
 
     private static IServiceCollection AddAzureServiceBusTopicSubscribers(this IServiceCollection services, IConfiguration configuration)
     {
-        var topicSubscribers = configuration.GetSection("CqrsSettings:TopicSubscribers").Get<List<ServiceBusTopicSubscriberSettings>>();
+        var topicSubscribers = configuration.GetSection("CqrsSettings:Recievers:TopicSubscribers").Get<List<TopicSubscriberSettings>>();
 
         if (topicSubscribers == null)
             return services;
@@ -75,7 +75,7 @@ public static class DependancyInjection
         foreach (var topicSubscriber in topicSubscribers)
         {
             services.AddHostedService(provider =>
-            ActivatorUtilities.CreateInstance<ServiceBusTopicSubscriber>(
+            ActivatorUtilities.CreateInstance<TopicSubscriber>(
                     provider,
                     topicSubscriber)
             );

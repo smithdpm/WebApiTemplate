@@ -1,4 +1,4 @@
-﻿namespace Cqrs.AzureServiceBus.Subscriber;
+﻿namespace Cqrs.AzureServiceBus.Reciever;
 internal record MessageStepResult<T>
     (
     T Value,

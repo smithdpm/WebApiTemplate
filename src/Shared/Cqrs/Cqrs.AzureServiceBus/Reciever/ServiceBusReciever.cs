@@ -9,53 +9,26 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 
-namespace Cqrs.AzureServiceBus.Subscriber;
-public class ServiceBusTopicSubscriber : BackgroundService
+namespace Cqrs.AzureServiceBus.Reciever;
+public abstract class ServiceBusReciever : BackgroundService
 {
-    private readonly ILogger<ServiceBusTopicSubscriber> _logger;
-    private readonly ServiceBusProcessor _processor;
+    protected readonly ILogger<ServiceBusReciever> _logger;
+    protected readonly ServiceBusProcessor _processor;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IEventTypeRegistry _integrationEventTypeRegistry;
-    private readonly string _topicName;
-    private readonly string _subscriptionName;
 
-    public ServiceBusTopicSubscriber(ILogger<ServiceBusTopicSubscriber> logger
-        , ServiceBusClient serviceBusClient
+    public ServiceBusReciever(ILogger<ServiceBusReciever> logger
+        , ServiceBusProcessor processor
         , IServiceScopeFactory scopeFactory
-        , IEventTypeRegistry integrationEventTypeRegistry
-        , ServiceBusTopicSubscriberSettings serviceBusTopicSubscriberSettings)
+        , IEventTypeRegistry integrationEventTypeRegistry)
     {
         _logger = logger;
+        _processor = processor;
         _scopeFactory = scopeFactory;
-        _topicName = serviceBusTopicSubscriberSettings.TopicName;
-        _subscriptionName = serviceBusTopicSubscriberSettings.SubscriptionName;
         _integrationEventTypeRegistry = integrationEventTypeRegistry;
-        _processor = serviceBusClient.CreateProcessor(_topicName, _subscriptionName, new ServiceBusProcessorOptions
-        {
-            AutoCompleteMessages = serviceBusTopicSubscriberSettings.AutoCompleteMessages,
-            MaxConcurrentCalls = serviceBusTopicSubscriberSettings.MaxConcurrentCalls
-        });
-    }
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation($"Starting Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
-
-        _processor.ProcessMessageAsync += HandleMessageAsync;
-        _processor.ProcessErrorAsync += HandleErrorAsync;
-
-        await _processor.StartProcessingAsync(stoppingToken);
-
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
-        }
-
-        _logger.LogInformation($"Stopping Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
-        
-        await _processor.StopProcessingAsync(stoppingToken);
     }
 
-    private async Task HandleMessageAsync(ProcessMessageEventArgs args)
+    protected async Task HandleMessageAsync(ProcessMessageEventArgs args)
     {
         var parseCloudEventResult = ParseCloudEvent(args.Message.Body);
 
@@ -201,11 +174,6 @@ public class ServiceBusTopicSubscriber : BackgroundService
         }
 
         return MessageStepResult<bool>.Success(true);
-    }
-
-    private async Task HandleErrorAsync(ProcessErrorEventArgs args)
-    {
-        _logger.LogError(args.Exception, $"An error occured while running the Service Bus Topic Subscriber: TopicName ({_topicName}), SubscriptionName ({_subscriptionName})");
     }
 
 

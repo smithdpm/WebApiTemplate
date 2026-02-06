@@ -1,4 +1,4 @@
-﻿namespace Cqrs.AzureServiceBus.Subscriber;
+﻿namespace Cqrs.AzureServiceBus.Reciever;
 internal enum MessageStepStatus
 {
     Success,

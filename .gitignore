@@ -4,7 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 ## Custom ignores
-**/appsettings.Development.json
+appsettings.Development.json
 /tests/coverage-report/
 *.claude
 
@@ -366,7 +366,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-
-/tests/integration/shared/Cqrs/ProductApp/Product.App/appsettings.Development.json
-/tests/integration/shared/Cqrs/ShopApp/Shop.Application/appsettings.Development.json
