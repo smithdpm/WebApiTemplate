@@ -220,8 +220,8 @@ public class CommandRegistrationExtensionTests
         var domainAssembly = typeof(BasicDomainClass).Assembly;
 
         services.AddFakeLogging();
-        services.AddScoped(sp => { return Substitute.For<IRepository<OutboxMessage>>(); });
-        services.AddScoped(sp => { return Substitute.For<IUnitOfWork>(); });
+        services.AddScoped(sp => Substitute.For<IRepository<OutboxMessage>>());
+        services.AddScoped(sp => Substitute.For<IUnitOfWork>());
 
         // Act
         services.AddCqrsBehaviours(applicationAssembly, domainAssembly, builder => { });
@@ -242,8 +242,8 @@ public class CommandRegistrationExtensionTests
         var domainAssembly = typeof(BasicDomainClass).Assembly;
 
         services.AddFakeLogging();
-        services.AddScoped(sp => { return Substitute.For<IRepository<OutboxMessage>>(); });
-        services.AddScoped(sp => { return Substitute.For<IUnitOfWork>(); });
+        services.AddScoped(sp => Substitute.For<IRepository<OutboxMessage>>());
+        services.AddScoped(sp => Substitute.For<IUnitOfWork>());
 
         // Act
         services.AddCqrsBehaviours(applicationAssembly, domainAssembly, builder => { });

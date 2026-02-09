@@ -1,6 +1,7 @@
 ﻿using SharedKernel.Events;
+using Shop.Domain.DomainEvents;
 
-namespace Shop.Domain.Purchases;
+namespace Shop.Domain.Aggregates.Purchases;
 
 public class Purchase : HasDomainEvents
 {

@@ -134,7 +134,7 @@ public class IntegrationEventDecoratorTests
             capturedMessages.Count.ShouldBe(1);
             capturedMessages[0].Destination.ShouldBe(destination);
             
-            var payload = JsonSerializer.Deserialize<TestIntegrationEvent>(capturedMessages[0].Payload);
+            var payload = JsonSerializer.Deserialize<TestIntegrationEvent>(capturedMessages[0].Payload)!;
             payload.EventId.ShouldBe(integrationEvent.EventId);
             payload.Data.ShouldBe(integrationEvent.Data);
         }
@@ -183,7 +183,7 @@ public class IntegrationEventDecoratorTests
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
             
-            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" }, "topic1");   
+            innerHandler.AddIntegrationEvent(new TestIntegrationEvent { EventId = Guid.NewGuid(), Data = "test" }, "topic1");
             innerHandler.SetResult(Result.Success());
 
             // Act

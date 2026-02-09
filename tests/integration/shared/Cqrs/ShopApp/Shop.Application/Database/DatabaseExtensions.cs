@@ -1,4 +1,4 @@
-﻿using Shop.Domain.Stock;
+﻿using Shop.Domain.Aggregates.Stock;
 
 namespace Shop.Application.Database;
 

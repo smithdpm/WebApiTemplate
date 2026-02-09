@@ -1,8 +1,8 @@
 ﻿
 using Cqrs.EntityFrameworkCore.Configuration;
 using Microsoft.EntityFrameworkCore;
-using Shop.Domain.Purchases;
-using Shop.Domain.Stock;
+using Shop.Domain.Aggregates.Purchases;
+using Shop.Domain.Aggregates.Stock;
 using System.Reflection;
 
 namespace Shop.Application.Database;

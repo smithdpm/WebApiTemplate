@@ -1,4 +1,4 @@
-﻿namespace Shop.Domain.Purchases;
+﻿namespace Shop.Domain.Aggregates.Purchases;
 
 public class SoldProduct
 {

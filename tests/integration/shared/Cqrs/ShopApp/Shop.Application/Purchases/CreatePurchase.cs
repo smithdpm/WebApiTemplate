@@ -4,7 +4,7 @@ using Cqrs.Messaging;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Database;
-using Shop.Domain.Purchases;
+using Shop.Domain.Aggregates.Purchases;
 
 namespace Shop.Application.Purchases;
 

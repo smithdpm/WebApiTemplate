@@ -1,12 +1,10 @@
-﻿using Product.App.Events;
-using SharedKernel.Database;
-using SharedKernel.Events;
+﻿using SharedKernel.Database;
 
 namespace Product.App.Model;
 
 public class ProductItem: IAggregateRoot
 {
-    public Guid Id = Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public string Name { get; set; }
     public string Description { get; set; }

@@ -3,7 +3,7 @@ using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 
 namespace Cqrs.IntegrationTests.Fixtures.ClassFixtures;
 
-public class MultiAppFixture
+public class MultiAppFixture : IAsyncLifetime
 {
     public TestApplicationFactory<ShopAppProgram> ShopAppFactory { get; private set; }
     public TestApplicationFactory<ProductAppProgram> ProductAppFactory { get; private set; }
@@ -39,5 +39,6 @@ public class MultiAppFixture
         ShopAppFactory.Dispose();
         ProductAppFactory.Dispose();
         await _databaseServerFixture.DropDatabaseAsync(_shopDatabaseName);
+        await _databaseServerFixture.DropDatabaseAsync(_productDatabaseName);
     }
 }

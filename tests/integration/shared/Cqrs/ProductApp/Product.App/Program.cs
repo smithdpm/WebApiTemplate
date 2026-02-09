@@ -7,6 +7,7 @@ using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Product.App.Database;
 using SharedKernel.Database;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureServices(builder.Configuration);
@@ -39,6 +40,9 @@ public static class ConfigruationExtensions
             .AddCqrs(provider);
         });
 
+        services.ScanAssemblyAndRegisterClosedGenerics(typeof(Program).Assembly,
+            typeof(IRepository<>), typeof(AtomicRepository<>), typeof(IAggregateRoot));
+
         services.AddScoped<IUnitOfWork, EfUnitOfWork<ApplicationDbContext>>();
 
         var repositoryInterface = typeof(IRepository<>).MakeGenericType(typeof(OutboxMessage));
@@ -51,5 +55,23 @@ public static class ConfigruationExtensions
                 typeof(Program).Assembly,
                 pipelineBuilder => { })
             .AddOutboxServices<ApplicationDbContext>(typeof(AtomicRepository<>), configuration);
+    }
+
+    private static IServiceCollection ScanAssemblyAndRegisterClosedGenerics(this IServiceCollection services, Assembly assembly
+    , Type interfaceType, Type implementationType, Type openGenericType)
+    {
+        var closedTypesOfOpenGeneric = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface && openGenericType.IsAssignableFrom(t));
+
+        foreach (var closedType in closedTypesOfOpenGeneric)
+        {
+            var closedInterfaceType = interfaceType.MakeGenericType(closedType);
+            var closedImplmentationType = implementationType.MakeGenericType(closedType);
+
+            if (!services.Any(s => s.ServiceType == closedInterfaceType))
+                services.AddScoped(closedInterfaceType, closedImplmentationType);
+        }
+
+        return services;
     }
 }

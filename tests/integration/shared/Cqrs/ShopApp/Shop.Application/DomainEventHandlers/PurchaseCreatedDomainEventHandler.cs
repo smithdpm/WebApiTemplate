@@ -2,10 +2,9 @@
 using Cqrs.Events.DomainEvents;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Database;
-using Shop.Application.Stock;
-using Shop.Domain.Purchases;
+using Shop.Domain.DomainEvents;
 
-namespace Shop.Application.Purchases;
+namespace Shop.Application.DomainEventHandlers;
 
 public class PurchaseCreatedDomainEventHandler(ApplicationDbContext applicationDbContext) : DomainEventHandler<PurchaseCreatedDomainEvent>
 {
@@ -22,10 +21,6 @@ public class PurchaseCreatedDomainEventHandler(ApplicationDbContext applicationD
                 .Sum(sp => sp.Quantity);
 
             stockedProduct.RemoveStock(quantitySold);
-            if (stockedProduct.IsLowStock())
-            {
-                AddIntegrationEvent(new ReorderStockIntegrationEvent(stockedProduct.ProductName, 50));
-            }
         }
         return Result.Success();
     }

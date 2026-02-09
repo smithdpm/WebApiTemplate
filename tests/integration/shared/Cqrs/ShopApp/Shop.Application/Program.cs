@@ -7,7 +7,7 @@ using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Database;
 using Shop.Application.Database;
-using Shop.Domain.Purchases;
+using Shop.Domain.Aggregates.Purchases;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureServices(builder.Configuration);

@@ -16,6 +16,6 @@ public class TestApplicationFactory<TProgram> : WebApplicationFactory<TProgram>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         Environment.SetEnvironmentVariable("ConnectionStrings:Database", _databaseConnectionString);
-        Environment.SetEnvironmentVariable("AzureServiceBus:ConnectionString", _serviceBusConnectionString);
+        Environment.SetEnvironmentVariable("CqrsSettings:AzureServiceBus:ConnectionString", _serviceBusConnectionString);
     }
 }

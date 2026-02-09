@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Text.Json;
 
 namespace Cqrs.Outbox;
+
 [EditorBrowsable(EditorBrowsableState.Never)]
 public class OutboxDispatcher : BackgroundService
 {
@@ -60,7 +61,7 @@ public class OutboxDispatcher : BackgroundService
                 {
                     _logger.LogError(ex, "Error occured while proccessing message Id {OutboxMessageId}. Error: {errorMessage}.",
                             message.Id, ex.Message);
-                    if (message.ProcessingAttempts >= _settings.MaxProcessingAttempts -1)
+                    if (message.ProcessingAttempts >= _settings.MaxProcessingAttempts - 1)
                     {
                         _logger.LogError(ex, "Outbox message with Id {OutboxMessageId} has exceeded max processing attempts. Marking as errored.",
                             message.Id);

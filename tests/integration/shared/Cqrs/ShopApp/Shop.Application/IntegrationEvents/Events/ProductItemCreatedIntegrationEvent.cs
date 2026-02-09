@@ -1,6 +1,6 @@
 ﻿using Cqrs.Events.IntegrationEvents;
 
-namespace Shop.Application.Stock;
+namespace Shop.Application.IntegrationEvents.Events;
 
 public record ProductItemCreatedIntegrationEvent(
     Guid ProductId,
