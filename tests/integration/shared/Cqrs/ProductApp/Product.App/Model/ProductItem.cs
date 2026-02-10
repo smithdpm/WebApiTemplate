@@ -11,6 +11,7 @@ public class ProductItem: IAggregateRoot
     public string Category { get; set; }
 
     public decimal RetailPrice { get; set; }
+    public int TotalSold { get; set; } = 0;
     public int TotalShipped { get; set; } = 0;
 
     public ProductItem(string name, string description, string category, decimal retailPrice)

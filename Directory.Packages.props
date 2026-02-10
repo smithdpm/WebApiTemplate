@@ -47,6 +47,7 @@
     <PackageVersion Include="Microsoft.Testing.Platform.MSBuild" Version="2.0.2" />
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+    <PackageVersion Include="Respawn" Version="7.0.0" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.11.6" />
     <PackageVersion Include="Scrutor" Version="7.0.0" />
     <PackageVersion Include="Serilog" Version="4.3.0" />

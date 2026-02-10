@@ -1,7 +1,6 @@
 ﻿using Ardalis.Result;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Messaging;
-using Shop.Application.IntegrationEvents.Events;
 using Shop.Application.Stock;
 using Shop.Domain.DomainEvents;
 
@@ -14,8 +13,7 @@ public class LowStockDomainEventHandler(ICommandHandler<UpdateStockCommand> upda
     {
         int stockAmountToAdd = 50;
         var updateStockCommand = new UpdateStockCommand(input.ProductName, stockAmountToAdd);
-        await updateStockHandler.HandleAsync(updateStockCommand, cancellationToken);
-        AddIntegrationEvent(new StockAddedIntegrationEvent(input.ProductName, stockAmountToAdd));
+        await updateStockHandler.HandleAsync(updateStockCommand, cancellationToken);       
         return Result.Success();
     }
 }

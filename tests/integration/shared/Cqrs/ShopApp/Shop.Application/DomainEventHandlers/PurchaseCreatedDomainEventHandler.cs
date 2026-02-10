@@ -2,6 +2,8 @@
 using Cqrs.Events.DomainEvents;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Database;
+using Shop.Application.IntegrationEvents.Events;
+using Shop.Domain.Aggregates.Purchases;
 using Shop.Domain.DomainEvents;
 
 namespace Shop.Application.DomainEventHandlers;
@@ -11,17 +13,20 @@ public class PurchaseCreatedDomainEventHandler(ApplicationDbContext applicationD
     public override async Task<Result> HandleAsync(PurchaseCreatedDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
         var productStocks = await applicationDbContext.ProductStocks
-            .Where(ps => domainEvent.SoldProducts.Select(sp => sp.ProductName).Contains(ps.ProductName))
+            .Where(ps => domainEvent.Purchase.SoldProducts.Select(sp => sp.ProductName).Contains(ps.ProductName))
             .ToListAsync(cancellationToken);
 
+        var productsSold = new List<SoldProduct>();
         foreach (var stockedProduct in productStocks)
         {
-            var  quantitySold = domainEvent.SoldProducts
+            var  productSold = domainEvent.Purchase.SoldProducts
                 .Where(sp => sp.ProductName == stockedProduct.ProductName)
-                .Sum(sp => sp.Quantity);
+                .First();
 
-            stockedProduct.RemoveStock(quantitySold);
+            productsSold.Add(productSold);
+            stockedProduct.RemoveStock(productSold.Quantity);
         }
+        AddIntegrationEvent(new ProductsPurchasedIntegrationEvent(domainEvent.Purchase.Id, productsSold));
         return Result.Success();
     }
 }

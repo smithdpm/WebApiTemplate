@@ -10,7 +10,7 @@ using Polly;
 using SharedKernel.Events;
 using Shouldly;
 
-namespace Cqrs.IntegrationTests.Infrastructure.Database;
+namespace Cqrs.IntegrationTests.Tests;
 
 [Collection(nameof(OutboxRepositoryCollection))]
 public class OutboxDispatcherTests : IAsyncLifetime

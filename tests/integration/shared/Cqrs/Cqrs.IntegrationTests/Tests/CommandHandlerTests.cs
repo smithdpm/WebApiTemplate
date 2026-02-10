@@ -1,29 +1,29 @@
 ﻿using Ardalis.Result;
+using Cqrs.IntegrationTests.Extensions;
 using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 using Cqrs.IntegrationTests.Fixtures.ClassFixtures;
 using Cqrs.Messaging;
-using Cqrs.Outbox;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Polly;
 using Shop.Application.Database;
 using Shop.Application.Purchases;
 using Shop.Application.Stock;
+using Shop.Domain.Aggregates.Stock;
 using Shouldly;
 
 namespace Cqrs.IntegrationTests.Tests;
 
 [Collection("CommandHandlerTests")]
-public class CommandHandlerTests: IClassFixture<ShopAppFixture>
+public class CommandHandlerTests : IClassFixture<ShopAppFixture>
 {
-    private readonly TestServer _server;
-    private readonly ShopAppFixture _shopApp;
+    private readonly TestServer _shopApp;
+    private readonly ShopAppFixture _shopAppFixture;
 
     public CommandHandlerTests(DatabaseServerFixture databaseServerFixture
         , ShopAppFixture shopAppFixture)
     {
-        _shopApp = shopAppFixture;
-        _server = _shopApp.ShopApp.Server;
+        _shopAppFixture = shopAppFixture;
+        _shopApp = _shopAppFixture.ShopApp.Server;
     }
 
 
@@ -34,20 +34,15 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        using var scope = _server.Services.CreateScope();
-        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<CreatePurchaseCommand, Guid>>();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        var command = new CreatePurchaseCommand(
-            ProductPurchases: new List<ProductPurchase>
-            {
-                new ProductPurchase(string.Empty, 4),
-                new ProductPurchase("Bananas", -2)
-            }
-        );
-
         // Act
-        var result = await handler.HandleAsync(command, cancellationToken);
+        var result = await _shopApp.HandleCommand<CreatePurchaseCommand, Guid>(
+            new CreatePurchaseCommand(
+                ProductPurchases: new List<ProductPurchase>
+                {
+                    new ProductPurchase(string.Empty, 4),
+                    new ProductPurchase("Bananas", -2)
+                }), 
+            cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -66,20 +61,15 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        using var scope = _server.Services.CreateScope();
-        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<CreatePurchaseCommand, Guid>>();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        var command = new CreatePurchaseCommand(
-            ProductPurchases: new List<ProductPurchase>
-            {
-                new ProductPurchase("Apples", 4),
-                new ProductPurchase("Bananas", 2)
-            }
-        );
-
         // Act
-        var result = await handler.HandleAsync(command, cancellationToken);
+        var result = await _shopApp.HandleCommand<CreatePurchaseCommand, Guid>(
+            new CreatePurchaseCommand(
+                ProductPurchases: new List<ProductPurchase>
+                {
+                    new ProductPurchase("Apples", 4),
+                    new ProductPurchase("Bananas", 2)
+                }), 
+            cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -94,17 +84,12 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        using var scope = _server.Services.CreateScope();
-        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<UpdateStockCommand>>();
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        var command = new UpdateStockCommand(
-            ProductName: "",
-            QuantityToAdd: -5
-        );
-
         // Act
-        var result = await handler.HandleAsync(command, cancellationToken);
+        var result = await _shopApp.HandleCommand(
+            new UpdateStockCommand(
+                ProductName: "",
+                QuantityToAdd: -5), 
+            cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeFalse();
@@ -123,7 +108,7 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
         // Arrange
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        using var scope = _server.Services.CreateScope();
+        using var scope = _shopApp.Services.CreateScope();
         var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<UpdateStockCommand>>();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -132,23 +117,24 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
             QuantityToAdd: 5
         );
 
-        var initalQuantity = await dbContext.ProductStocks
-            .AsNoTracking()
-            .Where(p => p.ProductName == "Apples")
-            .Select(a => a.TotalInStock).SingleAsync(cancellationToken);
+        var stockBeforeUpdate = await _shopApp.HandleQuery<GetStockByProductNameQuery, ProductStock>(
+            new GetStockByProductNameQuery("Apples"), cancellationToken);   
 
         // Act
-        var result = await handler.HandleAsync(command, cancellationToken);
+        var result = await _shopApp.HandleCommand(
+            new UpdateStockCommand(
+                ProductName: "Apples",
+                QuantityToAdd: 5),
+            cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
         result.Status.ShouldBe(ResultStatus.Ok);
-        var finalQuantity = await dbContext.ProductStocks
-            .AsNoTracking()
-            .Where(p => p.ProductName == "Apples")
-            .Select(a => a.TotalInStock).SingleAsync(cancellationToken);
 
-        finalQuantity.ShouldBe(initalQuantity + 5);
+        var stockAfterUpdate = await _shopApp.HandleQuery<GetStockByProductNameQuery, ProductStock>(
+            new GetStockByProductNameQuery("Apples"), cancellationToken);
+
+        stockAfterUpdate.Value.TotalInStock.ShouldBe(stockBeforeUpdate.Value.TotalInStock + 5);
     }
     #endregion
 
@@ -158,11 +144,11 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
     {
         var cancellationToken = TestContext.Current.CancellationToken;
 
-        using var scope = _server.Services.CreateScope();
-        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<CreatePurchaseCommand,Guid>>();
+        using var scope = _shopApp.Services.CreateScope();
+        var handler = scope.ServiceProvider.GetRequiredService<ICommandHandler<CreatePurchaseCommand, Guid>>();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var command = new CreatePurchaseCommand(
+        var purchaseCommand = new CreatePurchaseCommand(
             ProductPurchases: new List<ProductPurchase>
             {
                 new ProductPurchase("Apples", 4),
@@ -171,26 +157,34 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
             }
         );
 
-        var initialStock = await dbContext.ProductStocks
-            .AsNoTracking()
-            .Where(p=> p.ProductName == "Apples" || p.ProductName == "Bananas" || p.ProductName == "Kiwis")
-            .ToListAsync(cancellationToken);
+        var stockBeforePurchase = await _shopApp.HandleQuery<GetAllStockQuery, List<ProductStock>>(
+            new GetAllStockQuery(50), cancellationToken);
 
-        var result = await handler.HandleAsync(command, cancellationToken);
+        var result = await _shopApp.HandleCommand<CreatePurchaseCommand, Guid>(
+            purchaseCommand,
+            cancellationToken);
 
         // Assert
-        await WaitForOutboxToCompleteMessages(dbContext, cancellationToken);
-        var finalStock = await dbContext.ProductStocks
-            .AsNoTracking()
-            .Where(p => p.ProductName == "Apples" || p.ProductName == "Bananas" || p.ProductName == "Kiwis")
-            .ToListAsync(cancellationToken);
+        await _shopApp.WaitForOutboxToCompleteMessages<ApplicationDbContext>(cancellationToken);
+
+        var stockAfterPurchase = await _shopApp.HandleQuery<GetAllStockQuery, List<ProductStock>>(
+            new GetAllStockQuery(50), cancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Value.ShouldNotBe(Guid.Empty);
 
-        finalStock.Single(p => p.ProductName == "Apples").TotalInStock.ShouldBe(
-            initialStock.SingleOrDefault(p => p.ProductName == "Apples")?.TotalInStock - 4 ?? -4
-        );
+        foreach (var productPurhase in purchaseCommand.ProductPurchases)
+        {
+            var stockAmountBeforePurchase = stockBeforePurchase.Value
+                .Where(p => p.ProductName == productPurhase.ProductName)
+                .First().TotalInStock;
+            
+            var stockAmountAfterPurchase = stockAfterPurchase.Value
+                .Where(p => p.ProductName == productPurhase.ProductName)
+                .First().TotalInStock;
+
+            productPurhase.PurchaseQuantity.ShouldBe(stockAmountBeforePurchase - stockAmountAfterPurchase);
+        }
     }
     #endregion
 
@@ -201,25 +195,6 @@ public class CommandHandlerTests: IClassFixture<ShopAppFixture>
     }
     #endregion
 
-    private async Task<bool> OutboxMessagesStillPendingAsync(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
-    {
-        var pendingMessages = await applicationDbContext.Set<OutboxMessage>()
-            .AsNoTracking()
-            .AnyAsync(om => !om.ProcessedAtUtc.HasValue, cancellationToken);
-        return pendingMessages;
-    }
 
-    private Task WaitForOutboxToCompleteMessages(ApplicationDbContext applicationDbContext, CancellationToken cancellationToken)
-    {
-        var retryPolicy = Policy<bool>
-            .Handle<HttpRequestException>()
-            .OrResult(response => response)
-            .WaitAndRetryAsync(50, _ => TimeSpan.FromMilliseconds(200));
-
-        var result = retryPolicy.ExecuteAsync(
-            () => OutboxMessagesStillPendingAsync(applicationDbContext, cancellationToken));
-
-        return result!;
-    }
 }
 

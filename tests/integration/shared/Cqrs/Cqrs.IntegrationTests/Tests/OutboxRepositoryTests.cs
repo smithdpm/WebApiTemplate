@@ -2,10 +2,9 @@ using Cqrs.IntegrationTests.Fixtures;
 using Cqrs.IntegrationTests.Fixtures.CollectionFixtures;
 using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 
-namespace Cqrs.IntegrationTests.Infrastructure.Database;
+namespace Cqrs.IntegrationTests.Tests;
 
 [Collection(nameof(OutboxRepositoryCollection))]
 public class OutboxRepositoryTests : IAsyncLifetime

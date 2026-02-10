@@ -13,6 +13,6 @@ public class Purchase : HasDomainEvents
     public Purchase(List<SoldProduct> soldProducts)
     {
         SoldProducts = soldProducts;
-        AddDomainEvent(new PurchaseCreatedDomainEvent(Id, soldProducts));
+        AddDomainEvent(new PurchaseCreatedDomainEvent(this));
     }
 }

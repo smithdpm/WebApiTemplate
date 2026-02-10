@@ -2,6 +2,7 @@
 using Cqrs.Messaging;
 using FluentValidation;
 using Shop.Application.Database;
+using Shop.Application.IntegrationEvents.Events;
 
 namespace Shop.Application.Stock;
 
@@ -31,6 +32,7 @@ public class UpdateStockCommandHandler(
             return Result.NotFound($"Stock item for product '{input.ProductName}' not found.");
 
         stockItem.TotalInStock += input.QuantityToAdd;
+        AddIntegrationEvent(new StockAddedIntegrationEvent(input.ProductName, input.QuantityToAdd));
         return Result.Success();
     }
 }
