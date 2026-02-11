@@ -48,8 +48,8 @@ internal class CommandPipelineBuilder(IServiceCollection services) : ICommandPip
     {
         Services.TryDecorate(typeof(ICommandHandler<,>), typeof(LoggingCommandDecorator<,>));
         Services.TryDecorate(typeof(ICommandHandler<>), typeof(LoggingCommandDecorator<>));
-        Services.TryDecorate(typeof(IIntegrationEventHandler<>), typeof(IntegrationEventHandlerLoggingDecorator<>));
-        Services.TryDecorate(typeof(IDomainEventHandler<>), typeof(DomainEventHandlerLoggingDecorator<>));
+        Services.TryDecorate(typeof(IIntegrationEventHandler<>), typeof(LoggingIntegrationEventDecorator<>));
+        Services.TryDecorate(typeof(IDomainEventHandler<>), typeof(LoggingDomainEventDecorator<>));
         return this;
     }
 

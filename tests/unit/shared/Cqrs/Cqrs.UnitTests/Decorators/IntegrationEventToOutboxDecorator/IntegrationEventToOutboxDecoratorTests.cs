@@ -9,20 +9,20 @@ using SharedKernel.Database;
 using Shouldly;
 using System.Text.Json;
 
-namespace Cqrs.UnitTests.Decorators;
+namespace Cqrs.UnitTests.Decorators.IntegrationEventToOutboxDecorator;
 
-public class IntegrationEventDecoratorTests
+public class IntegrationEventToOutboxDecoratorTests
 {
     private readonly IRepository<OutboxMessage> _repository;
     private readonly IIntegrationEventToOutboxBehaviour _integrationEventBehaviour;
 
-    public IntegrationEventDecoratorTests()
+    public IntegrationEventToOutboxDecoratorTests()
     {
         _repository = Substitute.For<IRepository<OutboxMessage>>();
         _integrationEventBehaviour = new IntegrationEventToOutboxBehaviour(_repository);
     }
 
-    public class CommandHandlerWithResponseTests : IntegrationEventDecoratorTests
+    public class CommandHandlerWithResponseTests : IntegrationEventToOutboxDecoratorTests
     {
         [Fact]
         public async Task Handle_ShouldCaptureIntegrationEvents_WhenCommandSucceeds()
@@ -172,7 +172,7 @@ public class IntegrationEventDecoratorTests
         }
     }
 
-    public class CommandHandlerWithoutResponseTests : IntegrationEventDecoratorTests
+    public class CommandHandlerWithoutResponseTests : IntegrationEventToOutboxDecoratorTests
     {
         [Fact]
         public async Task Handle_ShouldCaptureIntegrationEvents_WhenCommandSucceeds()

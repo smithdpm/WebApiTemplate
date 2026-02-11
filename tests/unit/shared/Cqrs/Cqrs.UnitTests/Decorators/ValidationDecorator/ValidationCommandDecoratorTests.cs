@@ -6,7 +6,7 @@ using FluentValidation.Results;
 using NSubstitute;
 using Shouldly;
 
-namespace Cqrs.UnitTests.Decorators;
+namespace Cqrs.UnitTests.Decorators.ValidationDecorator;
 
 public partial class ValidationCommandDecoratorTests
 {

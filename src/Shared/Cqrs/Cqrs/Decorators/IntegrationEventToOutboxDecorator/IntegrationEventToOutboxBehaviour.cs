@@ -19,7 +19,8 @@ public class IntegrationEventToOutboxBehaviour(
         if (result.IsSuccess() && handler.IntegrationEventsToSend.Count > 0)
         {
             await repository.AddRangeAsync(
-                IntegrationEventExtensions.IntegrationEventsToOutboxMessages(handler.IntegrationEventsToSend));
+                IntegrationEventExtensions.IntegrationEventsToOutboxMessages(handler.IntegrationEventsToSend),
+                cancellationToken);
         }
 
         return result;

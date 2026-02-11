@@ -1,32 +1,31 @@
 using Ardalis.Result;
-using Cqrs.Decorators;
-using Cqrs.Decorators.AtomicTransactionDecorator;
 using Cqrs.Messaging;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
-using SharedKernel.Database;
 using Shouldly;
+using Microsoft.Extensions.Logging.Testing;
+using Cqrs.Decorators.LoggingDecorator;
 
-namespace Cqrs.UnitTests.Decorators;
+namespace Cqrs.UnitTests.Decorators.LoggingDecorator;
 
-public class AtomicTransactionDecoratorTests
+public class LoggingDecoratorTests
 {
-    public class CommandHandlerWithResponseTests : AtomicTransactionDecoratorTests
+    public class CommandHandlerWithResponseTests : LoggingDecoratorTests
     {
+        private readonly FakeLogger<LoggingBehaviour> _fakeLogger;
         private readonly ICommandHandler<TestCommand, string> _innerHandler;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly AtomicTransactionCommandDecorator<TestCommand, string> _decorator;
-        private readonly IAtomicTransactionBehaviour _atomicTransactionBehaviour;
-
+        private readonly LoggingCommandDecorator<TestCommand, string> _decorator;
+        private readonly ILoggingBehaviour _loggingBehaviour;
         public CommandHandlerWithResponseTests()
         {
+            _fakeLogger = new FakeLogger<LoggingBehaviour>();
             _innerHandler = Substitute.For<ICommandHandler<TestCommand, string>>();
-            _unitOfWork = Substitute.For<IUnitOfWork>();
-            _atomicTransactionBehaviour = new AtomicTransactionBehaviour(_unitOfWork);
-            _decorator = new AtomicTransactionCommandDecorator<TestCommand, string>(_innerHandler, _atomicTransactionBehaviour);
+            _loggingBehaviour = new LoggingBehaviour(_fakeLogger);
+            _decorator = new LoggingCommandDecorator<TestCommand, string>(_innerHandler, _loggingBehaviour);
         }
 
         [Fact]
-        public async Task Handle_ShouldSaveChanges_WhenCommandSucceedsAndHasChanges()
+        public async Task Handle_ShouldLogInformation_WhenCommandSucceeds()
         {
             // Arrange
             var command = new TestCommand { Id = Guid.NewGuid() };
@@ -35,19 +34,21 @@ public class AtomicTransactionDecoratorTests
             
             _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
-            _unitOfWork.HasChanges().Returns(true);
 
             // Act
             var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
-            result.Value.ShouldBe(expectedResult);
-            await _unitOfWork.Received(1).SaveChangesAsync(cancellationToken);
+
+            var logs = _fakeLogger.Collector.GetSnapshot();
+            Assert.All(logs, log => log.Level.ShouldBe(LogLevel.Information));
+            Assert.Contains(logs, log => log.Message.Contains("Handling operation"));
+            Assert.Contains(logs, log => log.Message.Contains("handled successfully"));
         }
 
         [Fact]
-        public async Task Handle_ShouldNotSaveChanges_WhenCommandFails()
+        public async Task Handle_ShouldLogError_WhenCommandFails()
         {
             // Arrange
             var command = new TestCommand { Id = Guid.NewGuid() };
@@ -56,35 +57,16 @@ public class AtomicTransactionDecoratorTests
             
             _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Error(errorMessage));
-            _unitOfWork.HasChanges().Returns(true);
 
             // Act
             var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
-            await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
-        }
 
-        [Fact]
-        public async Task Handle_ShouldNotSaveChanges_WhenNoChangesDetected()
-        {
-            // Arrange
-            var command = new TestCommand { Id = Guid.NewGuid() };
-            var expectedResult = "Success";
-            var cancellationToken = TestContext.Current.CancellationToken;
-            
-            _innerHandler.HandleAsync(command, cancellationToken)
-                .Returns(Result<string>.Success(expectedResult));
-            _unitOfWork.HasChanges().Returns(false);
-
-            // Act
-            var result = await _decorator.HandleAsync(command, cancellationToken);
-
-            // Assert
-            result.IsSuccess.ShouldBeTrue();
-            result.Value.ShouldBe(expectedResult);
-            await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+            var lastLog = _fakeLogger.Collector.LatestRecord;
+            lastLog.Level.ShouldBe(LogLevel.Error);
+            lastLog.Message.ShouldContain("completed with error");
         }
 
         [Fact]
@@ -97,7 +79,6 @@ public class AtomicTransactionDecoratorTests
             
             _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result<string>.Success(expectedResult));
-            _unitOfWork.HasChanges().Returns(false);
 
             // Act
             var result = await _decorator.HandleAsync(command, cancellationToken);
@@ -107,25 +88,43 @@ public class AtomicTransactionDecoratorTests
             result.Value.ShouldBe(expectedResult);
             await _innerHandler.Received(1).HandleAsync(command, cancellationToken);
         }
+
+        [Fact]
+        public async Task Handle_ShouldLogCommandName_WhenProcessing()
+        {
+            // Arrange
+            var command = new TestCommand { Id = Guid.NewGuid() };
+            var cancellationToken = TestContext.Current.CancellationToken;
+            
+            _innerHandler.HandleAsync(command, cancellationToken)
+                .Returns(Result<string>.Success("Success"));
+
+            // Act
+            await _decorator.HandleAsync(command, cancellationToken);
+
+            // Assert
+            var logs = _fakeLogger.Collector.GetSnapshot();
+            logs.ShouldContain(log => log.Message.Contains(nameof(TestCommand)));
+        }
     }
 
-    public class CommandHandlerWithoutResponseTests : AtomicTransactionDecoratorTests
+    public class CommandHandlerWithoutResponseTests : LoggingDecoratorTests
     {
+        private readonly FakeLogger<LoggingBehaviour> _fakeLogger;
         private readonly ICommandHandler<TestVoidCommand> _innerHandler;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly AtomicTransactionCommandDecorator<TestVoidCommand> _decorator;
-        private readonly IAtomicTransactionBehaviour _atomicTransactionBehaviour;
+        private readonly LoggingBehaviour _loggingBehaviour;
+        private readonly LoggingCommandDecorator<TestVoidCommand> _decorator;
 
         public CommandHandlerWithoutResponseTests()
         {
+            _fakeLogger = new FakeLogger<LoggingBehaviour>();
             _innerHandler = Substitute.For<ICommandHandler<TestVoidCommand>>();
-            _unitOfWork = Substitute.For<IUnitOfWork>();
-            _atomicTransactionBehaviour = new AtomicTransactionBehaviour(_unitOfWork);
-            _decorator = new AtomicTransactionCommandDecorator<TestVoidCommand>(_innerHandler, _atomicTransactionBehaviour);
+            _loggingBehaviour = new LoggingBehaviour(_fakeLogger);
+            _decorator = new LoggingCommandDecorator<TestVoidCommand>(_innerHandler, _loggingBehaviour);
         }
 
         [Fact]
-        public async Task Handle_ShouldSaveChanges_WhenCommandSucceedsAndHasChanges()
+        public async Task Handle_ShouldLogInformation_WhenCommandSucceeds()
         {
             // Arrange
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
@@ -133,18 +132,21 @@ public class AtomicTransactionDecoratorTests
             
             _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Success());
-            _unitOfWork.HasChanges().Returns(true);
 
             // Act
             var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
-            await _unitOfWork.Received(1).SaveChangesAsync(cancellationToken);
+            
+            var logs = _fakeLogger.Collector.GetSnapshot();
+            Assert.All(logs, log => log.Level.ShouldBe(LogLevel.Information));
+            Assert.Contains(logs, log => log.Message.Contains("Handling operation"));
+            Assert.Contains(logs, log => log.Message.Contains("handled successfully"));
         }
 
         [Fact]
-        public async Task Handle_ShouldNotSaveChanges_WhenCommandFails()
+        public async Task Handle_ShouldLogError_WhenCommandFails()
         {
             // Arrange
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
@@ -153,33 +155,54 @@ public class AtomicTransactionDecoratorTests
             
             _innerHandler.HandleAsync(command, cancellationToken)
                 .Returns(Result.Error(errorMessage));
-            _unitOfWork.HasChanges().Returns(true);
 
             // Act
             var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
-            await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+
+            var lastLog = _fakeLogger.Collector.LatestRecord;
+            lastLog.Level.ShouldBe(LogLevel.Error);
+            lastLog.Message.ShouldContain("completed with error");
         }
 
         [Fact]
-        public async Task Handle_ShouldNotSaveChanges_WhenNoChangesDetected()
+        public async Task Handle_ShouldPassThroughResult_WhenDecoratingHandler()
         {
             // Arrange
             var command = new TestVoidCommand { Id = Guid.NewGuid() };
             var cancellationToken = TestContext.Current.CancellationToken;
+            var expectedResult = Result.Success();
             
             _innerHandler.HandleAsync(command, cancellationToken)
-                .Returns(Result.Success());
-            _unitOfWork.HasChanges().Returns(false);
+                .Returns(expectedResult);
 
             // Act
             var result = await _decorator.HandleAsync(command, cancellationToken);
 
             // Assert
-            result.IsSuccess.ShouldBeTrue();
-            await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+            result.ShouldBe(expectedResult);
+            await _innerHandler.Received(1).HandleAsync(command, cancellationToken);
+        }
+
+         [Fact]
+        public async Task Handle_ShouldLogCommandName_WhenProcessing()
+        {
+            // Arrange
+            var command = new TestVoidCommand { Id = Guid.NewGuid() };
+            var cancellationToken = TestContext.Current.CancellationToken;
+            var expectedResult = Result.Success();
+            
+            _innerHandler.HandleAsync(command, cancellationToken)
+                .Returns(expectedResult);
+
+            // Act
+            await _decorator.HandleAsync(command, cancellationToken);
+
+            // Assert
+            var logs = _fakeLogger.Collector.GetSnapshot();
+            logs.ShouldContain(log => log.Message.Contains(nameof(TestVoidCommand)));
         }
     }
 
