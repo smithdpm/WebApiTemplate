@@ -6,7 +6,9 @@ using Cqrs.Decorators.LoggingDecorator;
 using Cqrs.Decorators.Registries;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
+using Cqrs.MessageBroker;
 using Cqrs.Messaging;
+using Cqrs.Outbox;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -59,8 +61,9 @@ public static class CommandRegistrationExtension
             return registry;
         });
 
-        services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
-        
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+        services.AddScoped<IOutboxDispatcher, OutboxDispatcher>();
+        services.AddScoped<IMessageHandler, IntegreationEventMessageHandler>();
 
         return services;
     }

@@ -36,7 +36,7 @@ public sealed class OutboxRepositoryFixture : IAsyncLifetime
                     options.UseSqlServer(databaseConnectionString);
                 });
 
-        services.AddSingleton<IOutboxRepository, OutboxRepository<TestOutboxContext>>();
+        services.AddScoped<IOutboxRepository, OutboxRepository<TestOutboxContext>>();
 
         ServiceProvider = services.BuildServiceProvider();
 

@@ -13,6 +13,7 @@ using Shouldly;
 
 namespace Cqrs.IntegrationTests.Tests;
 
+[Collection("IntegrationEventHandlerTests")]
 public class IntegrationEventHandlerTests : IClassFixture<MultiAppFixture>, IAsyncLifetime
 {
     private readonly TestServer _shopServer;

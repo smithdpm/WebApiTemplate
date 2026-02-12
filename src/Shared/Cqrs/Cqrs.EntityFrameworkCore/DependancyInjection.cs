@@ -1,4 +1,5 @@
-﻿using Cqrs.EntityFrameworkCore.Database;
+﻿using Cqrs.BackgroundServices;
+using Cqrs.EntityFrameworkCore.Database;
 using Cqrs.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,9 +15,9 @@ public static class DependancyInjection
         services.Configure<OutboxConfigurationSettings>(configuration.GetSection("CqrsSettings:OutboxConfiguration"));
 
         services.AddRepository(repositoryImplementation);
-        services.AddSingleton<IOutboxRepository, OutboxRepository<TContext>>();
+        services.AddScoped<IOutboxRepository, OutboxRepository<TContext>>();
         services.AddSingleton<OutboxSaveChangesInterceptor>();
-        services.AddHostedService<OutboxDispatcher>();
+        services.AddHostedService<OutboxDispatcherService>();
 
         return services;
     }

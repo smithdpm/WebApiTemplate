@@ -14,7 +14,7 @@ public static class DependancyInjection
     public static IServiceCollection AddEventServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAzureServiceBus(configuration);
-        services.AddSingleton<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();
+        services.AddScoped<IIntegrationEventDispatcher, ServiceBusEventDispatcher>();   
         return services;
     }
 
@@ -75,7 +75,7 @@ public static class DependancyInjection
         foreach (var topicSubscriber in topicSubscribers)
         {
             services.AddHostedService(provider =>
-            ActivatorUtilities.CreateInstance<TopicSubscriber>(
+            ActivatorUtilities.CreateInstance<ServiceBusWorker>(
                     provider,
                     topicSubscriber)
             );

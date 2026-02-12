@@ -8,28 +8,29 @@ using SharedKernel.Events;
 using System.Text.Json;
 using Cqrs.Outbox;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging.Testing;
 
 namespace Cqrs.EntityFrameworkCore.UnitTests.Database;
 
 public class OutboxDispatcherTests
 {
-    private readonly ILogger<OutboxDispatcher> _logger;
+    private readonly ILogger<OutboxDispatcher> _fakeLogger;
     private readonly IOutboxRepository _outboxRepository;
     private readonly IEventTypeRegistry _eventTypeRegistry;
     private readonly IDomainEventDispatcher _domainEventDispatcher;
     private readonly IIntegrationEventDispatcher _integrationEventDispatcher;
-    private readonly TestableOutboxDispatcher _dispatcher;
+    private readonly OutboxDispatcher _dispatcher;
 
     public OutboxDispatcherTests()
     {
-        _logger = Substitute.For<ILogger<OutboxDispatcher>>();
+        _fakeLogger = new FakeLogger<OutboxDispatcher>();
         _outboxRepository = Substitute.For<IOutboxRepository>();
         _eventTypeRegistry = Substitute.For<IEventTypeRegistry>();
         _domainEventDispatcher = Substitute.For<IDomainEventDispatcher>();
         _integrationEventDispatcher = Substitute.For<IIntegrationEventDispatcher>();
         var options = Options.Create(new OutboxConfigurationSettings());
-        _dispatcher = new TestableOutboxDispatcher(
-            _logger,
+        _dispatcher = new OutboxDispatcher(
+            _fakeLogger,
             _outboxRepository,
             _eventTypeRegistry,
             _domainEventDispatcher,
@@ -49,11 +50,10 @@ public class OutboxDispatcherTests
         
         _eventTypeRegistry.GetTypeByName(nameof(TestDomainEvent)).Returns(typeof(TestDomainEvent));
         
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100); // Cancel after processing
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received().FetchOutboxMessagesForProcessing(
@@ -74,12 +74,11 @@ public class OutboxDispatcherTests
             .Returns(new List<OutboxMessage> { message }, new List<OutboxMessage>());
         
         _eventTypeRegistry.GetTypeByName(nameof(TestDomainEvent)).Returns(typeof(TestDomainEvent));
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _domainEventDispatcher.Received(1).DispatchEventsAsync(
@@ -100,12 +99,11 @@ public class OutboxDispatcherTests
             .Returns(new List<OutboxMessage> { message }, new List<OutboxMessage>());
         
         _eventTypeRegistry.GetTypeByName(nameof(TestIntegrationEvent)).Returns(typeof(TestIntegrationEvent));
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _integrationEventDispatcher.Received(1).DispatchEventsAsync(
@@ -128,12 +126,11 @@ public class OutboxDispatcherTests
         _eventTypeRegistry.GetTypeByName("TestEvent").Returns(typeof(TestDomainEvent));
         _domainEventDispatcher.DispatchEventsAsync(Arg.Any<List<IDomainEvent>>(), Arg.Any<CancellationToken>())
             .Throws(new Exception("Dispatch failed"));
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received(1).MarkMessageAsErrored(
@@ -146,7 +143,10 @@ public class OutboxDispatcherTests
     public async Task ExecuteAsync_ShouldMarkForRetry_WhenAttemptsNotExceeded()
     {
         // Arrange
-        var message = new OutboxMessage("TestEvent", "{}", DateTimeOffset.UtcNow) { Id = 1 };
+        var message = new OutboxMessage("TestEvent", "{}", DateTimeOffset.UtcNow) 
+        { 
+            Id = 1 
+        };
         // Set ProcessingAttempts using reflection since it has internal setter
         typeof(OutboxMessage).GetProperty("ProcessingAttempts")!.SetValue(message, 1);
         
@@ -156,12 +156,11 @@ public class OutboxDispatcherTests
         _eventTypeRegistry.GetTypeByName("TestEvent").Returns(typeof(TestDomainEvent));
         _domainEventDispatcher.DispatchEventsAsync(Arg.Any<List<IDomainEvent>>(), Arg.Any<CancellationToken>())
             .Throws(new Exception("Transient error"));
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received(1).MarkMessageForRetry(
@@ -197,36 +196,15 @@ public class OutboxDispatcherTests
                     throw new Exception("First message failed");
                 return Task.CompletedTask;
             });
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received(1).MarkMessageForRetry(failingMessage.Id, Arg.Any<CancellationToken>());
         await _outboxRepository.Received(1).MarkMessageAsCompleted(successMessage.Id, Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task ExecuteAsync_ShouldStopProcessing_WhenCancellationRequested()
-    {
-        // Arrange
-        var cts = new CancellationTokenSource();
-        
-        _outboxRepository.FetchOutboxMessagesForProcessing(Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
-            .Returns(new List<OutboxMessage>()); // Return empty list
-        
-        cts.Cancel(); // Cancel immediately
-
-        // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
-
-        // Assert
-        // Should exit without throwing exception
-        await _outboxRepository.Received(0).FetchOutboxMessagesForProcessing(
-            Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -240,12 +218,11 @@ public class OutboxDispatcherTests
             .Returns(new List<OutboxMessage> { message }, new List<OutboxMessage>());
         
         _eventTypeRegistry.GetTypeByName(nameof(TestDomainEvent)).Returns(typeof(TestDomainEvent));
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received(1).MarkMessageAsCompleted(message.Id, Arg.Any<CancellationToken>());
@@ -261,12 +238,11 @@ public class OutboxDispatcherTests
             .Returns(new List<OutboxMessage> { message }, new List<OutboxMessage>());
         
         _eventTypeRegistry.GetTypeByName("UnregisteredEvent").Returns((Type)null);
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received(1).MarkMessageAsErrored(
@@ -285,12 +261,11 @@ public class OutboxDispatcherTests
             .Returns(new List<OutboxMessage> { message }, new List<OutboxMessage>());
         
         _eventTypeRegistry.GetTypeByName(nameof(TestDomainEvent)).Returns(typeof(TestDomainEvent));
-        
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(100);
+
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _dispatcher.ExecuteAsync(cts.Token);
+        await _dispatcher.ExecuteAsync(cancellationToken);
 
         // Assert
         await _outboxRepository.Received(1).MarkMessageAsErrored(
@@ -310,25 +285,6 @@ public class OutboxDispatcherTests
         {
             Id = Random.Shared.Next(1, 1000)
         };
-    }
-
-    private class TestableOutboxDispatcher : OutboxDispatcher
-    {
-        public TestableOutboxDispatcher(
-            ILogger<OutboxDispatcher> logger,
-            IOutboxRepository outboxRepository,
-            IEventTypeRegistry eventTypeRegistry,
-            IDomainEventDispatcher domainEventDispatcher,
-            IIntegrationEventDispatcher integrationEventDispatcher,
-            IOptions<OutboxConfigurationSettings> options)
-            : base(logger, outboxRepository, eventTypeRegistry, domainEventDispatcher, integrationEventDispatcher, options)
-        {
-        }
-
-        public new Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            return base.ExecuteAsync(stoppingToken);
-        }
     }
 
     private record TestDomainEvent : DomainEventBase, IDomainEvent

@@ -1,229 +1,72 @@
-using Cqrs.Abstractions.Events;
-using Cqrs.Decorators.Registries;
-using Cqrs.Events.IntegrationEvents;
+using Cqrs.BackgroundServices;
 using Cqrs.IntegrationTests.Fixtures;
 using Cqrs.IntegrationTests.Fixtures.CollectionFixtures;
 using Cqrs.Outbox;
-using Microsoft.Extensions.Options;
 using NSubstitute;
-using Polly;
-using SharedKernel.Events;
+using NSubstitute.ReceivedExtensions;
+using Microsoft.Extensions.Logging.Testing;
 using Shouldly;
 
 namespace Cqrs.IntegrationTests.Tests;
 
 [Collection(nameof(OutboxRepositoryCollection))]
-public class OutboxDispatcherTests : IAsyncLifetime
+public class OutboxDispatcherTests
 {
-    private readonly OutboxRepositoryFixture _outboxRepositoryFixture;
-    private readonly IOutboxRepository _repository;
-    private readonly IEventTypeRegistry _eventTypeRegistry;
-    private readonly IDomainEventDispatcher _domainEventDispatcher;
-    private readonly IIntegrationEventDispatcher _integrationEventDispatcher;
-    private readonly ILogger<OutboxDispatcher> _logger;
+    private FakeLogger<OutboxDispatcherService> _fakeLogger;
+    private readonly IOutboxDispatcher _dispatcherMock;
+    private readonly IHost _host;
 
-    private readonly OutboxDispatcher _outboxDispatcher;
-    
     public OutboxDispatcherTests(OutboxRepositoryFixture outboxRepositoryFixture)
     {
-        _outboxRepositoryFixture = outboxRepositoryFixture;
-        _repository = outboxRepositoryFixture.ServiceProvider.GetRequiredService<IOutboxRepository>();
-        _eventTypeRegistry = Substitute.For<IEventTypeRegistry>();
-        _domainEventDispatcher = Substitute.For<IDomainEventDispatcher>();
-        _integrationEventDispatcher = Substitute.For<IIntegrationEventDispatcher>();
-        _logger = Substitute.For<ILogger<OutboxDispatcher>>();
-        
-        _eventTypeRegistry.GetTypeByName("TestDomainEvent").Returns(typeof(TestDomainEvent));
-        _eventTypeRegistry.GetTypeByName("TestIntegrationEvent").Returns(typeof(TestIntegrationEvent));
-        var options = Options.Create(new OutboxConfigurationSettings());
+        _fakeLogger = new FakeLogger<OutboxDispatcherService>();
+        _dispatcherMock = Substitute.For<IOutboxDispatcher>();
 
-        _outboxDispatcher = new OutboxDispatcher(
-            _logger,
-            _repository,
-            _eventTypeRegistry,
-            _domainEventDispatcher,
-            _integrationEventDispatcher,
-            options);
+
+        _host = Host.CreateDefaultBuilder()
+        .ConfigureServices(services =>
+        {
+            services.AddScoped(_ => _dispatcherMock);
+            services.AddHostedService<OutboxDispatcherService>();
+            services.AddSingleton<ILogger<OutboxDispatcherService>>(_ => _fakeLogger);
+        })
+        .Build();
     }
-
-    public async ValueTask InitializeAsync()
-    {
-        await _outboxRepositoryFixture.CleanDatabaseAsync();
-    }
-
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
 
     [Fact]
     public async Task BackgroundService_ShouldPollContinuously()
     {
         // Arrange
-        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
-
-        var message1 = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
-        var message2 = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"124\"}", DateTimeOffset.UtcNow);
-        context.Set<OutboxMessage>().Add(message1);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(TimeSpan.FromSeconds(2));
+        var cancellationToken = TestContext.Current.CancellationToken;
 
         // Act
-        await _outboxDispatcher.StartAsync(cts.Token);
-        await Task.Delay(500, TestContext.Current.CancellationToken); // Let it run for a bit
-        context.Set<OutboxMessage>().Add(message2);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await Task.Delay(500, TestContext.Current.CancellationToken); // Let it run for a bit
-        await _outboxDispatcher.StopAsync(TestContext.Current.CancellationToken);
+        await _host.StartAsync(cancellationToken);
+        await Task.Delay(500, cancellationToken);
 
         // Assert
-        await _domainEventDispatcher.Received(2).DispatchEventsAsync(
-            Arg.Any<List<IDomainEvent>>(), 
-            Arg.Any<CancellationToken>());
+        await _dispatcherMock.Received(Quantity.Within(5, int.MaxValue))
+            .ExecuteAsync(Arg.Any<CancellationToken>());
+        await _host.StopAsync(cancellationToken);
     }
 
-    [Fact]
-    public async Task BackgroundService_ShouldDispatchToBothDispatchers()
-    {
-        // Arrange
-        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
-        
-        // Add messages with and without destinations
-        var domainMessage = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
-        var integrationMessage = new OutboxMessage("TestIntegrationEvent", "{\"AggregateRootId\":\"456\"}", DateTimeOffset.UtcNow, "test-topic");
-        
-        context.Set<OutboxMessage>().AddRange(domainMessage, integrationMessage);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(TimeSpan.FromSeconds(2));
-
-        // Act
-        await _outboxDispatcher.StartAsync(cts.Token);
-        await WaitForAllMessagesToBeProcessedAsync(TestContext.Current.CancellationToken);
-        await _outboxDispatcher.StopAsync(TestContext.Current.CancellationToken);
-
-        // Assert
-        await _domainEventDispatcher.Received(1).DispatchEventsAsync(
-            Arg.Any<List<IDomainEvent>>(), 
-            Arg.Any<CancellationToken>());
-            
-        await _integrationEventDispatcher.Received(1).DispatchEventsAsync(
-            Arg.Any<List<IntegrationEventBase>>(), 
-            "test-topic", 
-            Arg.Any<CancellationToken>());
-    }
 
     [Fact]
     public async Task BackgroundService_ShouldHandleDispatcherExceptions()
     {
         // Arrange
-        _domainEventDispatcher
-            .DispatchEventsAsync(Arg.Any<List<IDomainEvent>>(), Arg.Any<CancellationToken>())
+        var cancellationToken = TestContext.Current.CancellationToken;
+        _dispatcherMock.ExecuteAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new Exception("Test dispatcher error")));
 
-        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
-        
-        var message = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
-        context.Set<OutboxMessage>().Add(message);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(TimeSpan.FromSeconds(1));
 
         // Act
-        await _outboxDispatcher.StartAsync(cts.Token);
-        await WaitForMessageProcessingAttemptAsync(message.Id, 1, TestContext.Current.CancellationToken);
-        await _outboxDispatcher.StopAsync(TestContext.Current.CancellationToken);
+        await _host.StartAsync(cancellationToken);
+        await Task.Delay(500, cancellationToken);
 
-        // Assert - Message should be marked for retry
-        using var verifyContext = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
-        var updatedMessage = await verifyContext.Set<OutboxMessage>().FindAsync(new object[] { message.Id }, TestContext.Current.CancellationToken);
-        updatedMessage!.ProcessingAttempts.ShouldBeGreaterThan(0);
-    }
-
-    [Fact]
-    public async Task BackgroundService_ShouldRespectMaxAttempts()
-    {
-        // Arrange
-        _domainEventDispatcher
-            .DispatchEventsAsync(Arg.Any<List<IDomainEvent>>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromException(new Exception("Persistent error")));
-
-        using var context = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
-        
-        // Add message and set attempts to threshold (2, so next will be 3rd attempt)
-        var message = new OutboxMessage("TestDomainEvent", "{\"EntityId\":\"123\"}", DateTimeOffset.UtcNow);
-        context.Set<OutboxMessage>().Add(message);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        
-        // Increment attempts to 2 using repository methods
-        await _repository.MarkMessageForRetry(message.Id, TestContext.Current.CancellationToken);
-        await _repository.MarkMessageForRetry(message.Id, TestContext.Current.CancellationToken);
-
-        var cts = new CancellationTokenSource();
-        cts.CancelAfter(TimeSpan.FromSeconds(2));
-
-        // Act
-        await _outboxDispatcher.StartAsync(cts.Token);
-        await WaitForMessageToBeErroredAsync(message.Id, TestContext.Current.CancellationToken);
-        await _outboxDispatcher.StopAsync(TestContext.Current.CancellationToken);
-
-        // Assert - Message should be marked as errored
-        using var verifyContext = await _outboxRepositoryFixture.CreateDbContextAsync(TestContext.Current.CancellationToken);
-        var updatedMessage = await verifyContext.Set<OutboxMessage>().FindAsync(new object[] { message.Id }, TestContext.Current.CancellationToken);
-            
-        updatedMessage!.Error.ShouldNotBeNull();
-        updatedMessage.ProcessedAtUtc.ShouldNotBeNull();
-        updatedMessage.ProcessingAttempts.ShouldBe(3);
-    }
-
-    private Task WaitForAllMessagesToBeProcessedAsync(CancellationToken cancellationToken)
-    {
-        var retryPolicy = Policy
-            .HandleResult<bool>(result => !result)
-            .WaitAndRetryAsync(50, _ => TimeSpan.FromMilliseconds(200));
-
-        return retryPolicy.ExecuteAsync(
-            () => _outboxRepositoryFixture.CheckAllMessagesHaveBeenProcessedAsync());
-    }
-
-    private Task<bool> WaitForMessageProcessingAttemptAsync(int messageId, int expectedAttempts, CancellationToken cancellationToken)
-    {
-        var retryPolicy = Policy
-            .HandleResult<bool>(result => !result)
-            .WaitAndRetryAsync(25, _ => TimeSpan.FromMilliseconds(200));
-
-        return retryPolicy.ExecuteAsync(async () =>
-        {
-            using var context = await _outboxRepositoryFixture.CreateDbContextAsync(cancellationToken);
-            var message = await context.Set<OutboxMessage>()
-                .FindAsync(new object[] { messageId }, cancellationToken);
-            return message?.ProcessingAttempts >= expectedAttempts;
-        });
-    }
-
-    private Task<bool> WaitForMessageToBeErroredAsync(int messageId, CancellationToken cancellationToken)
-    {
-        var retryPolicy = Policy
-            .HandleResult<bool>(result => !result)
-            .WaitAndRetryAsync(25, _ => TimeSpan.FromMilliseconds(200));
-
-        return retryPolicy.ExecuteAsync(async () =>
-        {
-            using var context = await _outboxRepositoryFixture.CreateDbContextAsync(cancellationToken);
-            var message = await context.Set<OutboxMessage>()
-                .FindAsync(new object[] { messageId }, cancellationToken);
-            return message?.Error != null && message.ProcessedAtUtc.HasValue;
-        });
-    }
-
-    private record TestDomainEvent : DomainEventBase, IDomainEvent
-    {
-        public string EntityId { get; init; } = string.Empty;
-    }
-
-    private record TestIntegrationEvent : IntegrationEventBase
-    {
-        public string AggregateRootId { get; init; } = string.Empty;
+        // Assert
+        var log = _fakeLogger.Collector.LatestRecord;
+        log.Level.ShouldBe(LogLevel.Error);
+        log.Message.ShouldContain("Error processing Outbox");
+        log.Exception!.Message.ShouldBe("Test dispatcher error");
+        await _host.StopAsync(cancellationToken);
     }
 }

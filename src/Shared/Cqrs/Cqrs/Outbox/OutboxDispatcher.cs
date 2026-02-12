@@ -1,19 +1,15 @@
 ﻿
-
 using Ardalis.Result;
 using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
 using Cqrs.Events.IntegrationEvents;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.ComponentModel;
 using System.Text.Json;
 
 namespace Cqrs.Outbox;
 
-[EditorBrowsable(EditorBrowsableState.Never)]
-public class OutboxDispatcher : BackgroundService
+public class OutboxDispatcher: IOutboxDispatcher
 {
     private readonly ILogger<OutboxDispatcher> _logger;
     private readonly IOutboxRepository _outboxRepository;
@@ -23,12 +19,12 @@ public class OutboxDispatcher : BackgroundService
     private readonly OutboxConfigurationSettings _settings;
 
     public OutboxDispatcher(
-        ILogger<OutboxDispatcher> logger,
-        IOutboxRepository outboxRepository,
-        IEventTypeRegistry eventTypeRegistry,
-        IDomainEventDispatcher domainEventDispatcher,
-        IIntegrationEventDispatcher integrationEventDispatcher,
-        IOptions<OutboxConfigurationSettings> options)
+    ILogger<OutboxDispatcher> logger,
+    IOutboxRepository outboxRepository,
+    IEventTypeRegistry eventTypeRegistry,
+    IDomainEventDispatcher domainEventDispatcher,
+    IIntegrationEventDispatcher integrationEventDispatcher,
+    IOptions<OutboxConfigurationSettings> options)
     {
         _logger = logger;
         _outboxRepository = outboxRepository;
@@ -38,44 +34,40 @@ public class OutboxDispatcher : BackgroundService
         _settings = options.Value;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            var messages = await _outboxRepository.FetchOutboxMessagesForProcessing(_settings.BatchSize, _settings.LockDurationInSeconds, cancellationToken);
+        var messages = await _outboxRepository.FetchOutboxMessagesForProcessing(_settings.BatchSize, _settings.LockDurationInSeconds, cancellationToken);
 
-            foreach (var message in messages)
+        foreach (var message in messages)
+        {
+            try
             {
-                try
+                if (message.Destination is null)
                 {
-                    if (message.Destination is null)
-                    {
-                        await ProcessDomainEventMessage(message, cancellationToken);
-                    }
-                    else
-                    {
-                        await ProcessIntegrationEventMessage(message, cancellationToken);
-                    }
+                    await ProcessDomainEventMessage(message, cancellationToken);
                 }
-                catch (Exception ex)
+                else
                 {
-                    _logger.LogError(ex, "Error occured while proccessing message Id {OutboxMessageId}. Error: {errorMessage}.",
-                            message.Id, ex.Message);
-                    if (message.ProcessingAttempts >= _settings.MaxProcessingAttempts - 1)
-                    {
-                        _logger.LogError(ex, "Outbox message with Id {OutboxMessageId} has exceeded max processing attempts. Marking as errored.",
-                            message.Id);
-                        await _outboxRepository.MarkMessageAsErrored(message.Id, ex.Message, cancellationToken);
-                    }
-                    else
-                    {
-                        await _outboxRepository.MarkMessageForRetry(message.Id, cancellationToken);
-                    }
+                    await ProcessIntegrationEventMessage(message, cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured while proccessing message Id {OutboxMessageId}. Error: {errorMessage}.",
+                        message.Id, ex.Message);
+                if (message.ProcessingAttempts >= _settings.MaxProcessingAttempts - 1)
+                {
+                    _logger.LogError(ex, "Outbox message with Id {OutboxMessageId} has exceeded max processing attempts. Marking as errored.",
+                        message.Id);
+                    await _outboxRepository.MarkMessageAsErrored(message.Id, ex.Message, cancellationToken);
+                }
+                else
+                {
+                    await _outboxRepository.MarkMessageForRetry(message.Id, cancellationToken);
                 }
             }
         }
     }
-
     private async Task ProcessDomainEventMessage(OutboxMessage message, CancellationToken cancellationToken)
     {
         var domainEventResult = ParseEvent<SharedKernel.Events.IDomainEvent>(message);
