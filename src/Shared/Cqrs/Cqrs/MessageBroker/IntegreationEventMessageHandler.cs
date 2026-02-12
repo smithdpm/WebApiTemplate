@@ -78,7 +78,7 @@ internal class IntegreationEventMessageHandler: IMessageHandler
                 _logger.LogError($"Dead-lettering message {messageId}: DeserializationResultedInNull - Failed to deserialize CloudEvent data to type {eventType.Name}.");
 
                 return MessageStepResult<IIntegrationEvent>.DeadLetter("DeserializationResultedInNull",
-                    string.Format("Failed to deserialize CloudEvent data to type {EventType}.", eventType.Name));
+                    $"Failed to deserialize CloudEvent data to type {eventType.Name}.");
             }
             return MessageStepResult<IIntegrationEvent>.Success(integrationEvent);
         }
