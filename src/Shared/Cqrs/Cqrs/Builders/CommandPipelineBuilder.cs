@@ -1,12 +1,13 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
-using Cqrs.Messaging;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Decorators.AtomicTransactionDecorator;
 using Cqrs.Decorators.IntegrationEventToOutboxDecorator;
 using Cqrs.Decorators.LoggingDecorator;
 using Cqrs.Decorators.ValidationDecorator;
+using Cqrs.Operations.Commands;
+using Cqrs.Operations.Queries;
 
 namespace Cqrs.Builders;
 internal class CommandPipelineBuilder(IServiceCollection services) : ICommandPipelineBuilder

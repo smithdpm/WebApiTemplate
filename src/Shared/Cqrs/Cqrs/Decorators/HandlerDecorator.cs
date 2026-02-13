@@ -6,7 +6,7 @@ using Cqrs.Messaging;
 namespace Cqrs.Decorators;
 
 
-public abstract class HandlerDecorator<TInput, TResult> : HandlerBase<TInput, TResult>
+public abstract class HandlerDecorator<TInput, TResult> : HandlerWithEventsBase<TInput, TResult>
     where TResult : IResult
 {
     private readonly IHandler<TInput, TResult> _innerHandler;

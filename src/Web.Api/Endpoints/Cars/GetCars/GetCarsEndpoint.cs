@@ -4,7 +4,7 @@ using Application.Cars.Get;
 using Application.Cars.GetByMake;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using ReprEndpoints.Endpoints;

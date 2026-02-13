@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Cqrs.Abstractions.Events;
 using Cqrs.Events.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +7,7 @@ using NSubstitute;
 using SharedKernel.Events;
 using Shouldly;
 
-namespace Cqrs.UnitTests.Events;
+namespace Cqrs.UnitTests.Events.DomainEvents;
 
 public class DomainEventDispatcherTests
 {

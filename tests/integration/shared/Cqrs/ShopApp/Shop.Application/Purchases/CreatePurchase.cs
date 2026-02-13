@@ -1,6 +1,6 @@
 ﻿
 using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Database;

@@ -1,5 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Cqrs.MessageBroker;
+using Cqrs.Events.IntegrationEvents.MessageHandling;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

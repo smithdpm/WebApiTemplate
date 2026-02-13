@@ -2,12 +2,12 @@
 using Mapster;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Cqrs.Messaging;
 using ReprEndpoints.Endpoints;
+using Cqrs.Operations.Commands;
 
 namespace Web.Api.Endpoints.Cars.CreateCar;
 
-public class CreateCar3Endpoint : Endpoint<CreateCarRequest>
+public class CreateCarEndpoint : Endpoint<CreateCarRequest>
 {
     protected override string EndpointPath => "api/cars";
 

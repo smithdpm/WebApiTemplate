@@ -1,7 +1,7 @@
-using Cqrs.MessageBroker;
+using Cqrs.Events.IntegrationEvents.MessageHandling;
 using Shouldly;
 
-namespace Cqrs.UnitTests.MessageBroker;
+namespace Cqrs.UnitTests.Events.IntegrationEvents.MessageHandling;
 
 public class MessageResultTests
 {

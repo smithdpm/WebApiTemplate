@@ -1,5 +1,4 @@
-﻿using Cqrs.Abstractions.Events;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SharedKernel.Events;
 using System.ComponentModel;

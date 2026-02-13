@@ -4,7 +4,7 @@ using Cqrs.Messaging;
 
 namespace Cqrs.Events.IntegrationEvents;
 
-public abstract class IntegrationEventHandler<TEvent> : HandlerBase<TEvent, Result>, IIntegrationEventHandler<TEvent>
+public abstract class IntegrationEventHandler<TEvent> : HandlerWithEventsBase<TEvent, Result>, IIntegrationEventHandler<TEvent>
     where TEvent : IIntegrationEvent
 {
     public Type EventType => typeof(TEvent);

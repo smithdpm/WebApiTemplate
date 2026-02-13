@@ -1,6 +1,6 @@
 using Ardalis.Result;
 using Cqrs.Decorators.AtomicTransactionDecorator;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using NSubstitute;
 using Shouldly;
 

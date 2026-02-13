@@ -1,7 +1,6 @@
-﻿
-using SharedKernel.Events;
+﻿using SharedKernel.Events;
 
-namespace Cqrs.Abstractions.Events;
+namespace Cqrs.Events.DomainEvents;
 
 public interface IDomainEventDispatcher
 {

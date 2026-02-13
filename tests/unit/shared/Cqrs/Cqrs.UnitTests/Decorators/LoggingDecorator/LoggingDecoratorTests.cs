@@ -1,10 +1,10 @@
 using Ardalis.Result;
-using Cqrs.Messaging;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Shouldly;
 using Microsoft.Extensions.Logging.Testing;
 using Cqrs.Decorators.LoggingDecorator;
+using Cqrs.Operations.Commands;
 
 namespace Cqrs.UnitTests.Decorators.LoggingDecorator;
 

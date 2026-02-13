@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using SharedKernel.Events;
 
 namespace Cqrs.Decorators.LoggingDecorator;

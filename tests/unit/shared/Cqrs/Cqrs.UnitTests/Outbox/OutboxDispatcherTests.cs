@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
+using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Outbox;
 using Microsoft.Extensions.Logging;

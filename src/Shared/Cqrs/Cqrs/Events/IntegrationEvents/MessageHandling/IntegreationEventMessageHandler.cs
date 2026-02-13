@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
 
-namespace Cqrs.MessageBroker;
+namespace Cqrs.Events.IntegrationEvents.MessageHandling;
 
 public interface IMessageHandler
 {

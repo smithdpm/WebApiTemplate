@@ -1,6 +1,6 @@
 ﻿using Ardalis.Result;
 using Cqrs.Events.DomainEvents;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using Shop.Application.Stock;
 using Shop.Domain.DomainEvents;
 

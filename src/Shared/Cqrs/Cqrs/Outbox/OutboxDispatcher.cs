@@ -1,7 +1,7 @@
 ﻿
 using Ardalis.Result;
-using Cqrs.Abstractions.Events;
 using Cqrs.Decorators.Registries;
+using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

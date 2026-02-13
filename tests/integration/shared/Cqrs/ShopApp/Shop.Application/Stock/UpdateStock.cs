@@ -1,5 +1,5 @@
 ﻿using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using FluentValidation;
 using Shop.Application.Database;
 using Shop.Application.IntegrationEvents.Events;

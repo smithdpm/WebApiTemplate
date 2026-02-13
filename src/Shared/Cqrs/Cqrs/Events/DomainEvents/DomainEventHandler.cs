@@ -4,7 +4,7 @@ using SharedKernel.Events;
 
 namespace Cqrs.Events.DomainEvents;
 
-public abstract class DomainEventHandler<TEvent> : HandlerBase<TEvent, Result>, IDomainEventHandler<TEvent>
+public abstract class DomainEventHandler<TEvent> : HandlerWithEventsBase<TEvent, Result>, IDomainEventHandler<TEvent>
     where TEvent : IDomainEvent
 {
     public Type EventType => typeof(TEvent);

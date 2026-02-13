@@ -1,5 +1,5 @@
 ﻿using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using Product.App.Events;
 using Product.App.Model;
 using SharedKernel.Database;

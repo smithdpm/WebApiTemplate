@@ -1,5 +1,6 @@
 ﻿using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
+using Cqrs.Operations.Queries;
 using Cqrs.Outbox;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;

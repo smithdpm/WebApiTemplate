@@ -1,5 +1,5 @@
 using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 
 namespace Cqrs.ApplicationTestFixture;
 

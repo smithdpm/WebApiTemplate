@@ -182,7 +182,7 @@ public class IntegrationEventToOutboxBehaviourTests
         public string Data { get; init; } = string.Empty;
     }
 
-    private class TestHandlerWithEvents : HandlerBase<string, Result<string>>
+    private class TestHandlerWithEvents : HandlerWithEventsBase<string, Result<string>>
     {
         private Result<string> _result = Result<string>.Success("Success");
 
@@ -197,7 +197,7 @@ public class IntegrationEventToOutboxBehaviourTests
         }
     }
 
-    private class TestHandlerWithException : HandlerBase<string, Result<string>>
+    private class TestHandlerWithException : HandlerWithEventsBase<string, Result<string>>
     {
         public override Task<Result<string>> HandleAsync(string input, CancellationToken cancellationToken)
         {

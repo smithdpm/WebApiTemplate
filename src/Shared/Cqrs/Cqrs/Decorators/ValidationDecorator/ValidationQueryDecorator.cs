@@ -1,6 +1,6 @@
 ﻿using Ardalis.Result;
 using Cqrs.Extensions;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 using FluentValidation;
 
 namespace Cqrs.Decorators.ValidationDecorator;

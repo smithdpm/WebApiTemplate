@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Cqrs.Messaging;
 
-public abstract class HandlerBase<TInput, TResult> : IHandler<TInput, TResult>
+public abstract class HandlerWithEventsBase<TInput, TResult> : IHandler<TInput, TResult>
     where TResult : IResult
 {
     private Dictionary<string, List<IntegrationEventBase>> _integrationEvents = new();

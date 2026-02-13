@@ -1,6 +1,6 @@
 using Ardalis.Result;
 using Cqrs.Decorators.ValidationDecorator;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using FluentValidation;
 using FluentValidation.Results;
 using NSubstitute;

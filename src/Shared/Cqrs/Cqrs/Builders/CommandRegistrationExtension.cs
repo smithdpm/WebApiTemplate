@@ -1,13 +1,12 @@
-﻿
-using Cqrs.Abstractions.Events;
-using Cqrs.Decorators.AtomicTransactionDecorator;
+﻿using Cqrs.Decorators.AtomicTransactionDecorator;
 using Cqrs.Decorators.IntegrationEventToOutboxDecorator;
 using Cqrs.Decorators.LoggingDecorator;
 using Cqrs.Decorators.Registries;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.MessageBroker;
-using Cqrs.Messaging;
+using Cqrs.Events.IntegrationEvents.MessageHandling;
+using Cqrs.Operations.Commands;
+using Cqrs.Operations.Queries;
 using Cqrs.Outbox;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;

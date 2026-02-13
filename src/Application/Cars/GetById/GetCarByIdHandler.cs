@@ -1,9 +1,9 @@
 ﻿using SharedKernel.Database;
-using Cqrs.Messaging;
 using Domain.Cars;
 using Domain.Cars.Specifications;
 using Ardalis.Result;
 using Ardalis.Specification;
+using Cqrs.Operations.Queries;
 
 namespace Application.Cars.GetById;
 

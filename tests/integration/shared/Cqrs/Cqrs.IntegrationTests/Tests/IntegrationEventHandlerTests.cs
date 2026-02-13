@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
 using Cqrs.IntegrationTests.Extensions;
 using Cqrs.IntegrationTests.Fixtures.ClassFixtures;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 using Microsoft.AspNetCore.TestHost;
 using Polly;
 using Product.App.Model;

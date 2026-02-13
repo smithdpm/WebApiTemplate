@@ -3,8 +3,8 @@ using Application.Cars.IntegrationEvents;
 using Ardalis.Result;
 using Domain.Cars;
 using SharedKernel.Database;
-using Cqrs.Messaging;
 using Cqrs.Events.IntegrationEvents;
+using Cqrs.Operations.Commands;
 
 namespace Application.Cars.SellCar;
 

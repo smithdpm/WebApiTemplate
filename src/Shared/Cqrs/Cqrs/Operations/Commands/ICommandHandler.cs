@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
+using Cqrs.Messaging;
 
-namespace Cqrs.Messaging;
+namespace Cqrs.Operations.Commands;
 
 public interface ICommandHandler<in TCommand>: IHandler<TCommand, Result>
     where TCommand: ICommand;

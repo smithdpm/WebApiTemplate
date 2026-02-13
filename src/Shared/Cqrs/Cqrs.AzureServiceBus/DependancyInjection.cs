@@ -1,8 +1,8 @@
 ﻿
 using Azure.Messaging.ServiceBus;
-using Cqrs.Abstractions.Events;
 using Cqrs.AzureServiceBus.Dispatcher;
 using Cqrs.AzureServiceBus.Reciever.Subscriber;
+using Cqrs.Events.IntegrationEvents;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

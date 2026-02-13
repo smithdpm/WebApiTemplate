@@ -1,7 +1,7 @@
 ﻿
 
 using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 
 namespace Cqrs.Decorators;
 

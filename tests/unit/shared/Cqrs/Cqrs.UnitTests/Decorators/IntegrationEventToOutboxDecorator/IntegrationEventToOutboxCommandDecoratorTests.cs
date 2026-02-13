@@ -1,7 +1,7 @@
 using Ardalis.Result;
 using Cqrs.Decorators.IntegrationEventToOutboxDecorator;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using NSubstitute;
 using Shouldly;
 

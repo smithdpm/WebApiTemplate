@@ -3,13 +3,13 @@ using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
 using Shouldly;
 
-namespace Cqrs.UnitTests.Events.IntegrationEvents;
+namespace Cqrs.UnitTests.Operations;
 
-public class HandlerBaseTests
+public class HandlerWithEventsBaseTests
 {
     private readonly TestHandler _testHandler;
 
-    public HandlerBaseTests()
+    public HandlerWithEventsBaseTests()
     {
         _testHandler = new TestHandler();
     }
@@ -76,7 +76,7 @@ public class HandlerBaseTests
         public string Data { get; init; } = string.Empty;
     }
 
-    public class TestHandler : HandlerBase<string, Result<string>>
+    public class TestHandler : HandlerWithEventsBase<string, Result<string>>
     {
         public Guid EventId { get; init; }
         public string Data { get; init; } = string.Empty;

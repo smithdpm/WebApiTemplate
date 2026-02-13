@@ -12,6 +12,8 @@ using Cqrs.DomainTestFixture;
 using Cqrs.Events.DomainEvents;
 using Cqrs.Events.IntegrationEvents;
 using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
+using Cqrs.Operations.Queries;
 using Cqrs.Outbox;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;

@@ -1,6 +1,4 @@
-﻿
-using Cqrs.Abstractions.Events;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Cqrs.Events.IntegrationEvents;
 

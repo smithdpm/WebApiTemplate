@@ -1,5 +1,5 @@
 using Cqrs.Extensions;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using FluentValidation;
 using FluentValidation.Results;
 using NSubstitute;

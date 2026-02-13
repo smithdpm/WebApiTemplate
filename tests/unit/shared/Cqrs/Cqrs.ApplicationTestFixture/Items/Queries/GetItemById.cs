@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
 using Cqrs.ApplicationTestFixture.Database;
 using Cqrs.DomainTestFixture;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 
 namespace Cqrs.ApplicationTestFixture.Items.Queries;
 

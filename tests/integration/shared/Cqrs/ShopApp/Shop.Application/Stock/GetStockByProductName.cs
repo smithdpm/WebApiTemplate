@@ -1,5 +1,5 @@
 ﻿using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Database;
 using Shop.Domain.Aggregates.Stock;

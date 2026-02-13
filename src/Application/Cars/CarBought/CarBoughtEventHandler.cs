@@ -1,7 +1,7 @@
 ﻿using Application.Cars.Create;
 using Ardalis.Result;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 
 namespace Application.Cars.CarBought;
 public class CarBoughtEventHandler(ICommandHandler<CreateCarCommand, Guid> handler) : IntegrationEventHandler<CarBoughtIntegrationEvent>

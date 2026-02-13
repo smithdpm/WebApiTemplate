@@ -2,15 +2,15 @@ using Azure.Messaging;
 using Ardalis.Result;
 using Cqrs.Decorators.Registries;
 using Cqrs.Events.IntegrationEvents;
-using Cqrs.MessageBroker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using Shouldly;
 using System.Text.Json;
+using Cqrs.Events.IntegrationEvents.MessageHandling;
 
-namespace Cqrs.UnitTests.MessageBroker;
+namespace Cqrs.UnitTests.Events.IntegrationEvents.MessageHandling;
 
 public class IntegrationEventMessageHandlerTests
 {

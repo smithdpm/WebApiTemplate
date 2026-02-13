@@ -1,4 +1,4 @@
-﻿namespace Cqrs.MessageBroker;
+﻿namespace Cqrs.Events.IntegrationEvents.MessageHandling;
 
 public record MessageResult
     (MessageResultStatus Status,

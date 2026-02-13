@@ -2,7 +2,7 @@
 using Cqrs.IntegrationTests.Extensions;
 using Cqrs.IntegrationTests.Fixtures.AssembleyFixtures;
 using Cqrs.IntegrationTests.Fixtures.ClassFixtures;
-using Cqrs.Messaging;
+using Cqrs.Operations.Commands;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Shop.Application.Database;

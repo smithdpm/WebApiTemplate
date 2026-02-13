@@ -2,7 +2,7 @@
 using Application.Cars.GetById;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 using Mapster;
 using ReprEndpoints.Endpoints;
 
