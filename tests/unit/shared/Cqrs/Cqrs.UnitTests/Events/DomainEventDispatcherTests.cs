@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using Cqrs.Abstractions.Events;
 using Cqrs.Events.DomainEvents;
 using Microsoft.Extensions.DependencyInjection;
@@ -73,12 +74,19 @@ public class DomainEventDispatcherTests
         var event1 = new TestDomainEvent { EntityId = Guid.NewGuid(), Name = "Event1" };
         var event2 = new TestDomainEvent { EntityId = Guid.NewGuid(), Name = "Event2" };
         var events = new[] { event1, event2 };
+        var resolvedRealHandlers = new List<TestHandlerWithScopedContext>();
+        _services.AddScoped<ScopedContextObject>();
+        _services.AddScoped<IDomainEventHandler<TestDomainEvent>>(sp =>
+        {
+            var handler = new TestHandlerWithScopedContext(sp.GetRequiredService<ScopedContextObject>());
+            resolvedRealHandlers.Add(handler);
+            return handler;
+        });
 
-        RegisterMockHandlerForEventType<TestDomainEvent>("handler1");
-        
         _services.AddFakeLogging();
         
         _services.AddSingleton<IDomainEventDispatcher, DomainEventDispatcher>();
+
         var serviceProvider = _services.BuildServiceProvider();
         var dispatcher = serviceProvider.GetRequiredService<IDomainEventDispatcher>();
 
@@ -88,9 +96,8 @@ public class DomainEventDispatcherTests
         await dispatcher.DispatchEventsAsync(events, cancellationToken);
 
         // Assert
-        _resolvedMockHandlers["handler1"].Count.ShouldBe(2);
-        await _resolvedMockHandlers["handler1"][0].Received(1).HandleAsync(event1, cancellationToken);
-        await _resolvedMockHandlers["handler1"][1].Received(1).HandleAsync(event2, cancellationToken);
+        resolvedRealHandlers.Count.ShouldBe(2);
+        resolvedRealHandlers[0].ScopedContextObject.Id.ShouldNotBe(resolvedRealHandlers[1].ScopedContextObject.Id);
     }
 
     [Fact]
@@ -121,8 +128,6 @@ public class DomainEventDispatcherTests
 
     private void RegisterMockHandlerForEventType<TEvent>(string handlerKey) where TEvent : IDomainEvent
     {
-        //var eventandlerType = typeof(IDomainEventHandler<>).MakeGenericType(typeof(TEvent));
-
         _services.AddScoped<IDomainEventHandler<TEvent>>(sp =>
         {
             var mockHandler = Substitute.For<IDomainEventHandler<TEvent>>();
@@ -143,4 +148,17 @@ public class DomainEventDispatcherTests
     {
         public Guid EntityId { get; init; }
     }
+
+    public class TestHandlerWithScopedContext(ScopedContextObject scopedContextObject) : DomainEventHandler<TestDomainEvent>
+    {
+        public Guid EventId { get; init; }
+        public string Data { get; init; } = string.Empty;
+        public ScopedContextObject ScopedContextObject { get; init; } = scopedContextObject;
+
+        public override Task<Result> HandleAsync(TestDomainEvent input, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(Result.Success());
+        }
+    }
+    public class ScopedContextObject { public Guid Id { get; init; } = Guid.NewGuid(); }
 }
