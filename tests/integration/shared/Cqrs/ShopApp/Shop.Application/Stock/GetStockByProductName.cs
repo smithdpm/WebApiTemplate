@@ -11,7 +11,7 @@ public record GetStockByProductNameQuery(string ProductName) : IQuery<ProductSto
 
 public class GetStockByProductNameQueryHandler(ApplicationDbContext applicationDbContext) : IQueryHandler<GetStockByProductNameQuery, ProductStock>
 {
-    public async Task<Result<ProductStock>> Handle(GetStockByProductNameQuery query, CancellationToken cancellationToken)
+    public async Task<Result<ProductStock>> HandleAsync(GetStockByProductNameQuery query, CancellationToken cancellationToken)
     {
         var result = await applicationDbContext.ProductStocks
             .Where(ps => ps.ProductName == query.ProductName)

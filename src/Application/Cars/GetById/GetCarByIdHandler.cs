@@ -9,7 +9,7 @@ namespace Application.Cars.GetById;
 
 public class GetCarByIdHandler(IReadRepository<Car> repository) : IQueryHandler<GetCarByIdQuery, CarDto>
 {
-    public async Task<Result<CarDto>> Handle(GetCarByIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<CarDto>> HandleAsync(GetCarByIdQuery query, CancellationToken cancellationToken)
     {
         var spec = new GetCarDtoByIdSpec(query.CarId);
         

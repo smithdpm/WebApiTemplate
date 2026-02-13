@@ -11,7 +11,7 @@ public record GetAllStockQuery(int MaximumProductsReturned): IQuery<List<Product
 
 public class GetAllStockQueryHandler(ApplicationDbContext applicationDbContext) : IQueryHandler<GetAllStockQuery, List<ProductStock>>
 {
-    public async Task<Result<List<ProductStock>>> Handle(GetAllStockQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<ProductStock>>> HandleAsync(GetAllStockQuery query, CancellationToken cancellationToken)
     {
         return await applicationDbContext.ProductStocks
             .Take(query.MaximumProductsReturned) 

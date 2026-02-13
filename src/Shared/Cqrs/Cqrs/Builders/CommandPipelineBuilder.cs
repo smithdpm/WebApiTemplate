@@ -57,6 +57,7 @@ internal class CommandPipelineBuilder(IServiceCollection services) : ICommandPip
     {
         Services.TryDecorate(typeof(ICommandHandler<,>), typeof(ValidationCommandDecorator<,>));
         Services.TryDecorate(typeof(ICommandHandler<>), typeof(ValidationCommandDecorator<>));
+        Services.TryDecorate(typeof(IQueryHandler<,>), typeof(ValidationQueryDecorator<,>));
         return this;
     }
 }

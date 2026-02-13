@@ -17,7 +17,7 @@ public class GetCarByIdEndpoint : NoRequestEndpoint<GetCarByIdResponse>
             CancellationToken cancellationToken) =>
             {
                 var query = new GetCarByIdQuery(id);
-                Result<CarDto> result = await handler.Handle(query, cancellationToken);
+                Result<CarDto> result = await handler.HandleAsync(query, cancellationToken);
                 return result
                     .Map(carDto => carDto.Adapt<GetCarByIdResponse>())
                     .ToMinimalApiResult();

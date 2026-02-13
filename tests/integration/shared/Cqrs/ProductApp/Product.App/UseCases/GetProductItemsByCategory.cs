@@ -11,7 +11,7 @@ public record GetProductItemsByCategoryQuery(string Category) : IQuery<List<Prod
 
 public class GetProductItemsByCategoryQueryHandler(IRepository<ProductItem> repository) : IQueryHandler<GetProductItemsByCategoryQuery, List<ProductItem>>
 {
-    public async Task<Result<List<ProductItem>>> Handle(GetProductItemsByCategoryQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<ProductItem>>> HandleAsync(GetProductItemsByCategoryQuery query, CancellationToken cancellationToken)
     {
         var spec = new ProductItemByCategorySpec(query.Category);
         var result = await repository

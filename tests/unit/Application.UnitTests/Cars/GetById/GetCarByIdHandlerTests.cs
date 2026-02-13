@@ -36,7 +36,7 @@ public class GetCarByIdHandlerTests
         await _repository.SingleOrDefaultAsync(Arg.Do<ISingleResultSpecification<Car, CarDto>>(arg => capturedSpec = arg), Arg.Any<CancellationToken>());
 
         // Act
-        var result = await _handler.Handle(query, cancellationToken);
+        var result = await _handler.HandleAsync(query, cancellationToken);
 
         // Assert
         capturedSpec.ShouldNotBeNull();
@@ -59,7 +59,7 @@ public class GetCarByIdHandlerTests
             .Returns(testCar);
 
         // Act
-        var result = await _handler.Handle(query, cancellationToken);
+        var result = await _handler.HandleAsync(query, cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -81,7 +81,7 @@ public class GetCarByIdHandlerTests
             .ReturnsNull();
 
         // Act
-        var result = await _handler.Handle(query, cancellationToken);
+        var result = await _handler.HandleAsync(query, cancellationToken);
 
         // Assert
         result.IsSuccess.ShouldBeFalse();

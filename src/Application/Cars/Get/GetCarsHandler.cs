@@ -7,7 +7,7 @@ namespace Application.Cars.Get;
 
 public class GetCarsHandler(IRepository<Car> repository) : IQueryHandler<GetCarsQuery, List<CarDto>>
 {
-    public async Task<Result<List<CarDto>>> Handle(GetCarsQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<CarDto>>> HandleAsync(GetCarsQuery query, CancellationToken cancellationToken)
     {
         var cars = await repository.ListAsync(cancellationToken);
 

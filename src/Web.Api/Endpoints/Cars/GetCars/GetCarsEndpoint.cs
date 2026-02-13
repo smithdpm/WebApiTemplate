@@ -30,7 +30,7 @@ public class GetCarsEndpoint : NoRequestEndpoint<GetCarsResponse>
         if (string.IsNullOrWhiteSpace(make))
         {
             var query = new GetCarsQuery(null, null);
-            Result<List<CarDto>> results = await getAllHandler.Handle(query, cancellationToken);
+            Result<List<CarDto>> results = await getAllHandler.HandleAsync(query, cancellationToken);
 
             return results.Map(cars => new GetCarsResponse(cars.Adapt<List<Car>>()))
                 .ToMinimalApiResult();
@@ -38,7 +38,7 @@ public class GetCarsEndpoint : NoRequestEndpoint<GetCarsResponse>
         else
         {
             var query = new GetCarsByMakeQuery(make);
-            var results = await getByMakeHandler.Handle(query, cancellationToken);
+            var results = await getByMakeHandler.HandleAsync(query, cancellationToken);
 
             return results.Map(cars => new GetCarsResponse(cars.Adapt<List<Car>>()))
                 .ToMinimalApiResult();

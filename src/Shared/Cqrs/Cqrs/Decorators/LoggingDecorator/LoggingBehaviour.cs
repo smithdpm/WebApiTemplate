@@ -20,7 +20,7 @@ public class LoggingBehaviour(ILogger<LoggingBehaviour> logger): ILoggingBehavio
         }
         else
         {
-            using (LogContext.PushProperty("CommandName", result.Errors, true))
+            using (LogContext.PushProperty("OperationName", result.Errors, true))
             {
                 logger.LogError("Operation {OperationName} completed with error", operationName);
             }

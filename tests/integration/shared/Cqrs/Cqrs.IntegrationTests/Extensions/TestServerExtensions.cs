@@ -45,7 +45,7 @@ public static class TestServerExtensions
 
         var handler = productScope.ServiceProvider.GetRequiredService<IQueryHandler<TQuery, TResponse>>();
 
-        return await handler.Handle(query, cancellationToken);
+        return await handler.HandleAsync(query, cancellationToken);
     }
 
     public static async Task<bool> WaitForOutboxToCompleteMessages<TDbContext>(this TestServer testServer, CancellationToken cancellationToken)
