@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\Shared\Cqrs\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\Shared\CommandMessaging\CommandMessaging\CommandMessaging.csproj" />
     <ProjectReference Include="..\Shared\RepositoryCaching\RepositoryCaching\RepositoryCaching.csproj" />
     <ProjectReference Include="..\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
   </ItemGroup>

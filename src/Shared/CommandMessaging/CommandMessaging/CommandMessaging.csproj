@@ -12,8 +12,8 @@
   <ItemGroup>
     <InternalsVisibleTo Include="UnitTests" />
     <InternalsVisibleTo Include="ComponentTests" />
-    <InternalsVisibleTo Include="Cqrs.UnitTests" />
-    <InternalsVisibleTo Include="Cqrs.IntegrationTests" />
+    <InternalsVisibleTo Include="CommandMessaging.UnitTests" />
+    <InternalsVisibleTo Include="CommandMessaging.IntegrationTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
   <ItemGroup>

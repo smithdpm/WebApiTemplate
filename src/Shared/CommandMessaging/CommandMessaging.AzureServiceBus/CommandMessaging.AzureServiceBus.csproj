@@ -5,7 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\CommandMessaging\CommandMessaging.csproj" />
   </ItemGroup>
 
 </Project>

@@ -30,8 +30,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\src\Application\Application.csproj" />
-    <ProjectReference Include="..\..\..\..\..\src\Shared\Cqrs\Cqrs.AzureServiceBus\Cqrs.AzureServiceBus.csproj" />
-    <ProjectReference Include="..\..\..\..\..\src\Shared\Cqrs\Cqrs.EntityFrameworkCore\Cqrs.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\..\..\src\Shared\CommandMessaging\CommandMessaging.AzureServiceBus\CommandMessaging.AzureServiceBus.csproj" />
+    <ProjectReference Include="..\..\..\..\..\src\Shared\CommandMessaging\CommandMessaging.EntityFrameworkCore\CommandMessaging.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\..\..\..\src\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
     <ProjectReference Include="..\ProductApp\Product.App\Product.App.csproj" />
     <ProjectReference Include="..\ShopApp\Shop.Application\Shop.Application.csproj" />

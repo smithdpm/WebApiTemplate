@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\CommandMessaging\CommandMessaging.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="UnitTests" />
     <InternalsVisibleTo Include="ComponentTests" />
-    <InternalsVisibleTo Include="Cqrs.EntityFrameworkCore.UnitTests" />
-    <InternalsVisibleTo Include="Cqrs.IntegrationTests" />
+    <InternalsVisibleTo Include="CommandMessaging.EntityFrameworkCore.UnitTests" />
+    <InternalsVisibleTo Include="CommandMessaging.IntegrationTests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
   <ItemGroup>

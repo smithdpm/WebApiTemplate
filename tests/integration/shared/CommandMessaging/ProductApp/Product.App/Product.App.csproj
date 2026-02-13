@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\src\Shared\CommandMessaging\CommandMessaging.AzureServiceBus\CommandMessaging.AzureServiceBus.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\src\Shared\CommandMessaging\CommandMessaging.EntityFrameworkCore\CommandMessaging.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\src\Shared\CommandMessaging\CommandMessaging\CommandMessaging.csproj" />
+  </ItemGroup>
+
+</Project>

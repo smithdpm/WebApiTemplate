@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\src\Shared\Cqrs\Cqrs\Cqrs.csproj" />
+    <ProjectReference Include="..\..\..\..\..\src\Shared\CommandMessaging\CommandMessaging\CommandMessaging.csproj" />
     <ProjectReference Include="..\..\..\..\..\src\Shared\SharedKernel\SharedKernel\SharedKernel.csproj" />
-    <ProjectReference Include="..\Cqrs.DomainTestFixture\Cqrs.DomainTestFixture.csproj" />
-    <ProjectReference Include="..\Cqrs.ApplicationTestFixture\Cqrs.ApplicationTestFixture.csproj" />
+    <ProjectReference Include="..\CommandMessaging.DomainTestFixture\CommandMessaging.DomainTestFixture.csproj" />
+    <ProjectReference Include="..\CommandMessaging.ApplicationTestFixture\CommandMessaging.ApplicationTestFixture.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,7 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\src\Domain\Domain.csproj" />
-    <ProjectReference Include="..\..\..\src\Shared\Cqrs\Cqrs.EntityFrameworkCore\Cqrs.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\src\Shared\CommandMessaging\CommandMessaging.EntityFrameworkCore\CommandMessaging.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
