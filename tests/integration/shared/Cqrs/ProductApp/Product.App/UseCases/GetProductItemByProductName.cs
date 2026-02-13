@@ -13,9 +13,9 @@ public record GetProductItemByProductNameQuery
 
 
 
-public class GetProductItemByProductNameQueryHandler(IRepository<ProductItem> repository) : IQueryHandler<GetProductItemByProductNameQuery, ProductItem>
+public class GetProductItemByProductNameQueryHandler(IRepository<ProductItem> repository) : QueryHandler<GetProductItemByProductNameQuery, ProductItem>
 {
-    public async Task<Result<ProductItem>> HandleAsync(GetProductItemByProductNameQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<ProductItem>> HandleAsync(GetProductItemByProductNameQuery query, CancellationToken cancellationToken)
     {
         var spec = new ProductItemByProductNameSpec(query.ProductName);
         var result = await repository.FirstOrDefaultAsync(spec, cancellationToken);

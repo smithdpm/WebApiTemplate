@@ -7,9 +7,9 @@ using Ardalis.Specification;
 
 namespace Application.Cars.GetById;
 
-public class GetCarByIdHandler(IReadRepository<Car> repository) : IQueryHandler<GetCarByIdQuery, CarDto>
+public class GetCarByIdHandler(IReadRepository<Car> repository) : QueryHandler<GetCarByIdQuery, CarDto>
 {
-    public async Task<Result<CarDto>> HandleAsync(GetCarByIdQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<CarDto>> HandleAsync(GetCarByIdQuery query, CancellationToken cancellationToken)
     {
         var spec = new GetCarDtoByIdSpec(query.CarId);
         

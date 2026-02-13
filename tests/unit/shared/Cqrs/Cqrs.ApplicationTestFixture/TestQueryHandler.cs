@@ -3,9 +3,9 @@ using Cqrs.Messaging;
 
 namespace Cqrs.ApplicationTestFixture;
 
-public class TestQueryHandler : IQueryHandler<TestQuery, string>
+public class TestQueryHandler : QueryHandler<TestQuery, string>
 {
-    public Task<Result<string>> HandleAsync(TestQuery query, CancellationToken cancellationToken)
+    public override Task<Result<string>> HandleAsync(TestQuery query, CancellationToken cancellationToken)
     {
         return Task.FromResult(Result<string>.Success("Success"));
     }

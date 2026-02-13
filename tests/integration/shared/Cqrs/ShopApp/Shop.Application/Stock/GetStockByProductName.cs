@@ -9,9 +9,9 @@ namespace Shop.Application.Stock;
 
 public record GetStockByProductNameQuery(string ProductName) : IQuery<ProductStock>;
 
-public class GetStockByProductNameQueryHandler(ApplicationDbContext applicationDbContext) : IQueryHandler<GetStockByProductNameQuery, ProductStock>
+public class GetStockByProductNameQueryHandler(ApplicationDbContext applicationDbContext) : QueryHandler<GetStockByProductNameQuery, ProductStock>
 {
-    public async Task<Result<ProductStock>> HandleAsync(GetStockByProductNameQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<ProductStock>> HandleAsync(GetStockByProductNameQuery query, CancellationToken cancellationToken)
     {
         var result = await applicationDbContext.ProductStocks
             .Where(ps => ps.ProductName == query.ProductName)

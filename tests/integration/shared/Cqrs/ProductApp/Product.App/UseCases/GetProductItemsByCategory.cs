@@ -9,9 +9,9 @@ namespace Product.App.UseCases;
 
 public record GetProductItemsByCategoryQuery(string Category) : IQuery<List<ProductItem>>;
 
-public class GetProductItemsByCategoryQueryHandler(IRepository<ProductItem> repository) : IQueryHandler<GetProductItemsByCategoryQuery, List<ProductItem>>
+public class GetProductItemsByCategoryQueryHandler(IRepository<ProductItem> repository) : QueryHandler<GetProductItemsByCategoryQuery, List<ProductItem>>
 {
-    public async Task<Result<List<ProductItem>>> HandleAsync(GetProductItemsByCategoryQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<List<ProductItem>>> HandleAsync(GetProductItemsByCategoryQuery query, CancellationToken cancellationToken)
     {
         var spec = new ProductItemByCategorySpec(query.Category);
         var result = await repository

@@ -9,9 +9,9 @@ namespace Shop.Application.Stock;
 
 public record GetAllStockQuery(int MaximumProductsReturned): IQuery<List<ProductStock>>;
 
-public class GetAllStockQueryHandler(ApplicationDbContext applicationDbContext) : IQueryHandler<GetAllStockQuery, List<ProductStock>>
+public class GetAllStockQueryHandler(ApplicationDbContext applicationDbContext) : QueryHandler<GetAllStockQuery, List<ProductStock>>
 {
-    public async Task<Result<List<ProductStock>>> HandleAsync(GetAllStockQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<List<ProductStock>>> HandleAsync(GetAllStockQuery query, CancellationToken cancellationToken)
     {
         return await applicationDbContext.ProductStocks
             .Take(query.MaximumProductsReturned) 
