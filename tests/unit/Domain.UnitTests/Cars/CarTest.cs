@@ -1,6 +1,6 @@
 ﻿using Domain.Cars;
 using Domain.Cars.Events;
-using Infrastructure.IdentityGeneration;
+using Domain.UnitTests.TestHelpers;
 using Shouldly;
 
 namespace Domain.UnitTests.Cars;
@@ -10,7 +10,7 @@ public class CarTest
     private readonly CarFactory _carFactory;
     public CarTest()
     {
-        _carFactory = new CarFactory(new UuidSqlServerFriendlyGenerator());
+        _carFactory = new CarFactory(new IdGenerator());
     }
 
     [Fact]

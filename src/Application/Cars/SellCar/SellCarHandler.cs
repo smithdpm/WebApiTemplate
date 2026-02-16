@@ -3,14 +3,14 @@ using Application.Cars.IntegrationEvents;
 using Ardalis.Result;
 using Domain.Cars;
 using SharedKernel.Database;
-using Cqrs.Messaging;
 using Cqrs.Events.IntegrationEvents;
+using Cqrs.Operations.Commands;
 
 namespace Application.Cars.SellCar;
 
-internal class SellCarHandler(IRepository<Car> repository) : HasIntegrationEvents, ICommandHandler<SellCarCommand>
+internal class SellCarHandler(IRepository<Car> repository) : CommandHandler<SellCarCommand>
 {
-    public async Task<Result> Handle(SellCarCommand command, CancellationToken cancellationToken)
+    public override async Task<Result> HandleAsync(SellCarCommand command, CancellationToken cancellationToken)
     {
         var car = await repository.GetByIdAsync(command.CarId, cancellationToken);
 
@@ -21,7 +21,7 @@ internal class SellCarHandler(IRepository<Car> repository) : HasIntegrationEvent
 
         if(result.IsSuccess)
         {
-            AddIntegrationEvent("cars-events", new CarSoldIntegrationEvent(car.Id, (DateTime)car.SoldAt!, (decimal)car.SoldPrice!));
+            AddIntegrationEvent(new CarSoldIntegrationEvent(car.Id, (DateTime)car.SoldAt!, (decimal)car.SoldPrice!));
             await repository.UpdateAsync(car, cancellationToken);
         }           
 

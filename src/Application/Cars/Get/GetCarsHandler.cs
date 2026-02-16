@@ -1,13 +1,13 @@
 ﻿using SharedKernel.Database;
 using Domain.Cars;
 using Ardalis.Result;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 
 namespace Application.Cars.Get;
 
-public class GetCarsHandler(IRepository<Car> repository) : IQueryHandler<GetCarsQuery, List<CarDto>>
+public class GetCarsHandler(IRepository<Car> repository) : QueryHandler<GetCarsQuery, List<CarDto>>
 {
-    public async Task<Result<List<CarDto>>> Handle(GetCarsQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<List<CarDto>>> HandleAsync(GetCarsQuery query, CancellationToken cancellationToken)
     {
         var cars = await repository.ListAsync(cancellationToken);
 

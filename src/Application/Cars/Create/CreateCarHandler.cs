@@ -1,13 +1,13 @@
 ﻿using SharedKernel.Database;
-using Cqrs.Messaging;
 using Ardalis.Result;
 using Domain.Cars;
+using Cqrs.Operations.Commands;
 
 namespace Application.Cars.Create
 {
-    public class CreateCarHandler(IRepository<Car> repository, ICarFactory factory) : ICommandHandler<CreateCarCommand, Guid>
+    public class CreateCarHandler(IRepository<Car> repository, ICarFactory factory) : CommandHandler<CreateCarCommand, Guid>
     {
-        public async Task<Result<Guid>> Handle(CreateCarCommand command, CancellationToken cancellationToken)
+        public override async Task<Result<Guid>> HandleAsync(CreateCarCommand command, CancellationToken cancellationToken)
         {
             var newCar = factory.Create(command.Make, command.Model, command.Year, command.Mileage, command.Price);
 

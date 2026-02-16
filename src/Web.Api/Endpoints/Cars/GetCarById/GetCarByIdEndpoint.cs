@@ -2,7 +2,7 @@
 using Application.Cars.GetById;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Cqrs.Messaging;
+using Cqrs.Operations.Queries;
 using Mapster;
 using ReprEndpoints.Endpoints;
 
@@ -17,7 +17,7 @@ public class GetCarByIdEndpoint : NoRequestEndpoint<GetCarByIdResponse>
             CancellationToken cancellationToken) =>
             {
                 var query = new GetCarByIdQuery(id);
-                Result<CarDto> result = await handler.Handle(query, cancellationToken);
+                Result<CarDto> result = await handler.HandleAsync(query, cancellationToken);
                 return result
                     .Map(carDto => carDto.Adapt<GetCarByIdResponse>())
                     .ToMinimalApiResult();

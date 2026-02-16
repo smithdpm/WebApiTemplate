@@ -1,15 +1,15 @@
 ﻿using SharedKernel.Database;
-using Cqrs.Messaging;
 using Domain.Cars;
 using Domain.Cars.Specifications;
 using Ardalis.Result;
 using Ardalis.Specification;
+using Cqrs.Operations.Queries;
 
 namespace Application.Cars.GetById;
 
-public class GetCarByIdHandler(IReadRepository<Car> repository) : IQueryHandler<GetCarByIdQuery, CarDto>
+public class GetCarByIdHandler(IReadRepository<Car> repository) : QueryHandler<GetCarByIdQuery, CarDto>
 {
-    public async Task<Result<CarDto>> Handle(GetCarByIdQuery query, CancellationToken cancellationToken)
+    public override async Task<Result<CarDto>> HandleAsync(GetCarByIdQuery query, CancellationToken cancellationToken)
     {
         var spec = new GetCarDtoByIdSpec(query.CarId);
         

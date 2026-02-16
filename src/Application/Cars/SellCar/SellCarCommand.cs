@@ -1,4 +1,4 @@
-﻿using Cqrs.Messaging;
+﻿using Cqrs.Operations.Commands;
 
 namespace Application.Cars.SellCar;
 

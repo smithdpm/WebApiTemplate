@@ -1,7 +1,6 @@
 ﻿using Domain.Cars;
 using Domain.Cars.Specifications;
-using Infrastructure.IdentityGeneration;
-using NSubstitute;
+using Domain.UnitTests.TestHelpers;
 using Shouldly;
 
 namespace Domain.UnitTests.Cars.Specifications;
@@ -11,7 +10,7 @@ public class CarByIdSpecTests
     private readonly CarFactory _carFactory;
     public CarByIdSpecTests()
     {
-        _carFactory = new CarFactory(new UuidSqlServerFriendlyGenerator());
+        _carFactory = new CarFactory(new IdGenerator());
     }
 
     [Fact()]

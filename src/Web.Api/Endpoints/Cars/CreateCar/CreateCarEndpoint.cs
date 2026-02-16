@@ -2,12 +2,12 @@
 using Mapster;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Cqrs.Messaging;
 using ReprEndpoints.Endpoints;
+using Cqrs.Operations.Commands;
 
 namespace Web.Api.Endpoints.Cars.CreateCar;
 
-public class CreateCar3Endpoint : Endpoint<CreateCarRequest>
+public class CreateCarEndpoint : Endpoint<CreateCarRequest>
 {
     protected override string EndpointPath => "api/cars";
 
@@ -21,7 +21,7 @@ public class CreateCar3Endpoint : Endpoint<CreateCarRequest>
     protected override Delegate Handler => 
         async (CreateCarRequest request, ICommandHandler<CreateCarCommand, Guid> handler, CancellationToken cancellationToken) =>
     {
-        Result<Guid> result = await handler.Handle(request.Adapt<CreateCarCommand>(), cancellationToken);
+        Result<Guid> result = await handler.HandleAsync(request.Adapt<CreateCarCommand>(), cancellationToken);
 
         return result.ToMinimalApiResult();
     };

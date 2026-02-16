@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.2.11408.102 d18.0
+VisualStudioVersion = 18.2.11408.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -19,9 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{ACE3B5F6-02E0-E5E3-B283-044C1171AFDE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cqrs", "Cqrs", "{18D22988-DD82-4A6E-AD5A-9CC8CAAF7C0B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommandMessaging", "CommandMessaging", "{18D22988-DD82-4A6E-AD5A-9CC8CAAF7C0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cqrs", "src\Shared\Cqrs\Cqrs\Cqrs.csproj", "{B47EDDC0-C54A-4393-9CCC-DFF7A2BCBB80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging", "src\Shared\CommandMessaging\CommandMessaging\CommandMessaging.csproj", "{B47EDDC0-C54A-4393-9CCC-DFF7A2BCBB80}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RepositoryCaching", "RepositoryCaching", "{72E8C35E-860E-A2F6-1C29-F9FD91D5E4DE}"
 EndProject
@@ -39,9 +39,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Api", "src\Web.Api\Web.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cqrs.EntityFrameworkCore", "src\Shared\Cqrs\Cqrs.EntityFrameworkCore\Cqrs.EntityFrameworkCore.csproj", "{2614FECF-F50A-4E56-B812-13364D16D0CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.EntityFrameworkCore", "src\Shared\CommandMessaging\CommandMessaging.EntityFrameworkCore\CommandMessaging.EntityFrameworkCore.csproj", "{2614FECF-F50A-4E56-B812-13364D16D0CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cqrs.AzureServiceBus", "src\Shared\Cqrs\Cqrs.AzureServiceBus\Cqrs.AzureServiceBus.csproj", "{47D15C95-F551-4375-8644-28C9B4BEF23C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.AzureServiceBus", "src\Shared\CommandMessaging\CommandMessaging.AzureServiceBus\CommandMessaging.AzureServiceBus.csproj", "{47D15C95-F551-4375-8644-28C9B4BEF23C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryCaching.EntityFrameworkCore", "src\Shared\RepositoryCaching\RepositoryCaching.EntityFrameworkCore\RepositoryCaching.EntityFrameworkCore.csproj", "{22EF2488-C81F-401D-BFB9-437F938EC07E}"
 EndProject
@@ -55,11 +55,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.UnitTests", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{5A0B3DB2-A3D4-FF64-C3B7-05B9502A12EE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cqrs", "Cqrs", "{6EE4D159-2981-BA0E-8219-F64A3F022CD9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommandMessaging", "CommandMessaging", "{6EE4D159-2981-BA0E-8219-F64A3F022CD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cqrs.UnitTests", "tests\unit\shared\Cqrs\Cqrs.UnitTests\Cqrs.UnitTests.csproj", "{6A7110D1-3D63-4B13-AD65-255DCB42532D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.UnitTests", "tests\unit\shared\CommandMessaging\CommandMessaging.UnitTests\CommandMessaging.UnitTests.csproj", "{6A7110D1-3D63-4B13-AD65-255DCB42532D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cqrs.EntityFrameworkCore.UnitTests", "tests\unit\shared\Cqrs\Cqrs.EntityFrameworkCore.UnitTests\Cqrs.EntityFrameworkCore.UnitTests.csproj", "{16871E7F-4B5F-4948-B0B0-7A6B64144AA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.EntityFrameworkCore.UnitTests", "tests\unit\shared\CommandMessaging\CommandMessaging.EntityFrameworkCore.UnitTests\CommandMessaging.EntityFrameworkCore.UnitTests.csproj", "{16871E7F-4B5F-4948-B0B0-7A6B64144AA9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RepositoryCaching", "RepositoryCaching", "{40BAFFCD-95FC-AC1C-2AF4-81091621B830}"
 EndProject
@@ -69,11 +69,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{CD131889-1F4E-4FE4-82B7-FBB79875F575}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cqrs", "Cqrs", "{18F02641-281B-4F4D-A50C-3BA1D255CD8C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommandMessaging", "CommandMessaging", "{18F02641-281B-4F4D-A50C-3BA1D255CD8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cqrs.IntegrationTests", "tests\integration\shared\Cqrs\Cqrs.IntegrationTests\Cqrs.IntegrationTests.csproj", "{9224383C-5B90-B9AD-B4D4-18D4B7F5D2A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.IntegrationTests", "tests\integration\shared\CommandMessaging\CommandMessaging.IntegrationTests\CommandMessaging.IntegrationTests.csproj", "{9224383C-5B90-B9AD-B4D4-18D4B7F5D2A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiTemplate.IntegrationTests", "tests\integration\WebApiTemplate.IntegrationTests\WebApiTemplate.IntegrationTests.csproj", "{CBA51E3D-3B92-8A8E-B04C-F2592C238748}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.ApplicationTestFixture", "tests\unit\shared\CommandMessaging\CommandMessaging.ApplicationTestFixture\CommandMessaging.ApplicationTestFixture.csproj", "{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandMessaging.DomainTestFixture", "tests\unit\shared\CommandMessaging\CommandMessaging.DomainTestFixture\CommandMessaging.DomainTestFixture.csproj", "{B118C92D-4F41-FF70-40C4-8D52FD49CE36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop.Application", "tests\integration\shared\CommandMessaging\ShopApp\Shop.Application\Shop.Application.csproj", "{25BC3C9B-95A4-4957-A475-75F9F5190B3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shop.Domain", "tests\integration\shared\CommandMessaging\ShopApp\Shop.Domain\Shop.Domain.csproj", "{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Product.App", "tests\integration\shared\CommandMessaging\ProductApp\Product.App\Product.App.csproj", "{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -313,6 +323,66 @@ Global
 		{CBA51E3D-3B92-8A8E-B04C-F2592C238748}.Release|x64.Build.0 = Release|Any CPU
 		{CBA51E3D-3B92-8A8E-B04C-F2592C238748}.Release|x86.ActiveCfg = Release|Any CPU
 		{CBA51E3D-3B92-8A8E-B04C-F2592C238748}.Release|x86.Build.0 = Release|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Debug|x64.Build.0 = Debug|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Debug|x86.Build.0 = Debug|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Release|x64.ActiveCfg = Release|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Release|x64.Build.0 = Release|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Release|x86.ActiveCfg = Release|Any CPU
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87}.Release|x86.Build.0 = Release|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Debug|x64.Build.0 = Debug|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Debug|x86.Build.0 = Debug|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Release|x64.ActiveCfg = Release|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Release|x64.Build.0 = Release|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Release|x86.ActiveCfg = Release|Any CPU
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36}.Release|x86.Build.0 = Release|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Debug|x64.Build.0 = Debug|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Debug|x86.Build.0 = Debug|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Release|x64.ActiveCfg = Release|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Release|x64.Build.0 = Release|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Release|x86.ActiveCfg = Release|Any CPU
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B}.Release|x86.Build.0 = Release|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Debug|x64.Build.0 = Debug|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Debug|x86.Build.0 = Debug|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Release|x64.ActiveCfg = Release|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Release|x64.Build.0 = Release|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Release|x86.ActiveCfg = Release|Any CPU
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06}.Release|x86.Build.0 = Release|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Debug|x64.Build.0 = Debug|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Debug|x86.Build.0 = Debug|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Release|x64.ActiveCfg = Release|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Release|x64.Build.0 = Release|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Release|x86.ActiveCfg = Release|Any CPU
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -349,6 +419,11 @@ Global
 		{18F02641-281B-4F4D-A50C-3BA1D255CD8C} = {CD131889-1F4E-4FE4-82B7-FBB79875F575}
 		{9224383C-5B90-B9AD-B4D4-18D4B7F5D2A8} = {18F02641-281B-4F4D-A50C-3BA1D255CD8C}
 		{CBA51E3D-3B92-8A8E-B04C-F2592C238748} = {29EFB713-7F19-4B55-823A-D35B2877A7E5}
+		{E885ACC4-2F3B-16E1-FFB9-F2B7251ADF87} = {6EE4D159-2981-BA0E-8219-F64A3F022CD9}
+		{B118C92D-4F41-FF70-40C4-8D52FD49CE36} = {6EE4D159-2981-BA0E-8219-F64A3F022CD9}
+		{25BC3C9B-95A4-4957-A475-75F9F5190B3B} = {18F02641-281B-4F4D-A50C-3BA1D255CD8C}
+		{EC6DD7BC-F975-9DD8-ED9C-EBF00FB31B06} = {18F02641-281B-4F4D-A50C-3BA1D255CD8C}
+		{85D60BC9-E358-42E6-A5B3-B3573A3B45F1} = {18F02641-281B-4F4D-A50C-3BA1D255CD8C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3928A5A2-CEA8-4613-BAC3-CD801007A804}
